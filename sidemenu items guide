@@ -1,0 +1,231 @@
+ =>Academics
+Class Timetable
+Teachers Timetable
+Assign Class Teacher
+Promote Students
+Subject Group
+Subjects
+Class
+Sections
+ 
+  =>Alumni
+Manage Alumni
+Events
+ 
+  =>Attendance
+Student Attendance
+Approve Leave
+Attendance By Date
+ 
+  =>Behaviour Records
+Assign Incident
+Incidents
+Reports
+Setting
+ 
+ 
+  =>Certificate
+Student Certificate
+Generate Certificate
+Student ID Card
+Generate ID Card
+Staff ID Card
+Generate Staff ID Card
+ 
+  =>Communicate
+Notice Board
+Send Email
+Send SMS
+Email / SMS Log
+Schedule Email SMS Log
+Login Credentials Send
+Email Template
+SMS Template
+ 
+  =>Download Center
+Content Type
+Content Share List
+Upload /Share Content
+Video Tutorial
+ 
+  =>Examinations
+Exam Group
+Exam Schedule
+Exam Result
+Design Admit Card
+Print Admit Card
+Design Marksheet
+Print Marksheet
+Marks Grade
+Marks Division
+ 
+  =>Expenses
+Add Expense
+Search Expense
+Expense Head
+ 
+  =>Fees Collection
+Collect Fees
+Offline Bank Payments
+Search Fees Payment
+Search Due Fees
+Fees Master
+Fees Group
+Fees Type
+Fees Discount
+Fees Carry Forward
+Fees Reminder
+ 
+  =>Front CMS
+Event
+Gallery
+News
+Media Manager
+Pages
+Menus
+Banner Images
+ 
+  =>Front Office
+Admission Enquiry
+Visitor Book
+Phone Call Log
+Postal Dispatch
+Postal Receive
+Complain
+Setup Front Office
+ 
+ => Gmeet Live Classes
+Live Classes
+Live Meeting
+Live Class Report
+Live Meeting Report
+Setting
+ 
+  =>Homework
+Add Homework
+Daily Assignment
+ 
+  =>Hostel
+Hostel Rooms
+Room Type
+Hostel
+ 
+  =>Human Resource
+Staff Directory
+Staff Attendance
+Payroll
+Approve Leave Request
+Apply Leave
+Leave Type
+Teachers Rating
+Department
+Designation
+Disabled Staff
+ 
+  =>Income
+Add Income
+Search Income
+Income Head
+ 
+ => Inventory
+Issue Item
+Add Item Stock
+Add Item
+Item Category
+Item Store
+Item Supplier
+ 
+  =>Lesson Plan
+Copy Old Lessons
+Manage Lesson Plan
+Manage Syllabus Status
+Lesson
+Topic
+ 
+  =>Library
+Book List
+Issue - Return
+Add Student
+Add Staff Member
+ 
+  =>Multi Branch
+Overview
+Report
+Setting
+ 
+ 
+  =>Online Examinations
+Online Exam
+Question Bank
+ 
+  =>QR Code Attendance
+Attendance
+Setting
+ 
+  =>Reports
+Student Information
+Finance
+Attendance
+Examinations
+Online Examinations
+Lesson Plan
+Human Resource
+Homework
+Library
+Inventory
+Transport
+Hostel
+Alumni
+User Log
+Audit Trail Report
+ 
+  =>Student Information
+Student Details
+Student Admission
+Online Admission
+Disabled Students
+Multi Class Student
+Bulk Delete
+Student Categories
+Student House
+Disable Reason
+ 
+ => System Setting
+General Setting
+Session Setting
+Notification Setting
+SMS Setting
+Email Setting
+Payment Methods
+Print Header Footer
+Front CMS Setting
+Roles Permissions
+Backup Restore
+Languages
+Currency
+Users
+Modules
+Custom Fields
+Captcha Setting
+System Fields
+Student Profile Update
+Online Admission
+File Types
+Sidebar Menu
+System Update
+ 
+ => Transport
+Fees Master
+Pickup Point
+Routes
+Vehicles
+Assign Vehicle
+Route Pickup Point
+Student Transport Fees
+ 
+  =>Zoom Live Classes
+Live Meeting
+Live Classes
+Live Class Report
+Live Meeting Report
+Setting

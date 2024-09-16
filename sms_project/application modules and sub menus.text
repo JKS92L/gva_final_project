@@ -1,0 +1,304 @@
+ User menu
+ ------------------------
+ User List
+ User Responsibilities
+ User Permissions
+
+Teacher menu
+------------------------
+ Assign Subject
+ Lesson Observation
+ File Monitoring
+ Teacher Appraisal
+ Assign responsibility
+ CPD Report
+ Teacher Timetable
+ Teacher Reports
+ Communication Logs
+
+
+Student Information
+------------------------
+ Student Details
+ Student Admission
+ Online Admission
+ Disable Students
+ Bulk Delete
+ Student Categories
+ Student Register
+ Disable Reason
+
+ CPD Meetings
+ -----------------------
+ Schedule CPD Meetings
+ View Upcoming Meetings
+ CPD Meeting Reports
+ CPD Resources
+ Feedback and Evaluation
+ CPD Calendar
+ CPD Attendance Reports
+ Set CPD Goals
+ CPD Budget
+
+
+ Academics
+-----------------------
+ Class Timetable
+ Lesson Register
+ Teachers Timetable
+ Assign Class Teacher
+ Promote Students
+ Subjects
+ Class
+
+Homework
+-----------------------
+ Add Homework
+ Homework Evaluation
+ Evaluation Report
+
+ Sickbay
+ --------------------
+ Prescribe Medication
+ Issue Medication
+ Medical Reports
+ Recommend Actions
+ Patient History
+
+ Library
+ ---------------------
+ Books
+ Issue Return
+ Issue Books
+ Add Books
+
+
+ Departments
+ ------------------
+ Departmental Plans
+ Assign roles
+ Departmental List
+ Departmental Inventory
+
+
+  Committee
+  -----------------
+ Prepare Budget
+ Send Budget
+ Committee Structure
+ Meeting Minutes
+ Task Assignment
+
+ Sports
+ ---------------------
+ Teams
+ Events
+ Tournaments
+ Coaches
+ Athlete Management
+
+ Clubs
+ ---------------------
+ Club List
+ Club Events
+ Membership Management
+ Club Leaders
+ Budget and Finance
+
+
+ Human Resource
+ ----------------------
+ Staff Directory
+ Staff Attendance
+ Leave Request
+ Payroll
+ Payroll Reports
+ Pay Slip
+ HR Reports
+ Management roles
+
+ Hostel
+ ---------------------
+ Hostel Rooms
+ Hostel Members
+ Hostel Fee
+ Hostel Reports
+ Hostel List
+
+ Attendance Register
+ ----------------------
+ Student Attendance
+ Approve Permission
+ Request Permission
+ Attendance By Report
+
+
+  Alumni
+--------------------
+ Manage Alumni
+ Events
+ Alumni List
+ Add Alumni
+ Alumni Reports
+
+
+ Behaviour Records *
+ ---------------------
+ Assign Incident
+ Incidents
+ Reports
+ Setting
+
+
+ Certificate *
+ ----------------------
+ Student Certificate
+ Generate Certificate
+ Student ID Card
+ Generate ID Card
+ Staff ID Card
+ Generate Staff ID Card
+
+
+ Communicate
+ ------------------
+ Notice Board
+ Send Email
+ Send SMS
+ Email / SMS Log
+ Schedule Email SMS Log
+ Login Credentials Send
+ Email Template
+ SMS Template
+
+
+  Tuckshop *
+  ---------------------
+ Inventory Management
+ Sales
+ Orders
+ Suppliers
+ Financial Reports
+
+ Maintenance *
+ -----------------------
+ Request Maintenance
+ Ongoing Repairs
+ Maintenance Schedule
+ Maintenance Reports
+ Service Providers
+
+
+ Item Claim 
+ ----------------------
+ Report Lost Item
+ View Found Items
+ Lost & Found Reports
+
+
+ Download Center *
+ ------------------------
+ Content Type
+ Content Share List
+ Upload / Share Content
+ Video Tutorial
+
+
+ Examinations 
+ -----------------------
+ Publish Results
+ View Results
+ View Results Queries
+ Enter Results
+ View Past Papers
+ Upload to Question Bank
+ Exam Timetables
+ Pupils Performance Report
+ Grading System
+ Generate Report Card
+ Exam Analysis
+
+
+ Expenses
+ ---------------------
+ Add Expense
+ Expense List
+ Expense Group
+ Income Head
+ Income List
+
+
+
+ Fees Collection
+ ----------------------
+ Fees Type
+ Fees Group
+ Fees Master
+ Fees Discount
+ Collect Fees
+ Search Fees Payment
+ Search Due Fees
+ Create invoices
+
+
+  Income
+---------------------
+ Add Income
+ Income List
+ Income Head
+
+
+ Inventory
+ --------------------
+ Issue Item
+ Issue Return
+ Add Item Stock
+ Item Store
+ Item Supplier
+
+
+ Reports
+ ------------------
+ Student Report
+ Staff Report
+ Fees Report
+ Attendance Report
+ Library Report
+ Transport Report
+ Hostel Report
+
+
+
+  Front CMS
+  -----------------------
+ Manage Front CMS
+ Menu Manager
+ Event
+ Gallery
+ Banner Images
+ News
+ Pages
+
+
+ Settings
+ ------------------
+ General Settings
+ Session Settings
+ Notification Settings
+ SMS Settings
+ Email Settings
+ Payment Methods
+ Print Header Footer
+ Front CMS Settings
+ Roles Permissions
+ Backup Restore
+ Languages
+ Currency
+ Users
+ Modules
+ Custom Fields
+
+
+
+
+

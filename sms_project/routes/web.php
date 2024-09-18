@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashController;
 use App\Http\Controllers\examinationTab;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SidebarController;
 use App\Http\Controllers\studentController;
 use App\Http\Controllers\grandBoxController;
 use App\Http\Controllers\teachersController;
@@ -32,6 +33,9 @@ Auth::routes();
 
 // Grouping admin routes with role middleware
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+
+    // left-bar-menu
+    Route::get('/sidebar', [SidebarController::class, 'index'])->name('sidebar');
 
     // Admin dashboard
     Route::get('/dashboard', [UserManagementController::class, 'showDashboard'])
@@ -102,6 +106,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
         ->name('grandbox-app');
     Route::get('/grand-ebuy', [grandEbuyController::class, 'index'])
         ->name('grand-ebuy-app');
+        
 });
 
 

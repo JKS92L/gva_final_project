@@ -126,7 +126,7 @@
                       <div class="widget-user-image">
                           <img class="img-circle elevation-2"
                               src="{{ asset('assets/images/gva_logo/grand view-PNG.png') }}" alt="User Avatar">
-                              public/assets/
+                            
                       </div>
                       <!-- Card Footer with Stats -->
                       <div class="card-footer dropdown-footer text-center">

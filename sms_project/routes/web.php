@@ -33,10 +33,6 @@ Auth::routes();
 
 // Grouping admin routes with role middleware
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
-
-    // left-bar-menu
-    Route::get('/sidebar', [SidebarController::class, 'index'])->name('sidebar');
-
     // Admin dashboard
     Route::get('/dashboard', [UserManagementController::class, 'showDashboard'])
         ->name('admin.dashboard');

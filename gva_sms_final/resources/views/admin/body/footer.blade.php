@@ -19,5 +19,12 @@
 <script src="{{asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 <!-- AdminLTE App -->
 <script src="{{asset('backend/js/adminlte.min.js')}}"></script>
+
+{{-- optional plugins  --}}
+
+<script src="backend/plugins/chart.js/Chart.min.js"></script>
+
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{{asset('backend/js/pages/dashboard3.js')}}"></script>
 </body>
 </html>

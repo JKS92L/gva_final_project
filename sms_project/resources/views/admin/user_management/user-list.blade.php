@@ -18,8 +18,6 @@
         </div>
     </div>
 
-    </div>
-
     <!-- The large modal -->
     <div class="modal fade" id="modal-lg" tabindex="-1" role="dialog" aria-labelledby="modal-lgLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -198,7 +196,7 @@
                         </div>
 
                         <div class="tab-pane fade" id="custom-tabs-pupils" role="tabpanel"
-                            aria-labelledby="custom-tabs-four-pupils-tab" >
+                            aria-labelledby="custom-tabs-four-pupils-tab">
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">

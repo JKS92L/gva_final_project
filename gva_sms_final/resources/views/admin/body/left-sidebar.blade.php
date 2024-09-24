@@ -24,14 +24,14 @@
           </div>
 
           <!-- Sidebar Menu -->
-          <!-- Sidebar Menu -->
           <nav class="mt-2">
               <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                  data-accordion="false">
+                  data-accordion="true">
                   <!-- Loop through each menu -->
                   @foreach ($menus as $menu)
-                      <li class="nav-item {{ count($menu->submenus) > 0 ? 'has-treeview' : '' }}">
-                          <a href="#" class="nav-link">
+                      <li class="nav-item {{ request()->is($menu->menu_name) ? 'menu-open' : '' }}">
+                          <a href="{{ $menu->menu_name }}"
+                              class="nav-link {{ request()->is($menu->menu_name) ? 'active' : '' }}">
                               <i class="nav-icon {{ $menu->icon }}"></i>
                               <p>
                                   {{ $menu->menu_name }}
@@ -47,8 +47,9 @@
                                   <!-- Loop through submenus -->
                                   @foreach ($menu->submenus as $submenu)
                                       <li class="nav-item">
-                                          <a href="#" class="nav-link">
-                                              <i class="fa fa-angle-double-right"></i>
+                                          <a href="{{ Route::has($submenu->url) ? route($submenu->url) : '#' }}"
+                                              class="nav-link {{ request()->is($submenu->url) ? 'active' : '' }}">
+                                              <i class="fas fa-angle-right nav-icon"></i>
                                               <p>{{ $submenu->submenu_name }}</p>
                                           </a>
                                       </li>
@@ -59,6 +60,7 @@
                   @endforeach
               </ul>
           </nav>
+
 
           <!-- /.sidebar-menu -->
       </div>

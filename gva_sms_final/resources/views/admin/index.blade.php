@@ -101,8 +101,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
+  
         <!-- Content Header (Page header) -->
         <div class="content-header">
             <div class="container-fluid">
@@ -636,8 +635,7 @@
             </div><!-- /.container-fluid -->
         </div>
         <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
+   
     <script>
         // Set teacher name in the message modal
         $('#messageTeacherModal').on('show.bs.modal', function(event) {

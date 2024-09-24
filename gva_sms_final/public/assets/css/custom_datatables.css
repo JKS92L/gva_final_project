@@ -1,0 +1,172 @@
+/* General Table Styling */
+.table-hover {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Table Header and Cell Styling */
+.table-hover th,
+.table-hover td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+}
+
+/* Excel-Themed Header Styling */
+.table-hover th {
+    background-color: #4CAF50;
+    color: #FFFFFF;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Sort Icon in Header */
+.table-hover th i.fas.fa-sort {
+    margin-left: 5px;
+    color: #FFFFFF;
+}
+
+/* Striped and Hover Effects for Rows */
+.table-hover tr:nth-child(even) {
+    background-color: #F1F8E9;
+}
+
+.table-hover tr:hover {
+    background-color: #D3E4CD;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+/* Search Input Styling */
+.dataTables_filter input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-left: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.dataTables_filter input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.dataTables_filter label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* DataTable Button Styling */
+.dt-buttons .btn {
+    margin: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+/* Align export buttons to the right and search to the left */
+.dataTables_wrapper .dt-buttons {
+    float: right;
+    margin-bottom: 10px;
+}
+
+.dataTables_filter {
+    float: left;
+    margin-bottom: 10px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+
+    .dataTables_filter,
+    ƒ .dt-buttons {
+        float: none;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .table-hover th,
+    .table-hover td {
+        padding: 5px;
+        font-size: 12px;
+    }
+
+    .dt-buttons .btn {
+        margin-bottom: 5px;
+    }
+}
+
+/* Normalize font and button sizes */
+.dataTables_wrapper .dt-buttons .btn,
+.dataTables_filter input {
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+/* Striped and hover effect for table rows */
+table.dataTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #ddd;
+}
+
+/* search table buttons */
+/* Custom styles for the card */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Add spacing between the two elements */
+.dataTables_wrapper .dataTables_filter {
+    margin-left: auto;
+    /* Push the search box to the right */
+}
+
+/* Adjust the margin between the label and select */
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+    display: flex;
+    align-items: center;
+}
+
+.dataTables_wrapper .dataTables_length label select {
+    margin-left: 5px;
+}

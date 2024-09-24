@@ -4,26 +4,50 @@ This is a starter template page. Use this page to start your new project from
 scratch. This page gets rid of all links and provides the needed markup only.
 -->
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>gva-sms|Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>gva-sms | Dashboard</title>
+    {{-- custom css  --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/custom_datatables.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/gva_sms_theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style_side_navbar.css') }}">
+{{-- public/backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css --}}
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="{{ asset('backend/plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ asset('backend/css/adminlte.min.css') }}">
+    {{-- overlayScrollbars --}}
+    <link rel="stylesheet" href="{{ asset('backend/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
 
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="{{asset('backend/plugins/fontawesome-free/css/all.min.css')}}">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="{{asset('backend/css/adminlte.min.css')}}">
-  {{-- overlayScrollbars --}}
-   <link rel="stylesheet" href="{{ asset('backend/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+    {{-- iCheck --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/all.css" />
+    <!-- IonIcons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 
-   {{-- iCheck --}}
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/all.css" />
-   <!-- IonIcons -->
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('backend/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+    {{-- bootstrap buttons --}}
+    {{-- public/backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css --}}
+    <link rel="stylesheet"
+        href="{{ asset('backend/plugins/datatables-plugins/buttons/css/buttons.bootstrap4.min.css') }}">
+    {{-- toastr --}}
+    <link rel="stylesheet" href="{{ asset('Backend/plugins/toastr/toastr.min.css') }}">
+
 </head>
 
 
-<body class="hold-transition sidebar-mini">
-<div class="wrapper">
+<body
+    class="hold-transition sidebar-mini  layout-fixed layout-navbar-fixed layout-footer-fixed sidebar-closed sidebar-collapse">
+    <div class="wrapper">
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">

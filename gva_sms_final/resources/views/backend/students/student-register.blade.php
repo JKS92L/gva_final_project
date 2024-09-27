@@ -1,14 +1,21 @@
-@extends('layouts.app')
-
-{{-- Customize layout sections --}}
-
-@section('subtitle', 'Student Admission')
-@section('content_header_title', 'Student')
-@section('content_header_subtitle', 'Student Registration')
-
-{{-- Content body: main page content --}}
-
-@section('content_body')
+@extends('admin.admim-master')
+@section('admin_content')
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Users List</h1>
+                </div><!-- /.col -->
+                {{-- <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Users</a></li>
+                        <li class="breadcrumb-item active">List</li>
+                    </ol>
+                </div><!-- /.col --> --}}
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
     {{-- add sibling modal --}}
 
 
@@ -494,41 +501,6 @@
     </div>
     {{-- content here --}}
 
-@stop
-
-{{-- Push extra CSS --}}
-
-@push('css')
-    <style>
-        #preview_img {
-            border: 1px solid #de9307;
-            padding: 5px;
-            border-radius: 5px;
-            margin-top: 10px;
-            max-width: 100%;
-            /* Ensure it fits inside the form container */
-            height: auto;
-            /* Maintain aspect ratio */
-        }
-
-        #reset_btn {
-            background-color: #f39c12;
-            border: none;
-            padding: 8px 12px;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #reset_btn:hover {
-            background-color: #e67e22;
-        }
-    </style>
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
     <script>
         // Dropzone configuration - must be outside the $(document).ready(function()
         Dropzone.options.studentPhotoDropzone = {
@@ -571,4 +543,4 @@
 
         });
     </script>
-@endpush
+@endsection

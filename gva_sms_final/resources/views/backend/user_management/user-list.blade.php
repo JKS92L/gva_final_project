@@ -20,62 +20,240 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <div class="row">
-                <div class="card-tools col-sm-12 text-right p-4">
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-lg">
-                        <i class="fas fa-user-plus"></i>Add New User
-                    </button>
-                </div>
-            </div>
-
-
-
             <!-- The large modal -->
-            <div class="modal fade" id="modal-lg" tabindex="-1" role="dialog" aria-labelledby="modal-lgLabel"
+            <!-- Button to trigger modal -->
+
+
+            <!-- Modal for adding a new teacher -->
+            <div class="modal fade" id="addTeacherModal" tabindex="-1" role="dialog" aria-labelledby="addTeacherModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal-lgLabel">Large Modal</h5>
+                            <h5 class="modal-title" id="addTeacherModalLabel">Add New Teacher</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             <form>
-                                <div class="form-group">
-                                    <label for="exampleInputEmail1">Email address</label>
-                                    <input type="email" class="form-control" id="exampleInputEmail1"
-                                        placeholder="Enter email">
+                                <!-- Personal Information -->
+                                <h6 class="text-primary">Personal Information</h6>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="firstName"
+                                            placeholder="First Name" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="middleName">Middle Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="middleName"
+                                            placeholder="Middle Name">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" class="form-control form-control-sm" id="lastName"
+                                            placeholder="Last Name" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="gender">Gender</label>
+                                        <select class="form-control form-control-sm" id="gender" required>
+                                            <option selected disabled>Choose...</option>
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="dob">Date of Birth</label>
+                                        <input type="date" class="form-control form-control-sm" id="dob" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="email">Email</label>
+                                        <input type="email" class="form-control form-control-sm" id="email"
+                                            placeholder="Email" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="phoneNumber">Phone Number</label>
+                                        <input type="tel" class="form-control form-control-sm" id="phoneNumber"
+                                            placeholder="Phone Number" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="address">Address</label>
+                                        <input type="text" class="form-control form-control-sm" id="address"
+                                            placeholder="Address" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="province">Province</label>
+                                        <input type="text" class="form-control form-control-sm" id="province"
+                                            placeholder="province" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="town">Town</label>
+                                        <input type="text" class="form-control form-control-sm" id="town"
+                                            placeholder="town" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="country">Citizenship</label>
+                                        <input type="text" class="form-control form-control-sm" id="country"
+                                            placeholder="Country" required>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="exampleInputPassword1">Password</label>
-                                    <input type="password" class="form-control" id="exampleInputPassword1"
-                                        placeholder="Password">
+
+                                <!-- Employment Information -->
+                                <h6 class="text-primary">Employment Information</h6>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="employeeId">Employee ID</label>
+                                        <input type="text" class="form-control form-control-sm" id="employeeId"
+                                            placeholder="Employee ID" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="hireDate">Date of Hire</label>
+                                        <input type="date" class="form-control form-control-sm" id="hireDate"
+                                            required>
+                                    </div>
+                                    {{-- <div class="form-group col-md-4">
+                                        <label for="subject">Subject</label>
+                                        <input type="text" class="form-control form-control-sm" id="subject"
+                                            placeholder="Subject" required>
+                                    </div> --}}
+                                    <div class="form-group">
+                                        <label for="department">Department</label>
+                                        <select name="department" id="department" class="form-control">
+                                            <option value="">Select a department</option>
+                                            @foreach ($departments as $department)
+                                                <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    {{-- <div class="form-group col-md-4">
+                                        <label for="position">Position</label>
+                                        <input type="text" class="form-control form-control-sm" id="position"
+                                            placeholder="Position" required>
+                                    </div> --}}
+                                    <div class="form-group col-md-4">
+                                        <label for="yearsExperience">Years of Experience</label>
+                                        <input type="number" class="form-control form-control-sm" id="yearsExperience"
+                                            placeholder="Years of Experience" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="qualifications">Qualifications</label>
+                                        <input type="text" class="form-control form-control-sm" id="qualifications"
+                                            placeholder="Qualifications" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="certifications">Certifications</label>
+                                        <input type="text" class="form-control form-control-sm" id="certifications"
+                                            placeholder="Certifications">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="classAssigned">Class Assigned</label>
+                                        <input type="text" class="form-control form-control-sm" id="classAssigned"
+                                            placeholder="Class Assigned">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="schoolBranch">School Branch</label>
+                                        <input type="text" class="form-control form-control-sm" id="schoolBranch"
+                                            placeholder="School Branch" required>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Example select</label>
-                                    <select class="form-control" id="exampleFormControlSelect1">
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </select>
+
+                                <!-- System Information -->
+                                <h6 class="text-primary">System Information</h6>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control form-control-sm" id="username"
+                                            placeholder="Username" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="password">Password</label>
+                                        <input type="password" class="form-control form-control-sm" id="password"
+                                            placeholder="Password" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="role">Role</label>
+                                        <select class="form-control form-control-sm" id="role" required>
+                                            <option selected disabled>Choose...</option>
+                                            <option>Admin</option>
+                                            <option>Teacher</option>
+                                            <option>Class Teacher</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="status">Status</label>
+                                        <select class="form-control form-control-sm" id="status" required>
+                                            <option selected disabled>Choose...</option>
+                                            <option>Active</option>
+                                            <option>Inactive</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="exampleFormControlTextarea1">Example textarea</label>
-                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+
+                                <!-- Emergency Contact Information -->
+                                <h6 class="text-primary">Emergency Contact Information</h6>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="emergencyContactName">Emergency Contact Name</label>
+                                        <input type="text" class="form-control form-control-sm"
+                                            id="emergencyContactName" placeholder="Contact Name" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="emergencyContactRelation">Relationship</label>
+                                        <input type="text" class="form-control form-control-sm"
+                                            id="emergencyContactRelation" placeholder="Relationship" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="emergencyContactPhone">Emergency Contact Phone</label>
+                                        <input type="tel" class="form-control form-control-sm"
+                                            id="emergencyContactPhone" placeholder="Phone Number" required>
+                                    </div>
+                                </div>
+
+                                <!-- Other Information -->
+                                <h6 class="text-primary">Other Information</h6>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="nationalId">National ID</label>
+                                        <input type="text" class="form-control form-control-sm" id="nationalId"
+                                            placeholder="National ID" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="bankAccountNumber">Bank Account Number</label>
+                                        <input type="text" class="form-control form-control-sm" id="bankAccountNumber"
+                                            placeholder="Bank Account Number" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="workingDays">Working Days</label>
+                                        <input type="text" class="form-control form-control-sm" id="workingDays"
+                                            placeholder="e.g., Mon-Fri" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="workingHoursStart">Working Hours Start</label>
+                                        <input type="time" class="form-control form-control-sm" id="workingHoursStart"
+                                            required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="workingHoursEnd">Working Hours End</label>
+                                        <input type="time" class="form-control form-control-sm" id="workingHoursEnd"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm"
+                                        data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Save Teacher</button>
                                 </div>
                             </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
                         </div>
                     </div>
                 </div>
             </div>
+
 
 
 
@@ -87,8 +265,8 @@
                             <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="custom-tabs-four-all-staff-tab" data-toggle="pill"
-                                        href="#custom-tabs-all-staff" role="tab" aria-controls="custom-tabs-all-staff"
-                                        aria-selected="true">Staff</a>
+                                        href="#custom-tabs-all-staff" role="tab"
+                                        aria-controls="custom-tabs-all-staff" aria-selected="true">Staff</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="custom-tabs-four-all-parents-tab" data-toggle="pill"
@@ -103,7 +281,8 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="custom-tabs-four-all-system-users-tab" data-toggle="pill"
                                         href="#custom-tabs-all-system-users" role="tab"
-                                        aria-controls="custom-tabs-all-system-users" aria-selected="false">System users</a>
+                                        aria-controls="custom-tabs-all-system-users" aria-selected="false">System
+                                        users</a>
                                 </li>
 
                             </ul>
@@ -117,7 +296,21 @@
                                     <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-header">
-                                                <h3 class="card-title">Staff List</h3>
+                                                <h1 class="card-title">Staff List</h1>
+                                                {{-- <div class="row">
+                                                    <div class="card-tools col-sm-12 text-right p-4">
+                                                       
+                                                    </div>
+                                                </div> --}}
+                                                <button type="button"
+                                                    class="btn btn-primary btn-sm card-tools ext-right p-2"
+                                                    data-toggle="modal" data-target="#addTeacherModal">
+                                                    <i class="fas fa-user-plus"></i> Add New Teacher
+                                                </button>
+                                                {{-- <button type="button" class="btn btn-success card-tools ext-right p-2"
+                                                    data-toggle="modal" data-target="#modal-lg">
+                                                    Add New Teacher
+                                                </button> --}}
                                             </div>
                                             <!-- /.card-header -->
                                             <div class="card-body table-responsive p-0">
@@ -404,7 +597,16 @@
             {{-- <link rel="stylesheet" href="/css/custom_datatables.css"> --}}
         </div>
     </div>
+
+    <script>
+        $('.select2').select2();
+        $(document).ready(function() {
+            // $('.select2').select2({
+            //     placeholder: "Select a State", // Custom placeholder
+            //     theme: "classic" // You can change theme here, e.g., 'default', 'bootstrap4'
+            // });
+
+        });
+        $().DataTable()
+    </script>
 @endsection
-<script>
-    $().DataTable()
-</script>

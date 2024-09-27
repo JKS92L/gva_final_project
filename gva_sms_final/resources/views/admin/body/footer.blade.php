@@ -12,12 +12,17 @@
 </div>
 <!-- ./wrapper -->
 <script>
+    $('.select2').select2();
+
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    });
+    // alert('The footer is working...')
     $(document).ready(function() {
-        // Initialize Select2
-        $('.select2').select2();
 
 
-        
+
     });
 </script>
 
@@ -53,6 +58,11 @@
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 
+<!-- Select2 -->
+{{-- <script src="{{asset('backend/plugins/select2/js/select2.full.min.js')}}"></script> --}}
+{{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
+<!-- Select2 -->
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script> --}}
 
 
 <!-- DataTables JS -->

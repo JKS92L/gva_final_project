@@ -1,16 +1,28 @@
-@extends('layouts.app')
-
+@extends('admin.admim-master')
+@section('admin_content')
 {{-- Customize layout sections --}}
 @section('content_header_title', 'Teachers')
 @section('content_header_subtitle', 'Manage User Roles')
 
-@section('content')
+ <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Assign Subject Teachers</h1>
+                </div><!-- /.col -->
+                {{-- <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Users</a></li>
+                        <li class="breadcrumb-item active">List</li>
+                    </ol>
+                </div><!-- /.col --> --}}
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+
 
     <!-- Custom CSS to make the form inline and responsive -->
-
-
-
-
+    
     <!-- Modal -->
     <div class="modal fade" id="assignSubjectModal" tabindex="-1" role="dialog" aria-labelledby="assignSubjectModalLabel"
         aria-hidden="true">
@@ -146,22 +158,7 @@
         </div>
     </div>
 
-@stop
-{{-- Push extra CSS --}}
-@push('css')
-    {{-- <link rel="stylesheet" href="/css/custom_datatables.css"> --}}
-    {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" /> --}}
-    <!-- DataTables CSS -->
-    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"> --}}
-    {{-- table theme for gva_sms --}}
-   
-    <style>
-        /* custom style here */
-    </style>
-@endpush
 
-{{-- Push extra scripts --}}
-@push('js')
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script> --}}
     <!-- DataTables JS -->
     {{-- <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script> --}}
@@ -176,4 +173,5 @@
             $('#assignSubjectTable').DataTable();
         });
     </script>
-@endpush
+
+@endsection

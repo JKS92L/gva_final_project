@@ -1,28 +1,35 @@
-<?php
-
-
+<?php 
 namespace App\Http\Controllers\Backend;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use App\Models\User;
+use App\Models\UserRole;
+use App\Models\Permission; // Assuming you have a Permission model
 
 class UserManagementController extends Controller
 {
-    public function userList()
+    public function view_user_List()
     {
-        // Logic for user list
-        return view('backend.user_management.user-list');
-        //resources/views/backend/user_management/user-list.blade.php
+        $users = User::all(); // Fetch all users
+        return view('backend.user_management.user-list', compact('users'));
     }
+
     public function userResponsibility()
     {
+        // Add any logic related to responsibilities
         return view('backend.user_management.user-responsibilities');
     }
-    public function userPermissions()
-    {
-        // Logic for user permissions
-        return view('backend.user_management.user-permissions');
-        
-    }
+
+    // public function userPermissions()
+    // {
+    //     $permissions = Permission::all(); // Fetch all permissions
+    //     return view('backend.user_management.user-permissions', compact('permissions'));
+    // }
+
+    // public function userRoles()
+    // {
+    //     $roles = UserRole::all(); // Fetch all roles
+    //     return view('backend.user_management.user-roles', compact('roles'));
+    // }
 }

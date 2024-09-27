@@ -1,93 +1,162 @@
-@extends('layouts.app')
+@extends('admin.admim-master')
+@section('admin_content')
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Users Roles</h1>
+                </div><!-- /.col -->
+                {{-- <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Users</a></li>
+                        <li class="breadcrumb-item active">List</li>
+                    </ol>
+                </div><!-- /.col --> --}}
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- Main content -->
+    <div class="content">
 
-{{-- Customize layout sections --}}
-
-@section('subtitle', 'Users-roles')
-@section('content_header_title', 'User  Management')
-@section('content_header_subtitle', 'User Roles')
-
-{{-- Content body: main page content --}}
-
-@section('content_body')
-
-    <div class="row">
-        <!-- Form for adding new roles -->
-        <div class="col-md-6">
-            <div class="form-wrapper">
-                <h4 class="mb-4">Add New Role</h4>
-                <form id="roleForm">
-                    <div class="form-group">
-                        <label for="roleName">Role Name</label>
-                        <input type="text" class="form-control" id="roleName" placeholder="Enter role name" required>
+        <div class="row">
+            <div class="col-md-12">
+                {{-- Add User Role Button --}}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">User Roles</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addRoleModal">
+                                <i class="fas fa-plus-circle"></i> Add New Role
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="roleDescription">Description</label>
-                        <textarea class="form-control" id="roleDescription" rows="3" placeholder="Enter role description" required></textarea>
+                    <div class="card-body">
+                        {{-- User Role Table --}}
+                        <table id="rolesTable" class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th># <i class="fas fa-sort"></i></th>
+                                    <th>Role Name <i class="fas fa-sort"></i></th>
+                                    <th>Description <i class="fas fa-sort"></i></th>
+                                    {{-- <th>Permissions <i class="fas fa-sort"></i></th> --}}
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- Dynamically render roles --}}
+                                @foreach ($roles as $role)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $role->role_name }}</td>
+                                        <td>{{ $role->description }}</td>
+                                        {{-- <td> --}}
+                                            {{-- Assuming you have a relationship between roles and permissions --}}
+                                            {{-- @foreach ($role->permissions as $permission)
+                                                {{ $permission->name }},
+                                            @endforeach --}}
+                                        {{-- </td> --}}
+                                        <td>
+                                            {{-- Edit Button --}}
+                                            <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#editRoleModal-{{ $role->id }}">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            {{-- Delete Button --}}
+                                            <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                data-target="#deleteRoleModal-{{ $role->id }}">
+                                                <i class="fas fa-trash-alt"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    {{-- Edit Role Modal --}}
+                                    <div class="modal fade" id="editRoleModal-{{ $role->id }}" tabindex="-1"
+                                        role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Role: {{ $role->role_name }}</h5>
+                                                    <button type="button" class="close"
+                                                        data-dismiss="modal">&times;</button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="{{ route('roles.update', $role->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="form-group">
+                                                            <label for="roleName">Role Name</label>
+                                                            <input type="text" name="role_name" class="form-control"
+                                                                value="{{ $role->role_name }}" required>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="roleDescription">Description</label>
+                                                            <textarea name="description" class="form-control">{{ $role->description }}</textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Delete Role Modal --}}
+                                    <div class="modal fade" id="deleteRoleModal-{{ $role->id }}" tabindex="-1"
+                                        role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Delete Role: {{ $role->role_name }}</h5>
+                                                    <button type="button" class="close"
+                                                        data-dismiss="modal">&times;</button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete this role?</p>
+                                                    <form action="{{ route('roles.destroy', $role->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Cancel</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Role</button>
-                </form>
+                </div>
             </div>
         </div>
 
-        <!-- Table of existing roles -->
-        <div class="col-md-6">
-            <div class="table-wrapper">
-                <h4 class="mb-4">Existing Roles</h4>
-                <table class="table table-bordered table-hover role-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Role Name</th>
-                            <th>Description</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Example data rows, replace with dynamic content -->
-                        <tr>
-                            <td>1</td>
-                            <td>Administrator</td>
-                            <td>Manages the entire system</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Teacher</td>
-                            <td>Handles classes and students</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
-                        <!-- Add more rows as needed -->
-                    </tbody>
-                </table>
+        {{-- Add Role Modal --}}
+        <div class="modal fade" id="addRoleModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Role</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('roles.store') }}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label for="roleName">Role Name</label>
+                                <input type="text" name="role_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="roleDescription">Description</label>
+                                <textarea name="description" class="form-control"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Role</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-
-
-@stop
-
-{{-- Push extra CSS --}}
-
-@push('css')
-    {{-- Add here extra stylesheets sms_project/public/css/custom_datatables.css --}}
-    <link rel="stylesheet" href="/css/custom_datatables.css">
-    <style>
-        /* custom style here */
-
-    </style>
-@endpush
-
-{{-- Push extra scripts --}}
-
-@push('js')
-    <script>
-        // js scrips here 
-    </script>
-@endpush
+    <script></script>
+@endsection

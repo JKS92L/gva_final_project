@@ -253,9 +253,478 @@
                     </div>
                 </div>
             </div>
+            {{-- add new student modal --}}
+            <div class="modal fade" id="addStudentModal" tabindex="-1" role="dialog"
+                aria-labelledby="addStudentModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="">
+                                <div class="card">
+                                    <div class="card-header">
+
+                                        <h4 class="card-title">Student Form</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="ecz_no" class="small">ECZ Exam Number</label> <small
+                                                        class="req">
+                                                        *</small>
+                                                    <input autofocus id="ecz_no" name="ecz_no" type="number"
+                                                        class="form-control form-control-sm" placeholder="">
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="roll_no" class="small">Grade/Class</label>
+                                                    <select id="class_id" name="class_id"
+                                                        class="form-control form-control-sm">
+                                                        <option value="">Select</option>
+                                                        @foreach ($grades as $grade)
+                                                            <option value="{{ $grade->id }}">
+                                                                {{ $grade->gradeno . ' ' . $grade->class_name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {{-- <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="class_id" class="small">Class</label> <small
+                                                        class="req"> *</small>
+                                                    <select id="class_id" name="class_id"
+                                                        class="form-control form-control-sm">
+                                                        <option value="">Class</option>
+                                                        <option value="1">NS</option>
+                                                        <option value="2">BS</option>
+                                                    </select>
+                                                </div>
+                                            </div> --}}
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="section_id" class="small">Student type</label> <small
+                                                        class="req"> *</small>
+                                                    <select id="section_id" name="section_id"
+                                                        class="form-control form-control-sm">
+                                                        <option value="">Select</option>
+                                                        <option value="">Day scholar</option>
+                                                        <option value="">Boarder</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- More rows here, keeping the structure consistent with form-control-sm -->
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="firstname" class="small">First Name</label> <small
+                                                        class="req"> *</small>
+                                                    <input id="firstname" name="firstname" type="text"
+                                                        class="form-control form-control-sm" placeholder="">
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="lastname" class="small">Last Name</label>
+                                                    <input id="lastname" name="lastname" type="text"
+                                                        class="form-control form-control-sm" placeholder="">
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="other_name" class="small">Other Name</label>
+                                                    <input id="other_name" name="other_name" type="text"
+                                                        class="form-control form-control-sm" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="gender" class="small">Gender</label> <small
+                                                        class="req"> *</small>
+                                                    <select class="form-control form-control-sm" name="gender">
+                                                        <option value="">Select</option>
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="dob" class="small">Date of Birth</label> <small
+                                                        class="req">
+                                                        *</small>
+                                                    <input id="dob" name="dob" type="date"
+                                                        class="form-control form-control-sm date" placeholder="">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="nrc_id_no" class="small">NRC Or PASSPORT CARD #</label>
+                                                    <input id="nrc_id_no" name="nrc_id_no" type="text"
+                                                        class="form-control form-control-sm" placeholder="">
+                                                </div>
+                                            </div>
+                                            <!-- Religion -->
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="religion" class="small">Religion</label>
+                                                    <input id="religion" name="religion" type="text"
+                                                        class="form-control form-control-sm" placeholder="Religion">
+                                                </div>
+                                            </div>
+                                            <!-- Date of Admission -->
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="admission_date" class="small">Date of Admission</label>
+                                                    <input id="admission_date" name="admission_date" type="date"
+                                                        class="form-control form-control-sm">
+                                                </div>
+                                            </div>
+                                            <!-- Medical Condition -->
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="medical_condition" class="small">Medical
+                                                        Condition</label>
+                                                    <textarea id="medical_condition" name="medical_condition" class="form-control form-control-sm"
+                                                        placeholder="Medical Condition"></textarea>
+                                                </div>
+                                            </div>
+                                            <!-- Student Photo -->
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="student_photo" class="small">Student Photo</label>
+                                                    <form action="/upload" class="dropzone" id="studentPhotoDropzone">
+                                                        <div class="dz-message">
+                                                            <h5>Drag & Drop to Upload or Click</h5>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div id="image_preview" class="mt-2">
+                                                    <!-- The reset button will appear here after upload -->
+                                                    <button id="reset_btn" class="btn btn-warning btn-sm mt-2"
+                                                        style="display:none;">Reset
+                                                        Photo</button>
+                                                </div>
+                                            </div>
+
+
+                                            <!-- Add Sibling Button -->
+
+                                            <div class="col-md-3">
+                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                    data-target="#addSiblingModal">
+                                                    Add Sibling
+                                                </button>
+                                            </div>
 
 
 
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Student Hostel Details Card -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Student Hostel Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <!-- Hostel Name -->
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="hostel_name" class="small">Hostel Name</label>
+                                                    <select class="form-control form-control-sm" name="hostel_name">
+                                                        <option value="">Select Hostel</option>
+                                                        @foreach ($hostels as $hostel)
+                                                            <option value="{{ $hostel->hostel_id }}">{{ $hostel->hostel_name.'( '.$hostel->hostel_gender.' )' }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Room Number -->
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="room_number" class="small">Bedspace Number</label>
+                                                    <select class="form-control form-control-sm" name="Room_no">
+                                                        <option value="">Select bedspace no</option>
+                                                        <option value="room_no">RM 4</option>
+                                                        <option value="Hostel_Name">RM 5</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <!-- Hostel Supervisor -->
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="hostel_supervisor" class="small">Hostel
+                                                        Teacher</label>
+                                                    <input id="hostel_supervisor" name="hostel_supervisor" type="text"
+                                                        class="form-control form-control-sm" placeholder="Mr. SIR..."
+                                                        disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Guadian Details Card -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Parent/Guardin Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="around10">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1" class="small">Father
+                                                                Name</label>
+                                                            <input id="father_name" name="father_name" placeholder=""
+                                                                type="text" class="form-control form-control-sm"
+                                                                autocomplete="off">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Father
+                                                                Phone</label>
+                                                            <input id="father_phone" name="father_phone" placeholder=""
+                                                                type="text" class="form-control form-control-sm"
+                                                                autocomplete="off">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Father
+                                                                Occupation</label>
+                                                            <input id="father_occupation" name="father_occupation"
+                                                                placeholder="" type="text"
+                                                                class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Father
+                                                                Phone</label><small class="req">
+                                                                *</small>
+                                                            <input id="father_phone" name="father_phone" placeholder=""
+                                                                type="number" class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Father
+                                                                Phone</label>
+                                                            <input id="father_email" name="father_email" placeholder=""
+                                                                type="text" class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <label for="exampleInputEmail1"class="small">Father Address</label>
+                                                        <textarea id="father_address" name="father_address" placeholder="" class="form-control form-control-sm"
+                                                            rows="2"></textarea>
+
+                                                    </div>
+                                                    <br class="text-danger" style="width: 100%">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Mother
+                                                                Name</label>
+                                                            <input id="mother_name" name="mother_name" placeholder=""
+                                                                type="text" class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Mother
+                                                                Phone</label>
+                                                            <input id="mother_phone" name="mother_phone" placeholder=""
+                                                                type="text" class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Mother
+                                                                Occupation</label>
+                                                            <input id="mother_occupation" name="mother_occupation"
+                                                                placeholder="" type="text"
+                                                                class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Mother
+                                                                Phone</label><small class="req">
+                                                                *</small>
+                                                            <input id="mother_phone" name="mother_phone" placeholder=""
+                                                                type="number" class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label for="exampleInputEmail1"class="small">Mother's
+                                                                Email</label>
+                                                            <input id="mother_email" name="mother_email" placeholder=""
+                                                                type="text" class="form-control form-control-sm">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-9">
+                                                        <label for="exampleInputEmail1"class="small">Mother's
+                                                            Address</label>
+                                                        <textarea id="mather_address" name="mather_address" placeholder="" class="form-control form-control-sm"
+                                                            rows="2"></textarea>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Fee Details Card -->
+                                <div class="card mt-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Fee Details</h5>
+                                        <div>
+                                            <button id="select-all" class="btn btn-info btn-sm mr-2">Select
+                                                All</button>
+                                            <button id="deselect-all" class="btn btn-secondary btn-sm">Deselect
+                                                All</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row col-md-12">
+                                            <ul class="list-group col-md-12">
+                                                <!-- Fees Header -->
+                                                <li class="list-group-item d-flex">
+                                                    <span class="col-md-4 font-weight-bold">Fees Type</span>
+                                                    <span class="col-md-2 text-center font-weight-bold">Interval</span>
+                                                    <span class="col-md-2 text-center font-weight-bold">Amount (ZMK)</span>
+                                                    <span class="col-md-2 text-right font-weight-bold">Account No</span>
+                                                </li>
+
+                                                <!-- Fee Items from the database -->
+                                                @foreach ($fees as $fee)
+                                                    <li class="list-group-item d-flex align-items-center">
+                                                        <div class="col-md-4 d-flex align-items-center">
+                                                            <input class="mr-2 fee-checkbox" type="checkbox"
+                                                                name="fee_session_group_id[]" value="{{ $fee->id }}"
+                                                                autocomplete="off">
+                                                            {{ $fee->fee_type }}
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            <span>{{ ucfirst($fee->fee_interval) }}</span>
+                                                        </div>
+                                                        <div class="col-md-2 text-center">
+                                                            <span>{{ number_format($fee->amount, 2)}}</span>
+                                                        </div>
+                                                        <div class="col-md-2 text-right">
+                                                            <span>{{ $fee->account_no ?? 'N/A' }}</span>
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- Login  details-->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5>Login details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Additional Input Fields -->
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="email" class="small">Email</label>
+                                                    <input id="email" name="email" type="email"
+                                                        class="form-control form-control-sm" autocomplete="off"
+                                                        placeholder="Enter Email" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="phone_number" class="small">Phone Number</label>
+                                                    <input id="phone_number" name="phone_number" type="text"
+                                                        class="form-control form-control-sm" autocomplete="off"
+                                                        placeholder="Enter Phone Number" required>
+                                                </div>
+                                            </div>
+                                            <!-- Username -->
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="username" class="small">Username</label>
+                                                    <input id="username" name="username" type="text"
+                                                        class="form-control form-control-sm" autocomplete="off"
+                                                        placeholder="Enter Username" required>
+                                                </div>
+                                            </div>
+                                            <!-- Password -->
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="password" class="small">Password</label>
+                                                    <input id="password" name="password" type="password"
+                                                        class="form-control form-control-sm" autocomplete="off"
+                                                        placeholder="Enter Password" required>
+                                                </div>
+                                            </div>
+                                            <!-- Confirm Password -->
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="confirm_password" class="small">Confirm Password</label>
+                                                    <input id="confirm_password" name="confirm_password" type="password"
+                                                        class="form-control form-control-sm" autocomplete="off"
+                                                        placeholder="Confirm Password" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                                <div class="card-footer d-flex">
+                                    <button type="submit" class="btn btn-success bg-gradient-success btn-md ml-auto">
+                                        <i class="fas fa-user-plus"></i>
+                                        Register
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
             <div class="row">
@@ -307,10 +776,6 @@
                                                     data-toggle="modal" data-target="#addTeacherModal">
                                                     <i class="fas fa-user-plus"></i> Add New Teacher
                                                 </button>
-                                                {{-- <button type="button" class="btn btn-success card-tools ext-right p-2"
-                                                    data-toggle="modal" data-target="#modal-lg">
-                                                    Add New Teacher
-                                                </button> --}}
                                             </div>
                                             <!-- /.card-header -->
                                             <div class="card-body table-responsive p-0">
@@ -363,7 +828,12 @@
                                         <div class="card">
                                             <!-- /.card-header -->
                                             <div class="card-header">
-                                                <h3 class="card-title">Parents List</h3>
+                                                <h1 class="card-title">Parents List</h1>
+                                                <button type="button"
+                                                    class="btn btn-primary btn-sm card-tools ext-right p-2"
+                                                    data-toggle="modal" data-target="#addParentModal">
+                                                    <i class="fas fa-user-plus"></i> Add new parent
+                                                </button>
                                             </div>
                                             <div class="card-body table-responsive p-0">
                                                 <table class="table table-hover text-nowrap" id="allParentsTable">
@@ -408,7 +878,12 @@
                                     <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-header">
-                                                <h3 class="card-title">All pupils list</h3>
+                                                <h1 class="card-title">Students List</h1>
+                                                <button type="button"
+                                                    class="btn btn-primary btn-sm card-tools ext-right p-2"
+                                                    data-toggle="modal" data-target="#addStudentModal">
+                                                    <i class="fas fa-user-plus"></i> Add new student
+                                                </button>
                                             </div>
                                             <!-- /.card-header -->
                                             <div class="card-body table-responsive p-0">
@@ -599,14 +1074,24 @@
     </div>
 
     <script>
-        $('.select2').select2();
-        $(document).ready(function() {
-            // $('.select2').select2({
-            //     placeholder: "Select a State", // Custom placeholder
-            //     theme: "classic" // You can change theme here, e.g., 'default', 'bootstrap4'
-            // });
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllButton = document.getElementById('select-all');
+            const deselectAllButton = document.getElementById('deselect-all');
+            const checkboxes = document.querySelectorAll('.fee-checkbox');
 
+            // Select all checkboxes
+            selectAllButton.addEventListener('click', function() {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+
+            // Deselect all checkboxes
+            deselectAllButton.addEventListener('click', function() {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
         });
-        $().DataTable()
     </script>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Grade;
 use App\Models\Teacher;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class TeacherController extends Controller
     public function index()
     {
         $departments = Department::all();
+        $departments = Grade::all();
         $users = Teacher::all(); // Fetch all users
         return view('backend.user_management.user-list', compact('users', 'departments'));
     }

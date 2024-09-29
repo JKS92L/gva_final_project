@@ -34,14 +34,14 @@ Auth::routes();
 
 
 // Define a middleware for authenticated users
-Route::middleware(['auth'])->group(function () {
+Route::prefix('admin')->middleware(['auth'])->group(function () {
     // logout
     Route::get('/admin/login', [AdminController::class, 'Logout'])->name('admin.logout');
     
     // User Management Routes
     Route::prefix('/users')->group(function () {
 
-        Route::get('/list', [TeacherController::class, 'index'])->name('view.users');
+        Route::get('/list', [UserManagementController::class, 'view_user_List'])->name('view.users');
         // Route::post('/list', [TeacherController::class, 'teachersForm'])->name('view.teachers.form');
         // CRUD Route
         Route::post('/teachers', [RoleController::class, 'create'])->name('teachers.store');
@@ -99,5 +99,9 @@ Route::middleware(['auth'])->group(function () {
     // //CRUD CONTROLLERS 
     // Route::resource('/roles', 
     // [RoleController::class,'index'])->name('user-roles');
+    
+    // grade and frade teachers
+    // Route::resource('grades', GradeController::class);
+    // Route::resource('grade-teachers', GradeTeacherController::class);
 
 });

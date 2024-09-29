@@ -6,24 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateGradesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->integer('gradeno'); // Grade number (e.g., 10, 11, etc.)
+            $table->string('class_name'); // Name of the class (e.g., "Form 1A")
+            $table->string('section')->nullable(); // Optional section (e.g., "A", "B")
+            $table->string('level')->nullable(); // Educational level (e.g., "Secondary", "Primary")
+            $table->integer('capacity')->default(40); // Maximum capacity of students in the grade
+            $table->enum('status', ['active', 'inactive'])->default('active'); // Active or inactive grade
+            $table->timestamps(); // Created_at and updated_at columns
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('grades');

@@ -1,0 +1,128 @@
+
+1. Exams
+exam_id (Primary Key)
+exam_name
+exam_type (e.g., midterm, final, quiz)
+class_id (Foreign Key to Classes)
+subject_id (Foreign Key to Subjects)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+total_marks
+exam_date
+status
+created_by (Foreign Key to Users)
+created_at
+updated_at
+
+
+2. Exam_Results
+result_id (Primary Key)
+exam_id (Foreign Key to Exams)
+student_id (Foreign Key to Students)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+marks_obtained
+grade
+remarks
+status
+created_at
+updated_at
+
+
+3. Exam_Schedules
+schedule_id (Primary Key)
+exam_id (Foreign Key to Exams)
+class_id (Foreign Key to Classes)
+subject_id (Foreign Key to Subjects)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+date
+start_time
+end_time
+room_no
+invigilator_id (Foreign Key to Teachers)
+created_at
+updated_at
+
+
+4. Exam_Retakes
+retake_id (Primary Key)
+exam_id (Foreign Key to Exams)
+student_id (Foreign Key to Students)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+retake_date
+marks_obtained
+created_at
+updated_at
+
+
+5. Exam_Fees
+fee_id (Primary Key)
+exam_id (Foreign Key to Exams)
+student_id (Foreign Key to Students)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+amount_due
+amount_paid
+due_date
+payment_status
+created_at
+updated_at
+
+
+6. Exam_Academic_Years
+This table can remain separate or can be absorbed by Exams, based on the system design. However, if this table remains, it serves as a link between specific exams and academic years/terms.
+
+exam_academic_year_id (Primary Key)
+exam_id (Foreign Key to Exams)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+status
+created_at
+updated_at
+
+
+7. Exam_Invigilators
+invigilator_id (Primary Key)
+exam_id (Foreign Key to Exams)
+teacher_id (Foreign Key to Teachers)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+session_id (Foreign Key to Exam_Sessions)
+status
+created_at
+updated_at
+
+
+8. Grade_Teacher
+id (Primary Key)
+user_id (Foreign Key to Users)
+grade_id (Foreign Key to Grades)
+academic_year_id (Foreign Key to Academic_Years)
+term (reference to term number)
+status
+created_at
+updated_at
+
+
+9. Grade
+id (Primary Key)
+grade_no
+class_name
+section
+academic_year_id (Foreign Key to Academic_Years)
+status
+created_at
+updated_at
+
+
+10. HOD
+id (Primary Key)
+user_id (Foreign Key to Users)
+department_id (Foreign Key to Departments)
+academic_year_id (Foreign Key to Academic_Years)
+date_appointed
+status
+created_at
+updated_at

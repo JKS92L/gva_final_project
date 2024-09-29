@@ -1,18 +1,37 @@
-<?php 
+<?php
+
 namespace App\Http\Controllers\Backend;
 
+use App\Models\Fee;
+use App\Models\User;
+use App\Models\Grade;
+use App\Models\Hostel;
+use App\Models\Teacher;
+use App\Models\UserRole;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\UserRole;
 use App\Models\Permission; // Assuming you have a Permission model
 
 class UserManagementController extends Controller
 {
     public function view_user_List()
     {
-        $users = User::all(); // Fetch all users
-        return view('backend.user_management.user-list', compact('users'));
+        $departments = Department::all();
+        $grades = Grade::all();
+        $fees = Fee::all();
+        $users = Teacher::all(); // Fetch all users
+        $hostels = Hostel::all();
+
+        return view(
+            'backend.user_management.user-list',
+            compact(
+                'departments',
+                'grades',
+                'fees',
+                'hostels'
+            )
+        );
     }
 
     public function userResponsibility()

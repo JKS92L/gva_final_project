@@ -6,15 +6,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <html lang="en">
 
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>gva-sms | Dashboard</title>
     {{-- custom css  --}}
+   
     <link rel="stylesheet" href="{{ asset('assets/css/custom_datatables.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/gva_sms_theme.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style_side_navbar.css') }}">
-    {{-- public/backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css --}}
+   
     <!-- Google Font: Source Sans Pro -->
+
     <!-- Select2 -->
     <link rel="stylesheet" href="{{asset('backend/plugins/select2/css/select2.min.css')}}">
     <link rel="stylesheet" href="{{asset('backend/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
@@ -33,7 +36,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{{ asset('backend/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}"> --}}
     {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> --}}
       <!-- Select2 -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+        {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" /> --}}
 
 
     {{-- iCheck --}}
@@ -50,10 +53,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     {{-- bootstrap buttons --}}
     {{-- public/backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css --}}
-    <link rel="stylesheet"
-        href="{{ asset('backend/plugins/datatables-plugins/buttons/css/buttons.bootstrap4.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-plugins/buttons/css/buttons.bootstrap4.min.css') }}"> --}}
+     {{-- public/backend/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css --}}
     {{-- toastr --}}
-    <link rel="stylesheet" href="{{ asset('Backend/plugins/toastr/toastr.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/plugins/toastr/toastr.min.css') }}">
+  
 
 </head>
 

@@ -1,0 +1,1 @@
+alert('Plugins Path Correct');

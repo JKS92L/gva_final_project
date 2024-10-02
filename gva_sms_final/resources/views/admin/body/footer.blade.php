@@ -19,21 +19,12 @@
         theme: 'bootstrap4'
     });
     // alert('The footer is working...')
-    $(document).ready(function() {
-
-
-
-    });
 </script>
-
-
-
-<!-- REQUIRED SCRIPTS -->
-
 <!-- jQuery -->
-<script src="{{ asset('backend/plugins/jquery/jquery.min.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
 <!-- AdminLTE App -->
 <script src="{{ asset('backend/js/adminlte.min.js') }}"></script>
 
@@ -59,11 +50,7 @@
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 
 <!-- Select2 -->
-{{-- <script src="{{asset('backend/plugins/select2/js/select2.full.min.js')}}"></script> --}}
-{{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
-<!-- Select2 -->
-{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script> --}}
-
+<script src="{{ asset('backend/plugins/select2/js/select2.full.min.js') }}"></script>
 
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>

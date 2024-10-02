@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Bedspace;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExaminationTab;
@@ -9,11 +10,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Backend\teacher;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\BedspaceController;
+//CRUD CONTROLLERS
 use App\Http\Controllers\GrandBoxController;
 use App\Http\Controllers\GrandEbuyController;
 use App\Http\Controllers\Backend\ProfileController;
-
-//CRUD CONTROLLERS
 use App\Http\Controllers\Backend\TeachersController;
 use App\Http\Controllers\Backend\UserManagementController;
 
@@ -34,14 +35,21 @@ Auth::routes();
 
 
 // Define a middleware for authenticated users
+// Route::prefix('admin')->middleware(['auth'])->group(function () {
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     // logout
     Route::get('/admin/login', [AdminController::class, 'Logout'])->name('admin.logout');
-    
+
     // User Management Routes
     Route::prefix('/users')->group(function () {
 
         Route::get('/list', [UserManagementController::class, 'view_user_List'])->name('view.users');
+
+        // Route::get('/student/create', [UserManagementController::class, 'teacherIndex'])->name('create.teacher');
+
+        //  Add a new route for the AJAX call to fetch bedspaces
+        // Route::get('/fetch-bedspaces', [UserManagementController::class, 'fetchBedspaces'])->name('fetch.bedspaces');
+
         // Route::post('/list', [TeacherController::class, 'teachersForm'])->name('view.teachers.form');
         // CRUD Route
         Route::post('/teachers', [RoleController::class, 'create'])->name('teachers.store');
@@ -51,7 +59,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('/responsibility', [UserManagementController::class, 'userResponsibility'])->name('user-responsibility');
         Route::get('/permissions', [UserManagementController::class, 'userPermissions'])->name('user-permissions');
 
-          // CRUD routes for roles
+        // CRUD routes for roles
         Route::get('/roles', [RoleController::class, 'index'])->name('view-roles');
         Route::post('/roles', [RoleController::class, 'create'])->name('roles.store');
         Route::put('/roles/{id}', [RoleController::class, 'edit'])->name('roles.update');
@@ -65,8 +73,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     // Profile Management Route
     Route::get('/profile', [ProfileController::class, 'viewProfile'])->name('admin.view-profile');
 
-
-
     // // Teacher Management Routes
     Route::prefix('teachers')->group(function () {
         Route::get('/assign-subject', [TeachersController::class, 'assignSubject'])->name('assign-subject');
@@ -76,11 +82,16 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 
     // // Student Management Routes
-    // Route::prefix('students')->group(function () {
-    //     Route::get('/details', [StudentController::class, 'studentDetails'])->name('student-details');
-    //     Route::get('/admission', [StudentController::class, 'studentAdmission'])->name('student-admission');
-    //     // Add more student routes as needed 
-    // });
+    Route::prefix('students')->group(function () {
+        Route::get('/details', [studentController::class, 'studentDetails'])->name('student-details');
+        Route::get('/admission', [StudentController::class, 'studentAdmission'])->name('student-admission');
+        // STUDENT CRUD
+        Route::get('/view-student-form', [StudentController::class, 'viewRegForm'])->name('view.studentreg.form');
+        
+        // ajax call to fetch bedspaces 
+        Route::get('/fetch-bedspaces', [StudentController::class, 'fetchBedspaces'])->name('fetch.bedspaces');
+
+    });
 
     // // Examination Management Routes
     // Route::prefix('exams')->group(function () {
@@ -99,7 +110,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     // //CRUD CONTROLLERS 
     // Route::resource('/roles', 
     // [RoleController::class,'index'])->name('user-roles');
-    
+
     // grade and frade teachers
     // Route::resource('grades', GradeController::class);
     // Route::resource('grade-teachers', GradeTeacherController::class);

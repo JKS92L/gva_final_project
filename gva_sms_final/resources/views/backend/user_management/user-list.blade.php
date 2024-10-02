@@ -445,37 +445,40 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="hostel_name" class="small">Hostel Name</label>
-                                                    <select class="form-control form-control-sm" name="hostel_name">
+                                                    <select class="form-control form-control-sm" id="hostel_name"
+                                                        name="hostel_name">
                                                         <option value="">Select Hostel</option>
                                                         @foreach ($hostels as $hostel)
-                                                            <option value="{{ $hostel->hostel_id }}">{{ $hostel->hostel_name.'( '.$hostel->hostel_gender.' )' }}
+                                                            <option value="{{ $hostel->hostel_id }}">
+                                                                {{ $hostel->hostel_name . '( ' . $hostel->hostel_gender . ' )' }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
-                                            <!-- Room Number -->
+
+                                            <!-- Bedspace Number -->
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label for="room_number" class="small">Bedspace Number</label>
-                                                    <select class="form-control form-control-sm" name="Room_no">
-                                                        <option value="">Select bedspace no</option>
-                                                        <option value="room_no">RM 4</option>
-                                                        <option value="Hostel_Name">RM 5</option>
+                                                    <label for="bedspaceSelect" class="small">Bedspace Number</label>
+                                                    <select class="form-control form-control-sm" id="bedspaceSelect"
+                                                        name="bedspaceSelect">
+                                                        
                                                     </select>
                                                 </div>
                                             </div>
+
                                             <!-- Hostel Supervisor -->
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label for="hostel_supervisor" class="small">Hostel
-                                                        Teacher</label>
+                                                    <label for="hostel_supervisor" class="small">Hostel Teacher</label>
                                                     <input id="hostel_supervisor" name="hostel_supervisor" type="text"
                                                         class="form-control form-control-sm" placeholder="Mr. SIR..."
                                                         disabled>
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                                 <!-- Guadian Details Card -->
@@ -642,7 +645,7 @@
                                                             <span>{{ ucfirst($fee->fee_interval) }}</span>
                                                         </div>
                                                         <div class="col-md-2 text-center">
-                                                            <span>{{ number_format($fee->amount, 2)}}</span>
+                                                            <span>{{ number_format($fee->amount, 2) }}</span>
                                                         </div>
                                                         <div class="col-md-2 text-right">
                                                             <span>{{ $fee->account_no ?? 'N/A' }}</span>
@@ -1074,24 +1077,6 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectAllButton = document.getElementById('select-all');
-            const deselectAllButton = document.getElementById('deselect-all');
-            const checkboxes = document.querySelectorAll('.fee-checkbox');
-
-            // Select all checkboxes
-            selectAllButton.addEventListener('click', function() {
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = true;
-                });
-            });
-
-            // Deselect all checkboxes
-            deselectAllButton.addEventListener('click', function() {
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-            });
-        });
+     
     </script>
 @endsection

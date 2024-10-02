@@ -16,7 +16,7 @@ class Bedspace extends Model
         'bedspace_no',
     ];
 
-    // Define the relationship with the Hostel model
+    // Relationship with Hostel model
     public function hostel()
     {
         return $this->belongsTo(Hostel::class, 'hostel_id');

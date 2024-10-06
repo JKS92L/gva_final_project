@@ -1,17 +1,24 @@
-@extends('layouts.app')
-
-{{-- Customize layout sections --}}
-
-@section('subtitle', 'Student Setails')
-@section('content_header_title', 'Students')
-@section('content_header_subtitle', 'Student List')
-
-{{-- Content body: main page content --}}
-
-@section('content_body')
-
+@extends('admin.admim-master')
+@section('admin_content')
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-success">Student Details</h1>
+                </div>
+                <!-- /.col -->
+                {{-- <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Student Details</a></li>
+                        <li class="breadcrumb-item active">List</li>
+                    </ol>
+                </div> --}}
+                <!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
     {{-- content here --}}
-    <div class="container mt-5">
+    <div class="container col-md-12">
 
         <!-- Brief Tags for Stats -->
         <div class="row">
@@ -93,174 +100,200 @@
                             <th>D.O.B</th>
                             <th>Gender</th>
                             <th>Siblings</th>
-                            <th>Guardian Name</th>
-                            <th>Residential Address</th>
+                            <th>Hostel (Bedspace#)</th>
                             <th>Guardian Contact No.</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Example Row -->
-                        <tr>
-                            <td>12345</td>
-                            <td>John Doe</td>
-                            <td>12-A</td>
-                            <td>Boarder</td>
-                            <td>15/06/2008</td>
-                            <td>Male</td>
-                            <td>
-                                <a href="#" data-toggle="tooltip" title="Mike Doe (Grade 10 - Class B)">
-                                    1
-                                </a>
-                            </td>
-                            <td>Jane Doe</td>
-                            <td>123 Residential Street</td>
-                            <td>+260 956 123456</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#viewModal">
-                                    View
-                                </button>
-                                <button class="btn btn-warning btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>00123</td>
-                            <td>Chomba Mwansa</td>
-                            <td>12</td>
-                            <td>Boarder</td>
-                            <td>12/09/2008</td>
-                            <td>Male</td>
-                            <td><a href="#" data-toggle="tooltip" title="Mulenga Mwansa (Grade 10, Class A)">1</a>
-                            </td>
-                            <td>James Mwansa</td>
-                            <td>Plot 45, Mufulira, Copperbelt</td>
-                            <td>+260 972 567890</td>
-                            <td>
-                                <button class="btn btn-info btn-sm">View</button>
-                                <button class="btn btn-warning btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                        @foreach ($students as $student)
+                            <tr>
+                                <td>{{ $student->ecz_no }}</td>
+                                <td>{{ $student->firstname }} {{ $student->lastname }}</td>
+                                <td>
+                                    {{-- {{ $student->grade->name }} <!-- Assuming grade is a related model --> --}}
+                                 work on the grade ids
+                                </td> 
+                               
+                                <td>{{ $student->student_type }}</td>
+                                <td>{{ $student->dob->format('d/m/Y') }}</td>
+                                <td>{{ $student->gender }}</td>
+                                <td>
+                                    <a href="#" data-toggle="tooltip"
+                                        title="@foreach ($student->siblings as $sibling) {{ $sibling->name }} @if (!$loop->last), @endif @endforeach">
+                                        {{ $student->siblings->count() }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ $student->hostel ? $student->hostel->firstname . ' (' . $student->bedspace_id . ')' : 'N/A' }}
+                                </td>
+                                <td>{{ $student->father_phone ?? ($student->mother_phone ?? 'N/A') }}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                        data-target="#viewModal-{{ $student->id }}">
+                                        View
+                                    </button>
+                                    {{-- <a href=" {{ route('students.edit', $student->id) }}" class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a> --}}
+                                   <a href="#" class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a>
+                                    <form action="#" method="POST"
+                                        style="display:inline-block;">
+                                        
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                    {{-- <form action="{{ route('students.destroy', $student->id) }}" method="POST"
+                                        style="display:inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form> --}}
+                                </td>
+                            </tr>
 
-                        <!-- Pupil 2 -->
-                        <tr>
-                            <td>00456</td>
-                            <td>Linda Chibale</td>
-                            <td>11</td>
-                            <td>Day Scholar</td>
-                            <td>23/05/2009</td>
-                            <td>Female</td>
-                            <td><a href="#" data-toggle="tooltip" title="None">0</a></td>
-                            <td>Angela Chibale</td>
-                            <td>Chalala, Lusaka</td>
-                            <td>+260 955 123456</td>
-                            <td>
-                                <button class="btn btn-info btn-sm">View</button>
-                                <button class="btn btn-warning btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                            <!-- View Modal for each student -->
+                            <!-- View More Modal -->
+                            <div class="modal fade" id="viewModal" tabindex="-1" role="dialog"
+                                aria-labelledby="viewModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="viewModalLabel">Student Details</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <!-- Pupil's Photo ID -->
+                                                <div class="col-md-4 text-center">
+                                                    <img src="{{ $student->student_photo ? asset('storage/students/' . $student->student_photo) : '/path/to/default-photo.jpg' }}"
+                                                        id="modalPupilPhoto" class="img-fluid img-thumbnail"
+                                                        alt="Pupil Photo" style="max-width: 150px;">
+                                                    <h6 class="mt-2">Pupil's Photo</h6>
+                                                </div>
 
-                        <!-- Pupil 3 -->
-                        <tr>
-                            <td>00789</td>
-                            <td>Kabwe Bwalya</td>
-                            <td>10</td>
-                            <td>Boarder</td>
-                            <td>17/02/2010</td>
-                            <td>Male</td>
-                            <td><a href="#" data-toggle="tooltip" title="Lombe Bwalya (Grade 7, Class C)">1</a></td>
-                            <td>Charles Bwalya</td>
-                            <td>Kabwe Central, Central Province</td>
-                            <td>+260 964 789012</td>
-                            <td>
-                                <button class="btn btn-info btn-sm">View</button>
-                                <button class="btn btn-warning btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
-                        <!-- Add more rows dynamically -->
+                                                <!-- Pupil's Details -->
+                                                <div class="col-md-8">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Exam Number: <span
+                                                                    id="modalExamNumber">{{ $student->ecz_no }}</span></h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Pupil's Name: <span
+                                                                    id="modalPupilName">{{ $student->firstname }}
+                                                                    {{ $student->lastname }}</span></h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Grade: <span
+                                                                    id="modalGrade">
+                                                                    {{-- {{ $student->grade->gradeno }} --}}
+                                                                    Work on the grade ids
+                                                                </span></h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Class: <span
+                                                                    id="modalClass">{{ $student->class_id }}</span></h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Student Type: <span
+                                                                    id="modalStudentType">{{ $student->student_type }}</span>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>D.O.B: <span
+                                                                    id="modalDOB">{{ $student->dob->format('d/m/Y') }}</span>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Gender: <span
+                                                                    id="modalGender">{{ $student->gender }}</span></h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Siblings:
+                                                                <span id="modalSiblings">
+                                                                    @if ($student->siblings->count() > 0)
+                                                                        @foreach ($student->siblings as $sibling)
+                                                                            {{ $sibling->firstname }}
+                                                                            {{ $sibling->lastname }}
+                                                                            ({{ $sibling->grade->name }} - Class
+                                                                            {{ $sibling->class_id }})
+                                                                            @if (!$loop->last)
+                                                                                ,
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @else
+                                                                        None
+                                                                    @endif
+                                                                </span>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Guardian Name: <span
+                                                                    id="modalGuardianName">{{ $student->father_name ?? $student->mother_name }}</span>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Guardian Contact: <span
+                                                                    id="modalGuardianContact">{{ $student->father_phone ?? $student->mother_phone }}</span>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <h6>Residential Address: <span
+                                                                    id="modalResAddress">{{ $student->father_address ?? ($student->mother_address ?? 'N/A') }}</span>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Hostel: <span
+                                                                    id="modalHostel">{{ $student->hostel->name ?? 'N/A' }}</span>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Bedspace: <span
+                                                                    id="modalBedspace">{{ $student->bedspace_id ?? 'N/A' }}</span>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Medical Condition: <span
+                                                                    id="modalMedical">{{ $student->medical_condition ?? 'None' }}</span>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Admission Date: <span
+                                                                    id="modalAdmission">{{ $student->admission_date->format('d/m/Y') }}</span>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        <!-- View More Modal -->
-        <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="viewModalLabel">Student Details</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <!-- Pupil's Photo ID -->
-                            <div class="col-md-4 text-center">
-                                <img src="/path/to/default-photo.jpg" id="modalPupilPhoto" class="img-fluid img-thumbnail"
-                                    alt="Pupil Photo" style="max-width: 150px;">
-                                <h6 class="mt-2">Pupil's Photo</h6>
-                            </div>
-
-                            <!-- Pupil's Details -->
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Exam Number: <span id="modalExamNumber">12345</span></h6>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Pupil's Name: <span id="modalPupilName">John Doe</span></h6>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Grade: <span id="modalGrade">12</span></h6>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Class: <span id="modalClass">A</span></h6>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Student Type: <span id="modalStudentType">Boarder</span></h6>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>D.O.B: <span id="modalDOB">15/06/2008</span></h6>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Gender: <span id="modalGender">Male</span></h6>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Siblings: <span id="modalSiblings">Mike Doe (Grade 10, Class B)</span></h6>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Guardian Name: <span id="modalGuardianName">Jane Doe</span></h6>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Guardian Contact: <span id="modalGuardianContact">+260 956 123456</span></h6>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h6>Residential Address: <span id="modalResAddress">123 Residential Street</span>
-                                        </h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -269,22 +302,14 @@
 
 
 
-@stop
 
-{{-- Push extra CSS --}}
-
-@push('css')
     {{-- Add here extra stylesheets sms_project/public/css/custom_datatables.css --}}
-    
-    
+
+
     <style>
 
     </style>
-@endpush
 
-{{-- Push extra scripts --}}
-
-@push('js')
     <script>
         // js scrips here 
 
@@ -469,8 +494,8 @@
             // initializeDataTable('#juniorExamTable', true, [0, 1, 2, 3, 4, 5, 6]);
 
             // Add search buttons ONLY for these tables
-          
+
 
         });
     </script>
-@endpush
+@endsection

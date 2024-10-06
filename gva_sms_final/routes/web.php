@@ -83,13 +83,18 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     // // Student Management Routes
     Route::prefix('students')->group(function () {
+        // views 
         Route::get('/details', [studentController::class, 'studentDetails'])->name('student-details');
         Route::get('/admission', [StudentController::class, 'studentAdmission'])->name('student-admission');
-        // STUDENT CRUD
-        Route::get('/view-student-form', [StudentController::class, 'viewRegForm'])->name('view.studentreg.form');
+        Route::get('/student-registration-form', [StudentController::class, 'viewRegForm'])->name('view.studentreg.form');
         
         // ajax call to fetch bedspaces 
         Route::get('/fetch-bedspaces', [StudentController::class, 'fetchBedspaces'])->name('fetch.bedspaces');
+
+        // STUDENT CRUD
+        Route::post('/store', [StudentController::class, 'store'])->name('students.store');
+        
+       
 
     });
 

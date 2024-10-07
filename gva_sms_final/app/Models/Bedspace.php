@@ -21,4 +21,10 @@ class Bedspace extends Model
     {
         return $this->belongsTo(Hostel::class, 'hostel_id');
     }
+    // public function students() // one bedspace can only accommodate one student
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'bedspace_id');
+    }
+
 }

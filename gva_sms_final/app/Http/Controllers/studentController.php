@@ -22,7 +22,7 @@ class StudentController extends Controller
     public function studentDetails()
     {
         // Fetch all students with related data like grade, hostel, siblings, and guardians
-        $students = Student::with(['grade', 'siblings', 'hostel'])->get();
+        $students = Student::with(['grade', 'siblings', 'hostel', 'bedspace'])->get();
         return view('backend.students.student-details', compact('students'));
     }
 
@@ -58,9 +58,12 @@ class StudentController extends Controller
         $grades = Grade::all();
         $fees = Fee::all();
         $hostels = Hostel::all();
+        // Eager load the grades with students
+        $students = Student::with('grade')->get();
 
-        return view('backend.students.student-register', compact('departments', 'grades', 'fees', 'hostels'));
+        return view('backend.students.student-register', compact('departments', 'grades', 'fees', 'hostels', 'students'));
     }
+
 
     // AJAX method to fetch bedspaces for the selected hostel
     public function fetchBedspaces(Request $request)
@@ -74,11 +77,18 @@ class StudentController extends Controller
         ]);
     }
 
-    // Store a new student and link siblings and parent (both nullable)
+    //register a new student
     public function store(Request $request)
     {
         // Validate request data including photo validation
         $request->validate([
+            // User table fields
+            'username' => 'required|string|max:255|unique:users,username',
+            'student_email' => 'required|email|unique:users,email|max:255',
+            'student_phone_number' => 'nullable|string|max:15',
+            'password' => 'required|string|min:4|confirmed',
+
+            // Student table fields
             'ecz_no' => 'required|string|max:255',
             'class_id' => 'required|exists:grades,id',
             'student_type' => 'required|string|max:255',
@@ -92,9 +102,11 @@ class StudentController extends Controller
             'medical_condition' => 'nullable|string|max:255',
             'hostel_id' => 'nullable|exists:hostels,hostel_id',
             'sibling_ids' => 'nullable|array',
-            'student_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:4048', // Validate image
+            'student_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:4048',
             'bedspace_id' => 'nullable|exists:bedspaces,id',
             'hostel_teacher_id' => 'nullable|exists:teachers,id',
+
+            // Parent table fields
             'father_name' => 'nullable|string|max:255',
             'father_phone' => 'nullable|string|max:15',
             'father_occupation' => 'nullable|string|max:255',
@@ -106,46 +118,34 @@ class StudentController extends Controller
             'mother_email' => 'nullable|email|max:255',
             'mother_address' => 'nullable|string|max:255',
             'fee_session_group_id' => 'nullable|exists:fees,fee_id',
-            'username' => 'required|string|max:255|unique:students,username',
-            'student_phone_number' => 'nullable|string|max:15',
-            'student_email' => 'required|email|unique:students,student_email|max:255',
-            'password' => 'required|string|min:4|confirmed'
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Handle the file upload (if a file was uploaded)
-            $photoPath = null;
-            if ($request->hasFile('student_photo')) {
-                $photo = $request->file('student_photo');
-                $photoPath = $photo->store('uploads/students', 'public'); // Store the photo in the 'public' disk
-            }
+            // Handle file upload (if photo exists)
+            $photoPath = $request->hasFile('student_photo') ? $request->file('student_photo')->store('uploads/students', 'public') : null;
 
-            // Create or fetch the parent
-            $parent = null;
-            if ($request->input('father_name') || $request->input('mother_name')) {
-                $parent = StudentParent::firstOrCreate(
-                    ['father_name' => $request->input('father_name'), 'mother_name' => $request->input('mother_name')],
-                    [
-                        'father_phone' => $request->input('father_phone'),
-                        'mother_phone' => $request->input('mother_phone'),
-                        'father_email' => $request->input('father_email'),
-                        'mother_email' => $request->input('mother_email'),
-                        'father_address' => $request->input('father_address'),
-                        'mother_address' => $request->input('mother_address'),
-                    ]
-                );
-            }
+            // Create student user account in the 'users' table
+            $user = User::create([
+                'username' => $request->input('username'),
+                'contact_number' => $request->input('student_phone_number'),
+                'email' => $request->input('student_email'),
+                'role_id' => 3, // Student role ID
+                'name' => $request->input('firstname') . ' ' . $request->input('lastname'),
+                'password' => Hash::make($request->input('password')),
+                'profile_picture' => $photoPath,
+                'status' => 1, // Active status
+            ]);
 
-            // Create the student record
+            // Create student record in the 'students' table
             $student = Student::create([
+                'user_id' => $user->id,
                 'ecz_no' => $request->input('ecz_no'),
                 'class_id' => $request->input('class_id'),
                 'student_type' => $request->input('student_type'),
                 'firstname' => $request->input('firstname'),
                 'lastname' => $request->input('lastname'),
-                'other_name' => $request->input('other_name'),
                 'gender' => $request->input('gender'),
                 'dob' => $request->input('dob'),
                 'nrc_id_no' => $request->input('nrc_id_no'),
@@ -153,47 +153,137 @@ class StudentController extends Controller
                 'admission_date' => $request->input('admission_date'),
                 'medical_condition' => $request->input('medical_condition'),
                 'hostel_id' => $request->input('hostel_id'),
-                'sibling_ids' => $request->input('sibling_ids'),
-                'student_photo' => $photoPath, // Save the photo path
+                'sibling_ids' => json_encode($request->input('sibling_ids', [])),
+                'student_photo' => $photoPath,
                 'bedspace_id' => $request->input('bedspace_id'),
                 'hostel_teacher_id' => $request->input('hostel_teacher_id'),
-                'parent_id' => $parent ? $parent->id : null,  // Nullable parent ID
-                'username' => $request->input('username'),
-                'student_phone_number' => $request->input('student_phone_number'),
-                'student_email' => $request->input('student_email'),
-                'password' => Hash::make($request->input('password')),  // Hash the password before saving
             ]);
 
-            // If siblings are provided, link them
-            if ($request->has('sibling_ids')) {
-                foreach ($request->input('sibling_ids') as $siblingId) {
-                    $sibling = Student::find($siblingId);
-                    if ($sibling) {
-                        $sibling->parent_id = $student->parent_id;
-                        $sibling->save();
-                    }
-                }
+            // Handle sibling linking and check if parent should be disabled
+            if (!empty($request->input('sibling_ids'))) {
+                // Link siblings and fetch the parent from the first sibling
+                $this->linkSiblings($request->input('sibling_ids'), $student);
+            } else {
+                // Create or link parent record in the 'parents' table
+                $parent = $this->createOrUpdateParent($request, $student);
             }
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Student registered successfully!');
+            return redirect()->back()->with('success', 'Student and parent registered successfully!');
         } catch (\PDOException $e) {
-            // Rollback the transaction if there's an exception
             DB::rollBack();
-
-            // Log and return the error
             Log::error('Database error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Database error: ' . $e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
-
-            // Log and return general error
             Log::error('An error occurred: ' . $e->getMessage());
-
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
-    // Other methods...
+    /**
+     * Create or update the parent record in the 'parents' and 'users' table.
+     */
+    // protected function createOrUpdateParent($request, $student)
+    // {
+    //     // Check if parent exists by email (father or mother)
+    //     $parent = StudentParent::where('father_email', $request->input('father_email'))
+    //         ->orWhere('mother_email', $request->input('mother_email'))
+    //         ->first();
+
+    //     if (!$parent) {
+    //         // Create new parent record
+    //         $parent = StudentParent::create([
+    //             'father_name' => $request->input('father_name'),
+    //             'mother_name' => $request->input('mother_name'),
+    //             'father_phone' => $request->input('father_phone'),
+    //             'mother_phone' => $request->input('mother_phone'),
+    //             'father_email' => $request->input('father_email'),
+    //             'mother_email' => $request->input('mother_email'),
+    //             'father_address' => $request->input('father_address'),
+    //             'mother_address' => $request->input('mother_address'),
+    //         ]);
+
+    //         // Create parent user account in the 'users' table
+    //         $parentUser = User::create([
+    //             'username' => $request->input('father_email') ?: $request->input('mother_email'),
+    //             'email' => $request->input('father_email') ?: $request->input('mother_email'),
+    //             'user_role' => 5, // Parent role ID
+    //             'name' => $request->input('father_name') ?: $request->input('mother_name'),
+    //             'password' => Hash::make('default-password'), // Set default password, to be updated by parent
+    //             'status' => 1, // Active status
+    //         ]);
+    //     }
+
+    //     // Instead of using attach(), we directly set the parent_id
+    //     $student->parent_id = $parent->id;
+    //     $student->save();
+
+    //     return $parent;
+    // }
+    protected function createOrUpdateParent($request, $student)
+    {
+        // Check if parent exists by email (father or mother)
+        $parent = StudentParent::where('father_email', $request->input('father_email'))
+        ->orWhere('mother_email', $request->input('mother_email'))
+        ->first();
+
+        if (!$parent) {
+            // Create new parent record
+            $parent = StudentParent::create([
+                'father_name' => $request->input('father_name'),
+                'mother_name' => $request->input('mother_name'),
+                'father_phone' => $request->input('father_phone'),
+                'mother_phone' => $request->input('mother_phone'),
+                'father_email' => $request->input('father_email'),
+                'mother_email' => $request->input('mother_email'),
+                'father_address' => $request->input('father_address'),
+                'mother_address' => $request->input('mother_address'),
+            ]);
+
+            // **Make sure you are creating the parent user account**
+            User::create([
+                'username' => $request->input('father_email') ?: $request->input('mother_email'),
+                'email' => $request->input('father_email') ?: $request->input('mother_email'),
+                'contact_number' => $request->input('mother_phone').'/'.$request->input('father_phone'),
+                'role_id' => 5, // Parent role ID
+                'name' => $request->input('father_name') ?: $request->input('mother_name'),
+                'password' => Hash::make('gva-sms'), // Set default password, to be updated by parent
+                'status' => 1, // Active status
+            ]);
+        }
+
+        // Set the parent_id in the student record
+        $student->parent_id = $parent->id;
+        $student->save();
+
+        return $parent;
+    }
+
+    /**
+     * Link siblings to the same parent.
+     **/
+    protected function linkSiblings(array $siblingIds, $student)
+    {
+        if (count($siblingIds) > 0) {
+            // Assume the first sibling has the correct parent (use the first sibling's parent_id)
+            $firstSibling = Student::find($siblingIds[0]);
+
+            if ($firstSibling && $firstSibling->parent_id) {
+                // Set the new student's parent_id to that of the first sibling
+                $student->parent_id = $firstSibling->parent_id;
+                $student->save();
+            }
+
+            // Optionally, link the rest of the siblings to ensure they share the same parent
+            foreach ($siblingIds as $siblingId) {
+                $sibling = Student::find($siblingId);
+                if ($sibling && $sibling->parent_id !== $student->parent_id) {
+                    $sibling->parent_id = $student->parent_id;
+                    $sibling->save();
+                }
+            }
+        }
+    }
 }

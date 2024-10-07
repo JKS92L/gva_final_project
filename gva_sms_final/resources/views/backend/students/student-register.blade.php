@@ -1,5 +1,27 @@
 @extends('admin.admim-master')
 @section('admin_content')
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-success">Student Register</h1>
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item">
+                            <a href="http://127.0.0.1:8000/admin/students/details" class="btn btn-primary btn-sm"
+                                role="button">
+                                View Student List
+                            </a>
+                        </li>
+                    </ol>
+
+                </div>
+                <!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
     <!-- Content Header (Page header) -->
     <style>
         /* Additional CSS for styling the components */
@@ -27,7 +49,7 @@
             background-color: #e0a800;
         }
     </style>
-    {{-- add sibling modal --}}
+
 
 
     <div class="container">
@@ -45,6 +67,7 @@
 
 
         <div class="card-body">
+
             <form method="POST" action="{{ route('students.store') }}" enctype="multipart/form-data">
                 @csrf
                 @if ($errors->any())
@@ -85,18 +108,7 @@
                                     </select>
                                 </div>
                             </div>
-                            {{-- <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="class_id" class="small">Class</label> <small
-                                                        class="req"> *</small>
-                                                    <select id="class_id" name="class_id"
-                                                        class="form-control form-control-sm">
-                                                        <option value="">Class</option>
-                                                        <option value="1">NS</option>
-                                                        <option value="2">BS</option>
-                                                    </select>
-                                                </div>
-                                            </div> --}}
+
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="student_type" class="small">Student type</label> <small class="req">
@@ -189,11 +201,18 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="sibling_names" class="small">Select Siblings</label>
-                                    <select id="sibling_names" class="form-control small bg-success select2"
-                                        name="sibling_ids[]" multiple="multiple" style="max-width: 100%">
-                                        <option value="1">John Doe (Female - G11A)</option>
-                                        <option value="2">Jane Doe (Female -G11B)</option>
+                                    <select id="sibling_names" class="form-control small select2" name="sibling_ids[]"
+                                        multiple="multiple" style="max-width: 100%">
+                                        @foreach ($students as $student)
+                                            <option value="{{ $student->id }}">
+                                                {{ ucwords($student->firstname) }} {{ ucwords($student->lastname) }}
+                                                ({{ ucfirst($student->gender) }})
+                                                - {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}
+                                            </option>
+                                        @endforeach
                                     </select>
+
+
                                 </div>
                             </div>
                             <!-- Student Photo -->
@@ -471,7 +490,8 @@
                                     <input id="password_confirmation" name="password_confirmation" type="password"
                                         class="form-control form-control-sm" autocomplete="off"
                                         placeholder="Confirm Password" required>
-                                         <span id="password_match_error" style="color: red; display: none;">Passwords do not match</span>
+                                    <span id="password_match_error" style="color: red; display: none;">Passwords do not
+                                        match</span>
                                 </div>
                             </div>
 
@@ -611,6 +631,44 @@
                     document.getElementById('password_match_error').style.display = 'none';
                 }
             });
+
+
+
+
+
+            // disable or clear parents input fields when a sibling is selected
+            function toggleParentFields(disabled, clearFields = false) {
+                const parentFields = $(
+                    '#father_name, #father_phone, #father_occupation, #father_email, #father_address, ' +
+                    '#mother_name, #mother_phone, #mother_occupation, #mother_email, #mother_address');
+
+                parentFields.prop('disabled', disabled); // Disable or enable fields
+
+                if (clearFields) {
+                    // Clear the values in the fields
+                    parentFields.val('');
+                }
+            }
+
+            // Initially enable parent input fields
+            toggleParentFields(false);
+
+            // Event listener for sibling selection change
+            $('#sibling_names').on('change', function() {
+                // Check if any sibling is selected
+                let selectedSiblings = $(this).val();
+
+                if (selectedSiblings.length > 0) {
+                    // If a sibling is selected, disable and clear parent input fields
+                    toggleParentFields(true, true);
+                } else {
+                    // If no sibling is selected, enable parent input fields (without clearing)
+                    toggleParentFields(false);
+                }
+            });
+
+
+
 
         });
     </script>

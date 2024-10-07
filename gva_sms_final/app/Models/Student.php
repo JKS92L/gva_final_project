@@ -15,39 +15,26 @@ class Student extends Model
 
     // Specify which attributes are mass assignable
     protected $fillable = [
-        'ecz_no',
-        'class_id',
-        'student_type',
-        'firstname',
-        'lastname',
-        'other_name',
-        'gender',
-        'dob',
-        'nrc_id_no',
-        'religion',
-        'admission_date',
-        'medical_condition',
-        'sibling_ids',
-        'student_photo',
-        'hostel_id',
-        'bedspace_id',
-        'hostel_teacher_id',
-        'father_name',
-        'father_phone',
-        'father_occupation',
-        'father_email',
-        'father_address',
-        'mother_name',
-        'mother_phone',
-        'mother_occupation',
-        'mother_email',
-        'mother_address',
-        'fee_session_group_id',
-        'username',
-        'student_phone_number',
-        'student_email',
-        'password'
+        'user_id',                // Foreign key linking to the users table
+        'ecz_no',                 // Examination number
+        'class_id',               // Foreign key for the class the student belongs to
+        'student_type',           // Type of student (e.g., full-time, part-time)
+        'firstname',              // Student's first name
+        'lastname',               // Student's last name
+        'other_name',             // Any other names
+        'gender',                 // Gender of the student
+        'dob',                    // Date of birth
+        'nrc_id_no',              // National Registration Card ID number
+        'religion',               // Student's religion
+        'admission_date',         // Date of admission
+        'medical_condition',      // Any medical conditions the student has
+        'hostel_id',              // Foreign key for the hostel (if applicable)
+        'sibling_ids',            // JSON-encoded array of sibling IDs
+        'student_photo',          // Path to the student's photo
+        'bedspace_id',            // Foreign key for the bedspace in the hostel
+        'hostel_teacher_id',      // Foreign key for the hostel teacher
     ];
+
 
     // Define casts for attributes that should be automatically converted to native types
     protected $casts = [
@@ -57,26 +44,37 @@ class Student extends Model
         'sibling_ids' => 'array', // JSON field
     ];
 
+
     public function grade()
     {
-        return $this->belongsTo(Grade::class);
+        return $this->belongsTo(Grade::class, 'class_id'); // 'class_id' is the foreign key in the students table.
     }
+    
 
     public function hostel()
     {
         return $this->belongsTo(Hostel::class);
     }
-
-    // Relationship to Parent (for siblings)
-    public function parent()
+    public function bedspace()
     {
-        return $this->belongsTo(Parent::class);
+        return $this->belongsTo(Bedspace::class);
     }
 
     // Relationship for Siblings (students who share the same parent)
     public function siblings()
     {
         return $this->hasMany(Student::class, 'parent_id', 'parent_id')
-        ->where('id', '!=', $this->id);  // Exclude the current student
+            ->where('id', '!=', $this->id);  // Exclude the current student
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(StudentParent::class, 'parent_id');
+    }
+
 }

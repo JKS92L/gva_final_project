@@ -38,4 +38,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'status' => 'boolean',  // Cast 'status' to a boolean
     ];
+
+
+    public function parent()
+    {
+        return $this->hasOne(StudentParent::class);
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
 }

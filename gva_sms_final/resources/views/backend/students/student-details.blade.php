@@ -7,12 +7,13 @@
                     <h1 class="m-0 text-success">Student Details</h1>
                 </div>
                 <!-- /.col -->
-                {{-- <div class="col-sm-6">
+                <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Student Details</a></li>
-                        <li class="breadcrumb-item active">List</li>
+                        <li class="breadcrumb-item">
+                            <a href="{{route('view.studentreg.form')}}">Register New Student</a></li>
+                       
                     </ol>
-                </div> --}}
+                </div>
                 <!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->

@@ -35,6 +35,14 @@ class Hostel extends Model
         return $this->belongsTo(Teacher::class, 'hostel_teacher_id');
     }
 
+
+
+    // A hostel can have many students
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'hostel_id');
+    }
+
     // Relationship with the Bedspace model
     public function bedspaces()
     {

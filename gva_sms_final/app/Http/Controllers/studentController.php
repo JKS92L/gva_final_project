@@ -22,9 +22,57 @@ class StudentController extends Controller
     public function studentDetails()
     {
         // Fetch all students with related data like grade, hostel, siblings, and guardians
-        $students = Student::with(['grade', 'siblings', 'hostel', 'bedspace'])->get();
+        $students = Student::with(['grade', 'siblings', 'hostel', 'bedspace', 'parent'])->get();
         return view('backend.students.student-details', compact('students'));
     }
+
+    // student CRUD
+    public function edit($id)
+    {
+        // Fetch the student with related data (grade, siblings, hostel, bedspace, parent) and user data
+        $student = Student::with(['grade', 'siblings', 'hostel', 'bedspace', 'parent', 'user'])
+        ->findOrFail($id);
+
+        // Fetch the user associated with the student
+        $user = $student->user; // Assuming the User model is defined with the proper relationship
+
+        // Fetch all grades for the class dropdown
+        $grades = Grade::all();
+
+        // Fetch all hostels for the hostel dropdown
+        $hostels = Hostel::all(); // Ensure you have a Hostel model
+
+        // Fetch bedspaces for the selected hostel
+        $bedspaces = Bedspace::where('hostel_id', $student->hostel_id)->get(); // Assuming bedspaces have a 'hostel_id' column
+
+        // Fetch all students for the siblings select field
+        $students = Student::where('sibling_ids', '!=', $id)->get(); // Get all students except the current one
+
+        // Fetch all fees and decode the fee_session_group_id JSON
+        $fees = Fee::all(); // Fetch all fees
+        // Decode the fee_session_group_id JSON, ensuring it's always an array
+        $selectedFeeIds = json_decode($student->fee_session_group_id, true) ?? []; // Default to an empty array if null
+
+
+        // Return the edit view with the student and user data, and other necessary data
+        return view('backend.students.edit', compact('student', 'user', 'grades', 'hostels', 'bedspaces', 'students', 'fees', 'selectedFeeIds'));
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+        $student->update($request->all());
+        return redirect()->route('student-details')->with('success', 'Student updated successfully');
+    }
+    public function destroy($id)
+    {
+        $student = Student::findOrFail($id);
+        $student->delete();
+        return redirect()->route('student-details')->with('success', 'Student deleted successfully');
+    }
+
+
 
     public function studentAdmission()
     {
@@ -185,53 +233,29 @@ class StudentController extends Controller
     /**
      * Create or update the parent record in the 'parents' and 'users' table.
      */
-    // protected function createOrUpdateParent($request, $student)
-    // {
-    //     // Check if parent exists by email (father or mother)
-    //     $parent = StudentParent::where('father_email', $request->input('father_email'))
-    //         ->orWhere('mother_email', $request->input('mother_email'))
-    //         ->first();
-
-    //     if (!$parent) {
-    //         // Create new parent record
-    //         $parent = StudentParent::create([
-    //             'father_name' => $request->input('father_name'),
-    //             'mother_name' => $request->input('mother_name'),
-    //             'father_phone' => $request->input('father_phone'),
-    //             'mother_phone' => $request->input('mother_phone'),
-    //             'father_email' => $request->input('father_email'),
-    //             'mother_email' => $request->input('mother_email'),
-    //             'father_address' => $request->input('father_address'),
-    //             'mother_address' => $request->input('mother_address'),
-    //         ]);
-
-    //         // Create parent user account in the 'users' table
-    //         $parentUser = User::create([
-    //             'username' => $request->input('father_email') ?: $request->input('mother_email'),
-    //             'email' => $request->input('father_email') ?: $request->input('mother_email'),
-    //             'user_role' => 5, // Parent role ID
-    //             'name' => $request->input('father_name') ?: $request->input('mother_name'),
-    //             'password' => Hash::make('default-password'), // Set default password, to be updated by parent
-    //             'status' => 1, // Active status
-    //         ]);
-    //     }
-
-    //     // Instead of using attach(), we directly set the parent_id
-    //     $student->parent_id = $parent->id;
-    //     $student->save();
-
-    //     return $parent;
-    // }
     protected function createOrUpdateParent($request, $student)
     {
         // Check if parent exists by email (father or mother)
         $parent = StudentParent::where('father_email', $request->input('father_email'))
-        ->orWhere('mother_email', $request->input('mother_email'))
-        ->first();
+            ->orWhere('mother_email', $request->input('mother_email'))
+            ->first();
 
         if (!$parent) {
-            // Create new parent record
+            // First, create the parent user account
+            $parentUser = User::create([
+                'username' => $request->input('father_email') ?: $request->input('mother_email'),
+                'email' => $request->input('father_email') ?: $request->input('mother_email'),
+                'contact_number' => $request->input('mother_phone') . '/' . $request->input('father_phone'),
+                'role_id' => 5, // Parent role ID
+                'name' => $request->input('father_name') ?: $request->input('mother_name'),
+                'password' => Hash::make('gva-sms'), // Set default password, to be updated by parent
+                'status' => 1, // Active status
+            ]);
+
+            // Now create the parent record and insert the user_id from the created user
             $parent = StudentParent::create([
+                'user_id' => $parentUser->id, // Associate with the user created above
+                'student_ids' => json_encode([$student->id]), // Insert student ID
                 'father_name' => $request->input('father_name'),
                 'mother_name' => $request->input('mother_name'),
                 'father_phone' => $request->input('father_phone'),
@@ -241,17 +265,6 @@ class StudentController extends Controller
                 'father_address' => $request->input('father_address'),
                 'mother_address' => $request->input('mother_address'),
             ]);
-
-            // **Make sure you are creating the parent user account**
-            User::create([
-                'username' => $request->input('father_email') ?: $request->input('mother_email'),
-                'email' => $request->input('father_email') ?: $request->input('mother_email'),
-                'contact_number' => $request->input('mother_phone').'/'.$request->input('father_phone'),
-                'role_id' => 5, // Parent role ID
-                'name' => $request->input('father_name') ?: $request->input('mother_name'),
-                'password' => Hash::make('gva-sms'), // Set default password, to be updated by parent
-                'status' => 1, // Active status
-            ]);
         }
 
         // Set the parent_id in the student record
@@ -260,6 +273,7 @@ class StudentController extends Controller
 
         return $parent;
     }
+
 
     /**
      * Link siblings to the same parent.
@@ -276,12 +290,28 @@ class StudentController extends Controller
                 $student->save();
             }
 
-            // Optionally, link the rest of the siblings to ensure they share the same parent
+            // Link the newly registered student ID to each existing sibling's sibling_ids
             foreach ($siblingIds as $siblingId) {
                 $sibling = Student::find($siblingId);
-                if ($sibling && $sibling->parent_id !== $student->parent_id) {
-                    $sibling->parent_id = $student->parent_id;
-                    $sibling->save();
+                if ($sibling) {
+                    // Decode the existing sibling_ids from JSON
+                    $currentSiblingIds = json_decode($sibling->sibling_ids, true) ?? [];
+
+                    // Check if the new student's ID is already in the array to avoid duplicates
+                    if (!in_array($student->id, $currentSiblingIds)) {
+                        // Add the new student's ID to the sibling_ids
+                        $currentSiblingIds[] = $student->id;
+
+                        // Encode the array back to JSON and save it
+                        $sibling->sibling_ids = json_encode($currentSiblingIds);
+                        $sibling->save();
+                    }
+
+                    // Optionally, ensure the sibling shares the same parent_id
+                    if ($sibling->parent_id !== $student->parent_id) {
+                        $sibling->parent_id = $student->parent_id;
+                        $sibling->save();
+                    }
                 }
             }
         }

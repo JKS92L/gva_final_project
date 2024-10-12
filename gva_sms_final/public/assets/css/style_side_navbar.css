@@ -1,6 +1,15 @@
 /* General Styling */
 body {
     font-family: 'Arial', sans-serif;
+    /* font-size: 1.2rem; */
+}
+
+/* modal card styling  */
+.modal-header,
+.card-header {
+    background: linear-gradient(339deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 0.66) 100%);
+    color: #0a0606;
+    /* White text color */
 }
 
 /* Top Navbar */
@@ -11,6 +20,55 @@ body {
     /* Subtle shadow effect */
 }
 
+/* Brand Link */
+.brand-link {
+    background: linear-gradient(339deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 0.66) 100%);
+    /* Matching gradient background */
+    color: #231111;
+    /* Charcoal black text */
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+}
+
+/* Brand Link Hover */
+.brand-link:hover {
+    background-color: rgba(34, 193, 195, 0.9);
+    /* Darker hover background */
+    color: #fdba2d;
+    /* Golden text on hover */
+}
+
+/* Brand Image */
+.brand-link .brand-image {
+    height: 50px;
+    width: 50px;
+    margin-right: 10px;
+    border-radius: 50%;
+    /* Circular logo */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Subtle shadow */
+}
+
+/* Brand Text */
+.brand-link .brand-text {
+    font-weight: 600;
+    color: #ecf0f1;
+    /* Light text color */
+    font-size: 1.4rem;
+    /* Adjusted for better readability */
+    white-space: nowrap;
+}
+
+.brand-link .brand-text:hover {
+    color: #fdba2d;
+    /* Golden text on hover */
+}
+
+/* nav tag */
 .navbar .nav-link {
     color: #333;
     /* Dark text color */
@@ -25,12 +83,19 @@ body {
     /* Green text on hover/active */
 }
 
+
 /* Sidebar */
 .main-sidebar {
-    background-color: #2c3e50;
+    background: rgb(11, 157, 132);
+    background: linear-gradient(13deg, rgba(11, 157, 132, 1) 0%, rgba(7, 3, 33, 1) 100%);
     /* Dark blue-gray background */
     box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15);
     /* Subtle shadow effect */
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #ffd700;
+    /* Gold color */
 }
 
 .main-sidebar .nav-link {
@@ -73,6 +138,7 @@ body {
     /* Indentation for sub-menu items */
     color: #bdc3c7;
     /* Light gray text color */
+    /* font-size: 12px; */
 }
 
 .main-sidebar .nav-treeview>.nav-item>.nav-link:hover {
@@ -118,6 +184,97 @@ body {
 }
 
 .menu-open {
-    background-color: rgb(3, 27, 36);
+    background: linear-gradient(339deg, rgb(9, 50, 50) 0%, rgb(73, 3, 97) 100%);
+    color: #34495e;
     /* color: #333; */
+}
+
+
+
+
+/* top nav theme */
+.main-header.navbar {
+    background: rgb(34, 193, 195);
+    /* Fallback for older browsers */
+    background: linear-gradient(339deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 9.66) 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+}
+
+.main-header .navbar-nav .nav-link {
+    color: white;
+    font-weight: bold;
+}
+
+.main-header .navbar-nav .nav-link:hover {
+    color: #f8f9fa;
+}
+
+.main-header .dropdown-menu {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.15rem 0.75rem rgba(0, 0, 0, 0.1);
+}
+
+.main-header .navbar-badge {
+    background-color: #dc3545;
+    /* Red for badges */
+}
+
+.main-header .navbar-nav .img-circle {
+    border: 2px solid white;
+}
+
+/* Adjust the dropdown widget user header background */
+.widget-user-header {
+    background-size: cover;
+    background-position: center;
+    padding: 1.5rem;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #22c1c3;
+    border-color: #22c1c3;
+}
+
+.btn-danger {
+    background-color: #fdba2d;
+    border-color: #fdba2d;
+}
+
+.btn-primary:hover,
+.btn-danger:hover {
+    background-color: #22c1c3;
+    border-color: #22c1c3;
+}
+
+/* footer themes */
+.main-footer {
+    background: rgb(34, 193, 195);
+    /* Fallback for older browsers */
+    background: linear-gradient(339deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 0.66) 100%);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 0.15rem 0.75rem rgba(0, 0, 0, 0.1);
+}
+
+.main-footer a {
+    color: white;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.main-footer a:hover {
+    color: #fdba2d;
+    /* Highlight link on hover */
+}
+
+.main-footer strong {
+    font-weight: bold;
 }

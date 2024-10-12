@@ -3,11 +3,9 @@
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0 text-success">Student Register</h1>
-                </div>
+               
                 <!-- /.col -->
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">
                             <a href="http://127.0.0.1:8000/admin/students/details" class="btn btn-primary btn-sm"
@@ -79,14 +77,15 @@
                         </ul>
                     </div>
                 @endif
-                <div class="card">
+                <div class="card mt-4">
                     <div class="card-header">
 
                         <h4 class="card-title">Student Form</h4>
                     </div>
                     <div class="card-body">
+                        <!-- More rows here, keeping the structure consistent with form-control-sm -->
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="ecz_no" class="small">ECZ Exam Number</label> <small class="req">
                                         *</small>
@@ -95,34 +94,6 @@
                                     <span class="text-danger small"></span>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="roll_no" class="small">Grade/Class</label>
-                                    <select id="class_id" name="class_id" class="form-control form-control-sm">
-                                        <option value="">Select</option>
-                                        @foreach ($grades as $grade)
-                                            <option value="{{ $grade->id }}">
-                                                {{ $grade->gradeno . ' ' . $grade->class_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="student_type" class="small">Student type</label> <small class="req">
-                                        *</small>
-                                    <select id="student_type" name="student_type" class="form-control form-control-sm">
-                                        <option value="">Select</option>
-                                        <option value='Day scholar'>Day scholar</option>
-                                        <option value='Boarder'>Boarder</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- More rows here, keeping the structure consistent with form-control-sm -->
-                        <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="firstname" class="small">First Name</label> <small class="req">
@@ -189,7 +160,7 @@
                                 </div>
                             </div>
                             <!-- Medical Condition -->
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="medical_condition" class="small">Medical
                                         Condition</label>
@@ -198,7 +169,7 @@
                                 </div>
                             </div>
                             <!-- Sibling Names -->
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="sibling_names" class="small">Select Siblings</label>
                                     <select id="sibling_names" class="form-control small select2" name="sibling_ids[]"
@@ -213,6 +184,31 @@
                                     </select>
 
 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="roll_no" class="small">Grade/Class</label>
+                                    <select id="class_id" name="class_id" class="form-control form-control-sm">
+                                        <option value="">Select</option>
+                                        @foreach ($grades as $grade)
+                                            <option value="{{ $grade->id }}">
+                                                {{ $grade->gradeno . ' ' . $grade->class_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="student_type" class="small">Student type</label> <small class="req">
+                                        *</small>
+                                    <select id="student_type" name="student_type" class="form-control form-control-sm">
+                                        <option value="">Select</option>
+                                        <option value='Day scholar'>Day scholar</option>
+                                        <option value='Boarder'>Boarder</option>
+                                    </select>
                                 </div>
                             </div>
                             <!-- Student Photo -->
@@ -237,13 +233,15 @@
                             </div>
 
                         </div>
+
+
                     </div>
                 </div>
 
                 <!-- Student Hostel Details Card -->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h5>Student Hostel Details</h5>
+                        <h4 class="card-title">Student Hostel Details</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -288,7 +286,7 @@
                 <!-- Guadian Details Card -->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h5>Parent/Guardin Details</h5>
+                        <h4 class="card-title">Parent/Guardin Details</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -390,7 +388,7 @@
                 <!-- Fee Details Card -->
                 <div class="card mt-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Fee Details</h5>
+                        <h4 class="mb-0 card-title">Fee Details</h4>
                         <div>
                             <button id="select-all" class="btn btn-info btn-sm mr-2">Select
                                 All</button>
@@ -440,7 +438,7 @@
                 <!-- Login  details-->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h5>Login details</h5>
+                        <h4 class="card-title">Login details</h4>
                     </div>
                     <div class="card-body">
                         <!-- Additional Input Fields -->

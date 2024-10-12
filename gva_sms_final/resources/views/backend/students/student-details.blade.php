@@ -10,8 +10,9 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">
-                            <a href="{{route('view.studentreg.form')}}">Register New Student</a></li>
-                       
+                            <a href="{{ route('view.studentreg.form') }}">Register New Student</a>
+                        </li>
+
                     </ol>
                 </div>
                 <!-- /.col -->
@@ -112,10 +113,10 @@
                                 <td>{{ $student->ecz_no }}</td>
                                 <td>{{ $student->firstname }} {{ $student->lastname }}</td>
                                 <td>
-                                    {{-- {{ $student->grade->name }} <!-- Assuming grade is a related model --> --}}
-                                 work on the grade ids
-                                </td> 
-                               
+                                    {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}
+                                    <!-- Assuming grade is a related model -->
+                                </td>
+
                                 <td>{{ $student->student_type }}</td>
                                 <td>{{ $student->dob->format('d/m/Y') }}</td>
                                 <td>{{ $student->gender }}</td>
@@ -124,39 +125,37 @@
                                         title="@foreach ($student->siblings as $sibling) {{ $sibling->name }} @if (!$loop->last), @endif @endforeach">
                                         {{ $student->siblings->count() }}
                                     </a>
+
                                 </td>
                                 <td>
-                                    {{ $student->hostel ? $student->hostel->firstname . ' (' . $student->bedspace_id . ')' : 'N/A' }}
+                                    {{ $student->hostel ? $student->hostel->hostel_name . ' (Bed#: ' . $student->bedspace_id . ')' : 'N/A' }}
                                 </td>
-                                <td>{{ $student->father_phone ?? ($student->mother_phone ?? 'N/A') }}</td>
+                                <td>{{ $student->parent->father_phone . ' (Father)' ?? ($student->parent->mother_phone . ' (Mother)' ?? 'N/A') }}
+                                </td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
                                         data-target="#viewModal-{{ $student->id }}">
                                         View
                                     </button>
-                                    {{-- <a href=" {{ route('students.edit', $student->id) }}" class="btn btn-warning btn-sm">
-                                        Edit
-                                    </a> --}}
-                                   <a href="#" class="btn btn-warning btn-sm">
+                                    {{-- edit button --}}
+                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                        data-target="#deleteConfirmModal-{{ $student->id }}">Delete</button>
+
+                                    <a href=" {{ route('students.edit', $student->id) }}" class="btn btn-warning btn-sm">
                                         Edit
                                     </a>
-                                    <form action="#" method="POST"
-                                        style="display:inline-block;">
-                                        
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
                                     {{-- <form action="{{ route('students.destroy', $student->id) }}" method="POST"
                                         style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        
                                     </form> --}}
                                 </td>
                             </tr>
 
-                            <!-- View Modal for each student -->
+
                             <!-- View More Modal -->
-                            <div class="modal fade" id="viewModal" tabindex="-1" role="dialog"
+                            <div class="modal fade" id="viewModal-{{ $student->id }}" tabindex="-1" role="dialog"
                                 aria-labelledby="viewModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-lg" role="document">
                                     <div class="modal-content">
@@ -191,8 +190,7 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h6>Grade: <span
-                                                                    id="modalGrade">
+                                                            <h6>Grade: <span id="modalGrade">
                                                                     {{-- {{ $student->grade->gradeno }} --}}
                                                                     Work on the grade ids
                                                                 </span></h6>
@@ -261,7 +259,7 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <h6>Hostel: <span
-                                                                    id="modalHostel">{{ $student->hostel->name ?? 'N/A' }}</span>
+                                                                    id="modalHostel">{{ $student->hostel->hostel_name ?? 'N/A' }}</span>
                                                             </h6>
                                                         </div>
                                                         <div class="col-md-6">
@@ -288,6 +286,39 @@
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- confirm delete modal --}}
+                            <div class="modal fade" id="deleteConfirmModal-{{ $student->id }}" tabindex="-1"
+                                role="dialog" aria-labelledby="deleteStudentLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteStudentLabel">
+                                                Confirm Deletion for {{ $student->firstname }} {{ $student->lastname }}
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this student?</p>
+                                            <p><strong>Student Name:</strong> {{ $student->firstname }} {{ $student->lastname }}</p> 
+                                            <p><strong>Gender:</strong> {{ ucfirst($student->gender) }}</p>
+                                            <p><strong>Grade:</strong> {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">Cancel</button>
+                                            <form action="{{ route('students.destroy', $student->id) }}" method="POST"
+                                                style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

@@ -33,6 +33,7 @@ class Student extends Model
         'student_photo',          // Path to the student's photo
         'bedspace_id',            // Foreign key for the bedspace in the hostel
         'hostel_teacher_id',      // Foreign key for the hostel teacher
+        'fee_session_group_id'
     ];
 
 
@@ -45,16 +46,22 @@ class Student extends Model
     ];
 
 
+  
+        
+
+
     public function grade()
     {
         return $this->belongsTo(Grade::class, 'class_id'); // 'class_id' is the foreign key in the students table.
     }
-    
 
+
+    // The student belongs to one hostel
     public function hostel()
     {
-        return $this->belongsTo(Hostel::class);
+        return $this->belongsTo(Hostel::class, 'hostel_id');
     }
+
     public function bedspace()
     {
         return $this->belongsTo(Bedspace::class);
@@ -67,11 +74,13 @@ class Student extends Model
             ->where('id', '!=', $this->id);  // Exclude the current student
     }
 
+    //relationship
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
+    // The student belongs to one parent
     public function parent()
     {
         return $this->belongsTo(StudentParent::class, 'parent_id');

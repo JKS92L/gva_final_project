@@ -12,8 +12,7 @@ class Hostel extends Model
     // Define the table name if it doesn't follow the plural convention
     protected $table = 'hostels';
 
-    // Specify the primary key if it's not 'id'
-    protected $primaryKey = 'hostel_id';
+   
 
     // Allow mass assignment for these fields
     protected $fillable = [
@@ -46,7 +45,7 @@ class Hostel extends Model
     // Relationship with the Bedspace model
     public function bedspaces()
     {
-        return $this->hasMany(Bedspace::class, 'hostel_id', 'hostel_id');
+        return $this->hasMany(Bedspace::class, 'hostel_id', 'id');
     }
 
     // Scope to filter active hostels

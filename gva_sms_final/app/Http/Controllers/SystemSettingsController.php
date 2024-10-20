@@ -8,8 +8,10 @@ use App\Models\ResultsGrade;
 use Illuminate\Http\Request;
 use App\Models\ResultsEffort;
 use App\Models\AcademicSession;
+use Illuminate\Support\Facades\DB;
 use App\Models\SubjectTeacherComment;
 use App\Models\PassingPercentageSetting;
+use App\Models\SessionTerms;
 
 class SystemSettingsController extends Controller
 {
@@ -258,7 +260,7 @@ class SystemSettingsController extends Controller
         ]);
 
         // Create a new academic session
-        AcademicSession::create([
+        $academicSession = AcademicSession::create([
             'academic_year' => $request->academic_year,
             'term1_start' => $request->term1_start,
             'term1_end' => $request->term1_end,
@@ -266,12 +268,43 @@ class SystemSettingsController extends Controller
             'term2_end' => $request->term2_end,
             'term3_start' => $request->term3_start,
             'term3_end' => $request->term3_end,
-            'created_by' => auth()->id(), // Optional: Store the ID of the user creating the session
+            'status' => 'active',
+            'created_by' => auth()->id(),
         ]);
 
-        // Redirect back with success message
-        return redirect()->back()->with('success', 'Academic session created successfully.');
+        // Insert terms using the SessionTerms model
+        $terms = [
+            [
+                'academic_year_id' => $academicSession->id,
+                'term_number' => 1,
+                'status' => 'active',
+                'created_on' => now(),
+                'updated_on' => now()
+            ],
+            [
+                'academic_year_id' => $academicSession->id,
+                'term_number' => 2,
+                'status' => 'active',
+                'created_on' => now(),
+                'updated_on' => now()
+            ],
+            [
+                'academic_year_id' => $academicSession->id,
+                'term_number' => 3,
+                'status' => 'active',
+                'created_on' => now(),
+                'updated_on' => now()
+            ]
+        ];
+
+        // Insert the terms using the SessionTerms model
+        SessionTerms::insert($terms);
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Academic session and terms created successfully.');
     }
+
+
     // edit academic sessions
     public function editAcademicSession($id)
     {
@@ -293,6 +326,7 @@ class SystemSettingsController extends Controller
             'term2_end' => 'required|date|after_or_equal:term2_start',
             'term3_start' => 'required|date|after_or_equal:term2_end',
             'term3_end' => 'required|date|after_or_equal:term3_start',
+            'status' => 'required|string',
         ]);
 
         // Find the academic session
@@ -307,6 +341,7 @@ class SystemSettingsController extends Controller
             'term2_end' => $request->term2_end,
             'term3_start' => $request->term3_start,
             'term3_end' => $request->term3_end,
+            'status' => $request->status,
         ]);
 
         // Redirect back with success message
@@ -325,7 +360,4 @@ class SystemSettingsController extends Controller
         // Redirect back with success message
         return redirect()->back()->with('success', 'Academic session deleted successfully.');
     }
-    
-
-
 }

@@ -284,7 +284,7 @@
                     </div>
                 </div>
                 <!-- Guadian Details Card -->
-                <div class="card mt-4">
+                {{-- <div class="card mt-4">
                     <div class="card-header">
                         <h4 class="card-title">Parent/Guardin Details</h4>
                     </div>
@@ -384,7 +384,7 @@
 
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <!-- Fee Details Card -->
                 <div class="card mt-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -413,7 +413,7 @@
                                     <li class="list-group-item d-flex align-items-center">
                                         <div class="col-md-4 d-flex align-items-center">
                                             <input class="mr-2 fee-checkbox" type="checkbox"
-                                                name="fee_session_group_id[]" value="{{ $fee->fee_id }}"
+                                                name="fee_session_group_id[]" value="{{ $fee->id }}"
                                                 autocomplete="off">
                                             {{ $fee->fee_type }}
                                         </div>

@@ -16,4 +16,11 @@ class UserRole extends Model
         'description',
         'status'
     ];
+
+    // Relationship to Users
+    public function users()
+    {
+        return $this->hasMany(User::class, 'role_id');
+    }
+
 }

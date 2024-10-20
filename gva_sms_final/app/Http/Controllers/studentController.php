@@ -31,7 +31,7 @@ class StudentController extends Controller
     {
         // Fetch the student with related data (grade, siblings, hostel, bedspace, parent) and user data
         $student = Student::with(['grade', 'siblings', 'hostel', 'bedspace', 'parent', 'user'])
-        ->findOrFail($id);
+            ->findOrFail($id);
 
         // Fetch the user associated with the student
         $user = $student->user; // Assuming the User model is defined with the proper relationship
@@ -154,18 +154,8 @@ class StudentController extends Controller
             'bedspace_id' => 'nullable|exists:bedspaces,id',
             'hostel_teacher_id' => 'nullable|exists:teachers,id',
 
-            // Parent table fields
-            'father_name' => 'nullable|string|max:255',
-            'father_phone' => 'nullable|string|max:15',
-            'father_occupation' => 'nullable|string|max:255',
-            'father_email' => 'nullable|email|max:255',
-            'father_address' => 'nullable|string|max:255',
-            'mother_name' => 'nullable|string|max:255',
-            'mother_phone' => 'nullable|string|max:15',
-            'mother_occupation' => 'nullable|string|max:255',
-            'mother_email' => 'nullable|email|max:255',
-            'mother_address' => 'nullable|string|max:255',
-            'fee_session_group_id' => 'nullable|exists:fees,fee_id',
+            'fee_session_group_id' => 'nullable|array',
+            'fee_session_group_id.*' => 'exists:fees,id',
         ]);
 
         DB::beginTransaction();
@@ -201,24 +191,21 @@ class StudentController extends Controller
                 'admission_date' => $request->input('admission_date'),
                 'medical_condition' => $request->input('medical_condition'),
                 'hostel_id' => $request->input('hostel_id'),
+                'bedspace_id' => $request->input('bedspace_id'),
                 'sibling_ids' => json_encode($request->input('sibling_ids', [])),
                 'student_photo' => $photoPath,
                 'bedspace_id' => $request->input('bedspace_id'),
                 'hostel_teacher_id' => $request->input('hostel_teacher_id'),
             ]);
 
-            // Handle sibling linking and check if parent should be disabled
+            // Handle sibling linking (optional, if needed)
             if (!empty($request->input('sibling_ids'))) {
-                // Link siblings and fetch the parent from the first sibling
                 $this->linkSiblings($request->input('sibling_ids'), $student);
-            } else {
-                // Create or link parent record in the 'parents' table
-                $parent = $this->createOrUpdateParent($request, $student);
             }
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Student and parent registered successfully!');
+            return redirect()->back()->with('success', 'Student registered successfully!');
         } catch (\PDOException $e) {
             DB::rollBack();
             Log::error('Database error: ' . $e->getMessage());
@@ -230,90 +217,91 @@ class StudentController extends Controller
         }
     }
 
+
     /**
      * Create or update the parent record in the 'parents' and 'users' table.
      */
-    protected function createOrUpdateParent($request, $student)
-    {
-        // Check if parent exists by email (father or mother)
-        $parent = StudentParent::where('father_email', $request->input('father_email'))
-            ->orWhere('mother_email', $request->input('mother_email'))
-            ->first();
+    // protected function createOrUpdateParent($request, $student)
+    // {
+    //     // Check if parent exists by email (father or mother)
+    //     $parent = StudentParent::where('father_email', $request->input('father_email'))
+    //         ->orWhere('mother_email', $request->input('mother_email'))
+    //         ->first();
 
-        if (!$parent) {
-            // First, create the parent user account
-            $parentUser = User::create([
-                'username' => $request->input('father_email') ?: $request->input('mother_email'),
-                'email' => $request->input('father_email') ?: $request->input('mother_email'),
-                'contact_number' => $request->input('mother_phone') . '/' . $request->input('father_phone'),
-                'role_id' => 5, // Parent role ID
-                'name' => $request->input('father_name') ?: $request->input('mother_name'),
-                'password' => Hash::make('gva-sms'), // Set default password, to be updated by parent
-                'status' => 1, // Active status
-            ]);
+    //     if (!$parent) {
+    //         // First, create the parent user account
+    //         $parentUser = User::create([
+    //             'username' => $request->input('father_email') ?: $request->input('mother_email'),
+    //             'email' => $request->input('father_email') ?: $request->input('mother_email'),
+    //             'contact_number' => $request->input('mother_phone') . '/' . $request->input('father_phone'),
+    //             'role_id' => 5, // Parent role ID
+    //             'name' => $request->input('father_name') ?: $request->input('mother_name'),
+    //             'password' => Hash::make('gva-sms'), // Set default password, to be updated by parent
+    //             'status' => 1, // Active status
+    //         ]);
 
-            // Now create the parent record and insert the user_id from the created user
-            $parent = StudentParent::create([
-                'user_id' => $parentUser->id, // Associate with the user created above
-                'student_ids' => json_encode([$student->id]), // Insert student ID
-                'father_name' => $request->input('father_name'),
-                'mother_name' => $request->input('mother_name'),
-                'father_phone' => $request->input('father_phone'),
-                'mother_phone' => $request->input('mother_phone'),
-                'father_email' => $request->input('father_email'),
-                'mother_email' => $request->input('mother_email'),
-                'father_address' => $request->input('father_address'),
-                'mother_address' => $request->input('mother_address'),
-            ]);
-        }
+    //         // Now create the parent record and insert the user_id from the created user
+    //         $parent = StudentParent::create([
+    //             'user_id' => $parentUser->id, // Associate with the user created above
+    //             'student_ids' => json_encode([$student->id]), // Insert student ID
+    //             'father_name' => $request->input('father_name'),
+    //             'mother_name' => $request->input('mother_name'),
+    //             'father_phone' => $request->input('father_phone'),
+    //             'mother_phone' => $request->input('mother_phone'),
+    //             'father_email' => $request->input('father_email'),
+    //             'mother_email' => $request->input('mother_email'),
+    //             'father_address' => $request->input('father_address'),
+    //             'mother_address' => $request->input('mother_address'),
+    //         ]);
+    //     }
 
-        // Set the parent_id in the student record
-        $student->parent_id = $parent->id;
-        $student->save();
+    //     // Set the parent_id in the student record
+    //     $student->parent_id = $parent->id;
+    //     $student->save();
 
-        return $parent;
-    }
+    //     return $parent;
+    // }
 
 
     /**
      * Link siblings to the same parent.
      **/
-    protected function linkSiblings(array $siblingIds, $student)
-    {
-        if (count($siblingIds) > 0) {
-            // Assume the first sibling has the correct parent (use the first sibling's parent_id)
-            $firstSibling = Student::find($siblingIds[0]);
+    // protected function linkSiblings(array $siblingIds, $student)
+    // {
+    //     if (count($siblingIds) > 0) {
+    //         // Assume the first sibling has the correct parent (use the first sibling's parent_id)
+    //         $firstSibling = Student::find($siblingIds[0]);
 
-            if ($firstSibling && $firstSibling->parent_id) {
-                // Set the new student's parent_id to that of the first sibling
-                $student->parent_id = $firstSibling->parent_id;
-                $student->save();
-            }
+    //         if ($firstSibling && $firstSibling->parent_id) {
+    //             // Set the new student's parent_id to that of the first sibling
+    //             $student->parent_id = $firstSibling->parent_id;
+    //             $student->save();
+    //         }
 
-            // Link the newly registered student ID to each existing sibling's sibling_ids
-            foreach ($siblingIds as $siblingId) {
-                $sibling = Student::find($siblingId);
-                if ($sibling) {
-                    // Decode the existing sibling_ids from JSON
-                    $currentSiblingIds = json_decode($sibling->sibling_ids, true) ?? [];
+    //         // Link the newly registered student ID to each existing sibling's sibling_ids
+    //         foreach ($siblingIds as $siblingId) {
+    //             $sibling = Student::find($siblingId);
+    //             if ($sibling) {
+    //                 // Decode the existing sibling_ids from JSON
+    //                 $currentSiblingIds = json_decode($sibling->sibling_ids, true) ?? [];
 
-                    // Check if the new student's ID is already in the array to avoid duplicates
-                    if (!in_array($student->id, $currentSiblingIds)) {
-                        // Add the new student's ID to the sibling_ids
-                        $currentSiblingIds[] = $student->id;
+    //                 // Check if the new student's ID is already in the array to avoid duplicates
+    //                 if (!in_array($student->id, $currentSiblingIds)) {
+    //                     // Add the new student's ID to the sibling_ids
+    //                     $currentSiblingIds[] = $student->id;
 
-                        // Encode the array back to JSON and save it
-                        $sibling->sibling_ids = json_encode($currentSiblingIds);
-                        $sibling->save();
-                    }
+    //                     // Encode the array back to JSON and save it
+    //                     $sibling->sibling_ids = json_encode($currentSiblingIds);
+    //                     $sibling->save();
+    //                 }
 
-                    // Optionally, ensure the sibling shares the same parent_id
-                    if ($sibling->parent_id !== $student->parent_id) {
-                        $sibling->parent_id = $student->parent_id;
-                        $sibling->save();
-                    }
-                }
-            }
-        }
-    }
+    //                 // Optionally, ensure the sibling shares the same parent_id
+    //                 if ($sibling->parent_id !== $student->parent_id) {
+    //                     $sibling->parent_id = $student->parent_id;
+    //                     $sibling->save();
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }

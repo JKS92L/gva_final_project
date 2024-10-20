@@ -58,4 +58,9 @@ class AcademicSession extends Model
     {
         return $this->status === 'active';
     }
+
+    public function terms()
+    {
+        return $this->hasMany(SessionTerms::class, 'academic_year_id');
+    }
 }

@@ -39,6 +39,7 @@ class User extends Authenticatable
         'status' => 'boolean',  // Cast 'status' to a boolean
     ];
 
+    // Define the relationship with the Teacher model
 
     public function parent()
     {
@@ -49,6 +50,17 @@ class User extends Authenticatable
     public function student()
     {
         return $this->hasOne(Student::class, 'user_id');
+    }
+
+    // One-to-one relationship with Teacher
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class, 'user_id');
+    }
+    // Relationship to the Role model
+    public function role()
+    {
+        return $this->belongsTo(UserRole::class, 'role_id');
     }
 
 

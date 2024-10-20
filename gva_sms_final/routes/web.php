@@ -1,17 +1,21 @@
 <?php
 
+use App\Http\Controllers\AcademicsController;
 use App\Models\Bedspace;
+use App\Models\ExamController;
+use App\Models\ResultsController;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ExamResultsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExaminationTab;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Backend\teacher;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\BedspaceController;
 //CRUD CONTROLLERS
+use App\Http\Controllers\StudentController;
+// use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\BedspaceController;
 use App\Http\Controllers\GrandBoxController;
 use App\Http\Controllers\GrandEbuyController;
 use App\Http\Controllers\SystemSettingsController;
@@ -53,9 +57,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
         // Route::post('/list', [TeacherController::class, 'teachersForm'])->name('view.teachers.form');
         // CRUD Route
-        Route::post('/teachers', [RoleController::class, 'create'])->name('teachers.store');
-        Route::put('/teachers/{id}', [RoleController::class, 'edit'])->name('teachers.update');
-        Route::delete('/teachers/{id}', [RoleController::class, 'destroy'])->name('teachers.destroy');
+        // Route::post('/teachers', [RoleController::class, 'create'])->name('teachers.store');
+        // Route::put('/teachers/{id}', [RoleController::class, 'edit'])->name('teachers.update');
+        // Route::delete('/teachers/{id}', [RoleController::class, 'destroy'])->name('teachers.destroy');
 
         Route::get('/responsibility', [UserManagementController::class, 'userResponsibility'])->name('user-responsibility');
         Route::get('/permissions', [UserManagementController::class, 'userPermissions'])->name('user-permissions');
@@ -78,8 +82,22 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::prefix('teachers')->group(function () {
         Route::get('/assign-subject', [TeachersController::class, 'assignSubject'])->name('assign-subject');
         Route::get('/assign-responsibility', [TeachersController::class, 'assignResponsibility'])->name('assign-responsibility');
+        // 
         Route::get('/reports', [TeachersController::class, 'teachersReport'])->name('teacher-reports');
-        // Add more teacher routes as needed
+
+        // Manage Teachers
+        Route::get('/manage-teachers', [TeachersController::class, 'viewTeachersList'])->name('teachers.manage-teachers');
+        //registration form
+        Route::get('/teachers-registration', [TeachersController::class, 'viewTeachersRegForm'])->name('teacher.regForm');
+        // teacher.regForm
+        Route::get('/teachers-list', [TeachersController::class, 'viewTeachersList'])->name('teachers.list');
+        // CRUD
+        Route::post('/create-teacher', [TeachersController::class, 'storeTeachers'])->name('teachers.store');
+        Route::get('/teachers/{id}/edit', [TeachersController::class, 'editTeacher'])->name('teachers.edit');
+        Route::put('/teachers/{id}', [TeachersController::class, 'updateTeacher'])->name('teachers.update');
+        Route::delete('/teachers/{id}', [TeachersController::class, 'destroyTeacher'])->name('teachers.destroy');
+
+
     });
 
     // // Student Management Routes
@@ -106,10 +124,21 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     });
 
     // // Examination Management Routes
-    // Route::prefix('exams')->group(function () {
-    //     Route::get('/publish-results', [ExaminationTab::class, 'publishResult'])->name('publish-results');
-    //     // Add more examination routes as needed
-    // });
+    Route::prefix('exams')->group(function () {
+        // Route::get('/publish-results', [ExamController::class, 'publishResult'])->name('publish-results');
+        Route::get('/enter-results', [ExamResultsController::class, 'enterResults'])->name('exam.enter-results');
+        // Add more examination routes as needed 
+    });
+
+    // // ACADEMICS TAB
+    Route::prefix('academics')->group(function () {
+        // Route::get('/publish-results', [ExamController::class, 'publishResult'])->name('publish-results');
+        Route::get('/assign-class-subjects', [AcademicsController::class, 'viewAssignClassSubjects'])->name('academics.assign-class-subjects');
+        // Add more examination routes as needed 
+    });
+
+
+
 
     // // Grandbox and Grand-ebuy Applications
     // Route::get('/grandbox', [GrandBoxController::class, 'index'])->name('grandbox');

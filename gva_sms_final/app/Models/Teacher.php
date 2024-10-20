@@ -14,49 +14,35 @@ class Teacher extends Model
 
     // Specify the fields that are mass assignable
     protected $fillable = [
+        'user_id',
         'first_name',
         'last_name',
         'middle_name',
         'gender',
         'date_of_birth',
-        'email',
-        'phone_number',
         'address',
-        'city',
-        'state',
+        'province',
+        'town',
         'country',
-        'photo',
         'employee_id',
         'date_of_hire',
-        'subject',
-        'department',
-        'position',
+        'department_id',
+        'bank_account_no',
+        'bank_name',
         'years_of_experience',
         'qualifications',
         'certifications',
-        'class_assigned',
-        'school_branch',
-        'username',
-        'password',
-        'role',
-        'status',
-        'last_login',
-        'password_reset_token',
         'working_days',
         'working_hours_start',
         'working_hours_end',
         'emergency_contact_name',
         'emergency_contact_relation',
         'emergency_contact_phone',
-        'national_id',
-        'bank_account_number'
+        'national_id'
     ];
 
+
     // Hidden attributes for serialization
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     // Cast fields to appropriate data types
     protected $casts = [
@@ -64,9 +50,37 @@ class Teacher extends Model
         'last_login' => 'datetime',
         'working_hours_start' => 'datetime:H:i',
         'working_hours_end' => 'datetime:H:i',
-    ];
+        // 'subject_major_ids' => 'array',
+        // 'subject_minor_ids' => 'array',
 
-    // Define relationships
+    ];
+    // Relationship to the User model (one-to-one)
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    // Relationship to the Department model
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    // Relationship for major subjects
+
+
+
+    // Relationship for major subjects
+    public function majorSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'teacher_major_subjects', 'teacher_id', 'subject_id');
+    }
+
+    // Relationship for minor subjects
+    public function minorSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'teacher_minor_subjects', 'teacher_id', 'subject_id');
+    }
+
 
     /**
      * A teacher may have a role (belongs to one role).

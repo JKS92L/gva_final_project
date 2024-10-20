@@ -18,4 +18,9 @@ class Department extends Model
     {
         return $this->hasMany(Hod::class);
     }
+    // Relationship to Teachers
+    public function teachers()
+    {
+        return $this->hasMany(Teacher::class, 'department_id');
+    }
 }

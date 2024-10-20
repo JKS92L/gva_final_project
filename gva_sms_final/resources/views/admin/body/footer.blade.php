@@ -36,7 +36,7 @@
 <script src="{{ asset('backend/js/pages/dashboard3.js') }}"></script>
 
 <!-- DataTables  & Plugins -->
-<script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+{{-- <script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
@@ -47,7 +47,19 @@
 <script src="{{ asset('backend/plugins/pdfmake/vfs_fonts.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-<script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+<script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script> --}}
+<!-- Include DataTables CSS and JS -->
+
+{{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script> --}}
 
 <!-- Select2 -->
 <script src="{{ asset('backend/plugins/select2/js/select2.full.min.js') }}"></script>
@@ -58,6 +70,8 @@
 <!-- DataTables Buttons Extension (for export options) -->
 <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.flash.min.js"></script>
+
+
 </body>
 
 </html>

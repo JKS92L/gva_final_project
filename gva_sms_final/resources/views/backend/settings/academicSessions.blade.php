@@ -25,14 +25,14 @@
         <div class="container-fluid">
 
             <div class="container mt-3">
-                @if (session('success'))
+                {{-- @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                @endif
+                @endif --}}
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -128,7 +128,7 @@
                         <!-- /.card-header -->
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="academicSession" class="table table-hover text-nowrap dataTable">
+                                <table id="academicSession" class="display nowrap table table-hover text-nowrap dataTable">
                                     <thead>
                                         <tr>
                                             <th>Academic Year</th>
@@ -310,4 +310,25 @@
             </div>
         </div>
     </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                title: 'Error!',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        @endif
+    </script>
 @endsection

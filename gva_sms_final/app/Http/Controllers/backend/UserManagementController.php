@@ -23,10 +23,13 @@ class UserManagementController extends Controller
         $grades = Grade::all();
         $fees = Fee::all();
         $users = Teacher::all(); // Fetch all users
-        $hostels = Hostel::all(); // Fetch all hostels
+
+        // Fetch hostels that have matching hostel_id in bedspaces
+        $hostels = Hostel::whereHas('bedspaces')->with('bedspaces')->get();
 
         return view('backend.user_management.user-list', compact('departments', 'grades', 'fees', 'hostels'));
     }
+
 
     // create teacher route
 

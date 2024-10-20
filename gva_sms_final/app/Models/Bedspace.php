@@ -19,7 +19,7 @@ class Bedspace extends Model
     // Relationship with Hostel model
     public function hostel()
     {
-        return $this->belongsTo(Hostel::class, 'hostel_id');
+        return $this->belongsTo(Hostel::class, 'hostel_id', 'id');
     }
     // public function students() // one bedspace can only accommodate one student
     public function student()

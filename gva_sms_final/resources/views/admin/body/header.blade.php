@@ -11,16 +11,16 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>gva-sms | Dashboard</title>
     {{-- custom css  --}}
-   
+
     <link rel="stylesheet" href="{{ asset('assets/css/custom_datatables.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/gva_sms_theme.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style_side_navbar.css') }}">
-   
+
     <!-- Google Font: Source Sans Pro -->
 
     <!-- Select2 -->
-    <link rel="stylesheet" href="{{asset('backend/plugins/select2/css/select2.min.css')}}">
-    <link rel="stylesheet" href="{{asset('backend/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('backend/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
 
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -31,12 +31,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {{-- overlayScrollbars --}}
     <link rel="stylesheet" href="{{ asset('backend/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
 
-    <!-- Select2 -->
-    {{-- <link rel="stylesheet" href="{{ asset('backend/plugins/select2/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}"> --}}
-    {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> --}}
-      <!-- Select2 -->
-        {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" /> --}}
+    {{-- sweetalert2@11 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <!-- Add this in your <head> section for Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> --}}
+
+    <!-- Add this before the closing </body> tag for Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
     {{-- iCheck --}}
@@ -54,10 +57,29 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {{-- bootstrap buttons --}}
     {{-- public/backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css --}}
     {{-- <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-plugins/buttons/css/buttons.bootstrap4.min.css') }}"> --}}
-     {{-- public/backend/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css --}}
+    {{-- public/backend/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css --}}
     {{-- toastr --}}
     <link rel="stylesheet" href="{{ asset('backend/plugins/toastr/toastr.min.css') }}">
-  
+    <!-- DataTables CSS -->
+    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+
+    <!-- DataTables Buttons Extension -->
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+
+    <!-- JSZip (for Excel export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <!-- PDFMake (for PDF export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+ --}}
 
 </head>
 

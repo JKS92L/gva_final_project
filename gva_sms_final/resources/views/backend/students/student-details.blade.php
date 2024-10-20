@@ -103,7 +103,7 @@
                             <th>Gender</th>
                             <th>Siblings</th>
                             <th>Hostel (Bedspace#)</th>
-                            <th>Guardian Contact No.</th>
+                            {{-- <th>Guardian Contact No.</th> --}}
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -128,10 +128,10 @@
 
                                 </td>
                                 <td>
-                                    {{ $student->hostel ? $student->hostel->hostel_name . ' (Bed#: ' . $student->bedspace_id . ')' : 'N/A' }}
+                                    {{ $student->hostel ? $student->hostel->hostel_name : 'N/A' }}
                                 </td>
-                                <td>{{ $student->parent->father_phone . ' (Father)' ?? ($student->parent->mother_phone . ' (Mother)' ?? 'N/A') }}
-                                </td>
+                                {{-- <td>{{ $student->parent->father_phone . ' (Father)' ?? ($student->parent->mother_phone . ' (Mother)' ?? 'N/A') }}
+                                </td> --}}
                                 <td>
                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
                                         data-target="#viewModal-{{ $student->id }}">
@@ -264,7 +264,7 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <h6>Bedspace: <span
-                                                                    id="modalBedspace">{{ $student->bedspace_id ?? 'N/A' }}</span>
+                                                                    id="modalBedspace">{{ $student->hostel->bedspace_no ?? 'N/A' }}</span>
                                                             </h6>
                                                         </div>
                                                     </div>
@@ -306,9 +306,11 @@
                                         </div>
                                         <div class="modal-body">
                                             <p>Are you sure you want to delete this student?</p>
-                                            <p><strong>Student Name:</strong> {{ $student->firstname }} {{ $student->lastname }}</p> 
+                                            <p><strong>Student Name:</strong> {{ $student->firstname }}
+                                                {{ $student->lastname }}</p>
                                             <p><strong>Gender:</strong> {{ ucfirst($student->gender) }}</p>
-                                            <p><strong>Grade:</strong> {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}</p>
+                                            <p><strong>Grade:</strong>
+                                                {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}</p>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"

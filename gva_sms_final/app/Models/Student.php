@@ -85,5 +85,5 @@ class Student extends Model
     {
         return $this->belongsTo(StudentParent::class, 'parent_id');
     }
-
+ 
 }

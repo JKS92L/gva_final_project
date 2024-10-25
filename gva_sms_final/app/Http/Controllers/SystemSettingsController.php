@@ -236,7 +236,7 @@ class SystemSettingsController extends Controller
         $academicSessions = AcademicSession::orderBy('academic_year', 'desc')->paginate(10);
 
         // Check if there is an active session
-        $activeSession = AcademicSession::where('status', 'active')->first();
+        $activeSession = AcademicSession::where('is_active', 1)->first();
 
         // Pass the data to the view
         return view('backend.settings.academicSessions', [
@@ -268,7 +268,7 @@ class SystemSettingsController extends Controller
             'term2_end' => $request->term2_end,
             'term3_start' => $request->term3_start,
             'term3_end' => $request->term3_end,
-            'status' => 'active',
+            'is_active' => 1,
             'created_by' => auth()->id(),
         ]);
 

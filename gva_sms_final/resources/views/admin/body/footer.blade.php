@@ -11,15 +11,7 @@
 <!-- ./ content wraper -->
 </div>
 <!-- ./wrapper -->
-<script>
-    $('.select2').select2();
 
-    //Initialize Select2 Elements
-    $('.select2bs4').select2({
-        theme: 'bootstrap4'
-    });
-    // alert('The footer is working...')
-</script>
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Bootstrap 4 -->

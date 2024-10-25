@@ -47,7 +47,7 @@
                                 <!-- Subject Selection -->
                                 <div class="form-group col-md-6 mb-3">
                                     <label for="subject" class="small-label">Select Class</label>
-                                    <select id="class" name="class" class="form-control form-control-sm" required>
+                                    <select id="class" name="class" class="form-control form-control-sm" >
                                         <option value="">-- Select Class --</option>
                                         <option value="1">12 A</option>
                                         <option value="2">12 B</option>

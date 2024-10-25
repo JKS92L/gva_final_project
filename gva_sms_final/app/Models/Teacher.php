@@ -66,10 +66,6 @@ class Teacher extends Model
     }
 
     // Relationship for major subjects
-
-
-
-    // Relationship for major subjects
     public function majorSubjects()
     {
         return $this->belongsToMany(Subject::class, 'teacher_major_subjects', 'teacher_id', 'subject_id');
@@ -80,6 +76,22 @@ class Teacher extends Model
     {
         return $this->belongsToMany(Subject::class, 'teacher_minor_subjects', 'teacher_id', 'subject_id');
     }
+
+    public function classes()
+    {
+        return $this->belongsToMany(Grade::class, 'class_subject_teacher')
+        ->withPivot('subject_id', 'subject_type')
+        ->withTimestamps();
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'class_subject_teacher')
+        ->withPivot('class_id', 'subject_type')
+        ->withTimestamps();
+    }
+
+
 
 
     /**

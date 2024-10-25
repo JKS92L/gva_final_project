@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller; // Import the base Controller class
 
-class teachersController extends Controller
+class TeachersController extends Controller
 {
     public function assignSubject()
     {
@@ -102,7 +102,7 @@ class teachersController extends Controller
             'province' => 'required|string|max:255',
             'town' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'bankAccountNo' => 'required|integer|min:0',
+            'bankAccountNo' => 'required',
             'bankName' => 'required|nullable|string',
             'employeeId' => 'required|string|unique:teachers,employee_id',
             'hireDate' => 'required|date',

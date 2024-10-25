@@ -21,7 +21,7 @@ class AcademicSession extends Model
         'term2_end',
         'term3_start',
         'term3_end',
-        'status',
+        'is_active',
         'created_by',
     ];
 
@@ -62,5 +62,14 @@ class AcademicSession extends Model
     public function terms()
     {
         return $this->hasMany(SessionTerms::class, 'academic_year_id');
+    }
+
+    public function classSubjects()
+    {
+        return $this->hasManyThrough(Subject::class, AssignClassSubject::class, 'academic_session_id', 'id', 'id', 'subject_id');
+    }
+    public function current()
+    {
+        return $this->hasMany(SessionTerms::class, 'session_id');
     }
 }

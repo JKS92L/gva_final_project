@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\AcademicsController;
 use App\Models\Bedspace;
 use App\Models\ExamController;
 use App\Models\ResultsController;
+use App\Models\AssignClassSubject;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ExamResultsController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +17,7 @@ use App\Http\Controllers\StudentController;
 // use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\BedspaceController;
 use App\Http\Controllers\GrandBoxController;
+use App\Http\Controllers\AcademicsController;
 use App\Http\Controllers\GrandEbuyController;
 use App\Http\Controllers\SystemSettingsController;
 use App\Http\Controllers\Backend\ProfileController;
@@ -84,7 +85,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('/assign-responsibility', [TeachersController::class, 'assignResponsibility'])->name('assign-responsibility');
         // 
         Route::get('/reports', [TeachersController::class, 'teachersReport'])->name('teacher-reports');
-
         // Manage Teachers
         Route::get('/manage-teachers', [TeachersController::class, 'viewTeachersList'])->name('teachers.manage-teachers');
         //registration form
@@ -96,8 +96,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('/teachers/{id}/edit', [TeachersController::class, 'editTeacher'])->name('teachers.edit');
         Route::put('/teachers/{id}', [TeachersController::class, 'updateTeacher'])->name('teachers.update');
         Route::delete('/teachers/{id}', [TeachersController::class, 'destroyTeacher'])->name('teachers.destroy');
-
-
     });
 
     // // Student Management Routes
@@ -132,8 +130,21 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     // // ACADEMICS TAB
     Route::prefix('academics')->group(function () {
-        // Route::get('/publish-results', [ExamController::class, 'publishResult'])->name('publish-results');
         Route::get('/assign-class-subjects', [AcademicsController::class, 'viewAssignClassSubjects'])->name('academics.assign-class-subjects');
+        //CRUD assigned class subjects
+        Route::post('/assign-subjects', [AcademicsController::class, 'assignClassSubjects'])->name('academics.assign.classSubjects');
+        Route::put('/update-class-subjects', [AcademicsController::class, 'updateClassSubjects'])->name('academics.update.class.subjects');
+        Route::delete('/delete-class-subjects', [AcademicsController::class, 'destroyClassSubjects'])->name('academics.delete.class.subjects');
+
+        //class subject teachers view
+        Route::get('/class-subject-teacher', [AcademicsController::class, 'viewClassSubjectsTeachers'])->name('academics.class.subject.teacher');
+        // fetch subjects in each grade by teacher
+        Route::get('/fetch-subjects-teachers/{id}', [AcademicsController::class, 'fetchSubjectsAndTeachers']);
+        //assign class subject class
+        Route::post('/assign-subject-teachers', [AcademicsController::class, 'assignSubjectTeachers'])->name('assign.subject.teachers');
+
+
+
         // Add more examination routes as needed 
     });
 

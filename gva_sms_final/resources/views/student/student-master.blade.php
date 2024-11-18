@@ -1,0 +1,12 @@
+@include('admin.body.header')
+
+  <!-- Navbar -->
+ @include('admin.body.top-nav-bar')
+
+  <!-- Main Sidebar Container -->
+@include('admin.body.left-sidebar')
+
+{{-- content starts here  --}}
+@yield('admin_content')
+
+@include('admin.body.footer')

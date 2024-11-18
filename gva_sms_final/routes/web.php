@@ -18,11 +18,13 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\BedspaceController;
 use App\Http\Controllers\GrandBoxController;
 use App\Http\Controllers\AcademicsController;
+use App\Http\Controllers\AccountsAndDepositsController;
 use App\Http\Controllers\GrandEbuyController;
 use App\Http\Controllers\SystemSettingsController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\TeachersController;
 use App\Http\Controllers\Backend\UserManagementController;
+use App\Http\Controllers\tuckshopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,8 +40,6 @@ Route::get('/', function () {
 // Authentication Routes
 Auth::routes();
 
-
-
 // Define a middleware for authenticated users
 // Route::prefix('admin')->middleware(['auth'])->group(function () {
 Route::prefix('admin')->middleware(['auth'])->group(function () {
@@ -50,26 +50,19 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::prefix('/users')->group(function () {
 
         Route::get('/list', [UserManagementController::class, 'view_user_List'])->name('view.users');
-
-        // Route::get('/student/create', [UserManagementController::class, 'teacherIndex'])->name('create.teacher');
-
-        //  Add a new route for the AJAX call to fetch bedspaces
-        // Route::get('/fetch-bedspaces', [UserManagementController::class, 'fetchBedspaces'])->name('fetch.bedspaces');
-
-        // Route::post('/list', [TeacherController::class, 'teachersForm'])->name('view.teachers.form');
-        // CRUD Route
-        // Route::post('/teachers', [RoleController::class, 'create'])->name('teachers.store');
-        // Route::put('/teachers/{id}', [RoleController::class, 'edit'])->name('teachers.update');
-        // Route::delete('/teachers/{id}', [RoleController::class, 'destroy'])->name('teachers.destroy');
-
         Route::get('/responsibility', [UserManagementController::class, 'userResponsibility'])->name('user-responsibility');
         Route::get('/permissions', [UserManagementController::class, 'userPermissions'])->name('user-permissions');
 
         // CRUD routes for roles
         Route::get('/roles', [RoleController::class, 'index'])->name('view-roles');
-        Route::post('/roles', [RoleController::class, 'create'])->name('roles.store');
+        Route::post('/roles', [RoleController::class, 'storeRole'])->name('roles.store');
         Route::put('/roles/{id}', [RoleController::class, 'edit'])->name('roles.update');
         Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
+
+        //edit user roles/permissions
+        Route::get('/users/{id}/edit-user-roles', [RoleController::class, 'editUserPermissions'])->name('edit.user.roles');
+        //save the assigned permissions
+        Route::post('/roles/{role_id}/save-permissions', [RoleController::class, 'saveUserRolePermissions'])->name('save.UserRolePermissions');
     });
 
 
@@ -148,7 +141,22 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         // Add more examination routes as needed 
     });
 
+    //TUCKSHOP MENU
+    Route::prefix('tuckshop')->group(function () {
+        Route::get('/sales', [tuckshopController::class, 'viewSales'])->name('tuckShop.sales');
+        // //CRUD assigned class subjects
+        // Route::post('/assign-subjects', [AcademicsController::class, 'assignClassSubjects'])->name('academics.assign.classSubjects');
+        // Route::put('/update-class-subjects', [AcademicsController::class, 'updateClassSubjects'])->name('academics.update.class.subjects');
+        // Route::delete('/delete-class-subjects', [AcademicsController::class, 'destroyClassSubjects'])->name('academics.delete.class.subjects');
 
+        // //class subject teachers view
+        // Route::get('/class-subject-teacher', [AcademicsController::class, 'viewClassSubjectsTeachers'])->name('academics.class.subject.teacher');
+        // // fetch subjects in each grade by teacher
+        // Route::get('/fetch-subjects-teachers/{id}', [AcademicsController::class, 'fetchSubjectsAndTeachers']);
+        // //assign class subject class
+        // Route::post('/assign-subject-teachers', [AcademicsController::class, 'assignSubjectTeachers'])->name('assign.subject.teachers');
+
+    });
 
 
     // // Grandbox and Grand-ebuy Applications
@@ -293,7 +301,54 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 
 
+    Route::prefix('accounts/expenses')->group(function () {
+        // Route for Deposit Records
+        Route::get('/deposit-records', [AccountsAndDepositsController::class, 'showDepositRecords'])
+            ->name('accounts.expenses.deposit-records');
 
+        // Route for Add New Deposit
+        Route::post('/deposit-new-record', [AccountsAndDepositsController::class, 'storeDeposit'])
+            ->name('deposit-record.store');
+        // Route to update deposit record (submits the edit form)
+        Route::put('/deposit-record/{id}', [AccountsAndDepositsController::class, 'updateDeposit'])->name('deposits.update');
+
+        // Route to delete deposit record
+        Route::delete('/deposit-record/{id}', [AccountsAndDepositsController::class, 'destroyDeposit'])->name('deposits.destroy');
+
+
+        // Route for Bank Deposit Reconciliation
+        Route::get('/bank-reconciliation', [AccountsAndDepositsController::class, 'showBankReconciliation'])
+            ->name('accounts.expenses.bank-reconciliation');
+        // Route to store a new bank reconciliation record
+        Route::post('/bank-reconciliation/store',
+            [AccountsAndDepositsController::class, 'storeBankReconciliation']
+        )
+        ->name('accounts.expenses.bank-reconciliation.store');
+        Route::put('accounts/expenses/bank-reconciliation/update/{id}', [AccountsAndDepositsController::class, 'updateBankReconciliation'])
+        ->name('accounts.expenses.bank-reconciliation.update');
+
+        // Route to delete a bank reconciliation record
+        Route::delete('/bank-reconciliation/{id}', [AccountsAndDepositsController::class, 'destroyBankReconciliation'])
+        ->name('accounts.expenses.bank-reconciliation.destroy');
+
+        //filter ajax route
+        Route::get('accounts/expenses/bank-reconciliation/filter', [AccountsAndDepositsController::class, 'filterBankReconciliation'])->name('accounts.expenses.bank-reconciliation.filter');
+
+
+        // Route for Balance Report
+        Route::get('/balance-report', [AccountsAndDepositsController::class, 'showBalanceReport'])
+            ->name('accounts.expenses.balance-report');
+
+
+        // Route::get('/', [TransactionReportController::class, 'index'])->name('reports.index'); // List all reports
+        // Route::get('/create', [TransactionReportController::class, 'create'])->name('reports.create'); // Show form to create a new report
+        // Route::post('/', [TransactionReportController::class, 'store'])->name('reports.store'); // Store a new report
+        // Route::get('/{id}/edit', [TransactionReportController::class, 'edit'])->name('reports.edit'); // Show form to edit a report
+        // Route::put('/{id}', [TransactionReportController::class, 'update'])->name('reports.update'); // Update a report
+        // Route::delete('/{id}', [TransactionReportController::class, 'destroy'])->name('reports.destroy'); // Delete a report
+
+
+    });
 
     ///end 
 });

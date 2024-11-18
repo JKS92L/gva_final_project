@@ -9,7 +9,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>gva-sms | Dashboard</title>
+    <title>gva-sms</title>
     {{-- custom css  --}}
 
     <link rel="stylesheet" href="{{ asset('assets/css/custom_datatables.css') }}">
@@ -30,6 +30,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{{ asset('backend/css/adminlte.min.css') }}">
     {{-- overlayScrollbars --}}
     <link rel="stylesheet" href="{{ asset('backend/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="{{ asset('backend/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 
     {{-- sweetalert2@11 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -116,7 +116,7 @@ class StudentController extends Controller
     // AJAX method to fetch bedspaces for the selected hostel
     public function fetchBedspaces(Request $request)
     {
-        $bedspaces = Bedspace::where('hostel_id', $request->get('hostel_id'))->get();
+        $bedspaces = Bedspace::where('id', $request->get('hostel_id'))->get();
 
         return response()->json([
             'status' => $bedspaces->isNotEmpty() ? 'success' : 'error',

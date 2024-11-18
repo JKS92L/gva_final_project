@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Menu;
 use Illuminate\Http\Request;
 
 
@@ -25,6 +26,7 @@ class UserManagementController extends Controller
             'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             'values' => [65, 80, 80, 81, 56, 55, 40]
         ];
+
         // Fetch data from database
         $salesData = [
             ['x' => 'January', 'value' => 10000],
@@ -33,7 +35,13 @@ class UserManagementController extends Controller
             ['x' => 'April', 'value' => 11000]
         ];
 
-        return view('admin.dashboard', compact('data', 'salesData'));
+        // Fetch active menus and their active submenus for the current user
+        $user = auth()->user(); // Assuming the user is authenticated
+        $menus = Menu::with(['submenus' => function ($query) {
+            $query->active();
+        }])->get();
+
+        return view('admin.dashboard', compact('data', 'salesData', 'menus'));
     }
 
     public function userResponsibility(){

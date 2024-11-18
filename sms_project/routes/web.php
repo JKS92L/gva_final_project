@@ -32,7 +32,7 @@ Route::get('/', function () {
 Auth::routes();
 
 // Grouping admin routes with role middleware
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth'])->group(function () {
     // Admin dashboard
     Route::get('/dashboard', [UserManagementController::class, 'showDashboard'])
         ->name('admin.dashboard');

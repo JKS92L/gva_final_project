@@ -67,8 +67,8 @@
                                     <!-- Dynamic content will be injected here by AJAX -->
                                 </tbody>
                             </table>
-                            <button type="submit" class="btn btn-success btn-sm float-right">Update Assigned
-                                Teachers</button>
+                            <button id="updateAssignedTeachers" type="button"
+                                class="btn btn-success btn-sm float-right">Update Assigned Teachers</button>
                         </form>
 
                     </div>
@@ -94,11 +94,8 @@
                     url: '/admin/academics/fetch-subjects-teachers/' + gradeId,
                     type: 'GET',
                     success: function(response) {
-                        // Assign fetched values to the hidden inputs
-
+                        // Assign fetched values to hidden inputs
                         $('#class_id').val(gradeId);
-
-
                         console.log(response);
 
                         // Update the card header with the selected class name
@@ -109,17 +106,23 @@
 
                         response.classSubjects.forEach((classSubject, index) => {
                             $('#session_id').val(classSubject.academic_session_id);
+
+                            // Build each row with subject and teacher information
                             let row = `<tr>
                     <td>${index + 1}</td>
-                    <td> ${classSubject.subjects.name}</td>
+                    <td>${classSubject.subjects.name}</td>
                     
+                    <!-- Hidden input to store subject ID for each row -->
+                    <input type="hidden" name="subject_id[]" value="${classSubject.subject_id}" />
+
                     <td>
                         <select name="teacher_id[]" class="form-control">`;
 
                             // Get assigned teacher ID if available
                             let assignedTeacherId = classSubject.assigned_teachers
-                                .length > 0 ? classSubject.assigned_teachers[0]
-                                .teacher_id : null;
+                                .length > 0 ?
+                                classSubject.assigned_teachers[0].teacher_id :
+                                null;
 
                             // Add major teachers with conditional selection
                             classSubject.subjects.major_teachers.forEach(teacher => {
@@ -150,7 +153,7 @@
                         });
                     },
                     error: function(xhr, status, error) {
-                        console.log(error);
+                        console.error('Error:', error);
                         // Revert to default message if error occurs
                         $('#class-name').addClass('text-info').text('Select Class');
                     }
@@ -158,69 +161,45 @@
             });
 
 
+
             // update the assigned teachers lesson
 
-            // $('#assignTeachersForm').on('submit', function(e) {
-            //     e.preventDefault();
-
-            //     let session_id = $('input[name="session_id"]').val();
-            //     let class_id = $('#classId').val();
-            //     let subjects = [];
-
-            //     // Collect all selected teachers for each subject
-            //     $('table tbody tr').each(function() {
-            //         let subject_id = $(this).data('subject-id');
-            //         let teacher_id = $(this).find('select[name="teacher_id[]"]').val();
-
-            //         subjects.push({
-            //             subject_id: subject_id,
-            //             teacher_id: teacher_id
-            //         });
-            //     });
-
-            //     $.ajax({
-            //         url: '{{ route('assign.subject.teachers') }}',
-            //         type: 'POST',
-            //         data: {
-            //             _token: '{{ csrf_token() }}',
-            //             session_id: session_id,
-            //             class_id: class_id,
-            //             subjects: subjects
-            //         },
-            //         success: function(response) {
-            //             alert(response.message);
-            //         },
-            //         error: function(xhr, status, error) {
-            //             console.log(xhr.responseText);
-            //         }
-            //     });
-            // });
-            $('#updateAssignmentsForm').on('submit', function(e) {
+            // Event listener for updating assigned teachers
+            $('#updateAssignedTeachers').on('click', function(e) {
                 e.preventDefault();
+
                 let assignments = [];
+
+                // Iterate over each table row to get subject and teacher IDs
                 $('table tbody tr').each(function() {
-                    let subjectId = $(this).find('.subject-id').val();
-                    let teacherId = $(this).find('.teacher-select').val();
+                    let subjectId = $(this).find('input[name="subject_id[]"]')
+                .val(); // Fetch subject ID from hidden input
+                    let teacherId = $(this).find('select[name="teacher_id[]"]')
+                .val(); // Fetch selected teacher ID
+
                     assignments.push({
                         subject_id: subjectId,
                         teacher_id: teacherId
                     });
                 });
 
+                // AJAX request to update the assignments
                 $.ajax({
-                    url: '/admin/academics/update-class-subject-teachers',
+                    url: '/admin/academics/assign-subject-teachers',
                     type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: {
-                        _token: '{{ csrf_token() }}',
                         session_id: $('#session_id').val(),
                         class_id: $('#class_id').val(),
-                        assignments: assignments,
+                        subjects: assignments, // Send subject-teacher assignments array
                     },
                     success: function(response) {
-                        alert(response.message);
+                        alert(response.message); // Display success message
                     },
                     error: function(xhr) {
-                        console.error('Error:', xhr.responseText);
+                        console.error('Error:', xhr.responseText); // Log error for debugging
                     }
                 });
             });

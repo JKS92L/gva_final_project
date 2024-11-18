@@ -17,6 +17,7 @@ class Hostel extends Model
     // Allow mass assignment for these fields
     protected $fillable = [
         'hostel_name',
+        'hostel_name',
         'total_rooms',
         'total_bedspaces',
         'hostel_teacher_id',

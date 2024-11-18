@@ -449,7 +449,7 @@
                                                         name="hostel_name">
                                                         <option value="">Select Hostel</option>
                                                         @foreach ($hostels as $hostel)
-                                                            <option value="{{ $hostel->id }}">
+                                                            <option value="{{ $hostel->hostel_id }}">
                                                                 {{ $hostel->hostel_name . '( ' . $hostel->hostel_gender . ' )' }}
                                                             </option>
                                                         @endforeach

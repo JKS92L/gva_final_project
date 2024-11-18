@@ -85,5 +85,11 @@ class Student extends Model
     {
         return $this->belongsTo(StudentParent::class, 'parent_id');
     }
- 
+
+
+    public function tuckshop_transactions()
+    {
+        return $this->hasMany(TuckShopTransaction::class, 'student_id');
+    }
+
 }

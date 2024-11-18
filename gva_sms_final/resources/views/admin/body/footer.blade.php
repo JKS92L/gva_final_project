@@ -5,12 +5,47 @@
       Anything you want
     </div> --}}
     <!-- Default to the left -->
-    <strong>Copyright &copy; 2021-2024 <a href="https://adminlte.io">CyberCorp</a>.</strong> All rights reserved.
+    <strong>Copyright &copy; 2021-2024 <a href="https://adminlte.io">CyberKorp</a>.</strong> All rights reserved.
 </footer>
 </div>
 <!-- ./ content wraper -->
 </div>
-<!-- ./wrapper -->
+<!-- ./alerts -->
+<!-- Check if there's a success message in the session -->
+@if (session('success'))
+    <script>
+        $(document).ready(function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
+        });
+    </script>
+@endif
+
+@if ($errors->has('error'))
+    <script>
+        $(document).ready(function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: "{{ $errors->first('error') }}",
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3400,
+                timerProgressBar: true,
+            });
+        });
+    </script>
+@endif
+
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -22,13 +57,12 @@
 
 {{-- optional plugins  --}}
 {{-- anychart --}}
-<script src="backend/plugins/chart.js/Chart.min.js"></script>
-
+<script src="{{ asset('backend/plugins/chart.js/Chart.min.js') }}"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="{{ asset('backend/js/pages/dashboard3.js') }}"></script>
 
 <!-- DataTables  & Plugins -->
-{{-- <script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
@@ -39,7 +73,7 @@
 <script src="{{ asset('backend/plugins/pdfmake/vfs_fonts.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-<script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script> --}}
+<script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 <!-- Include DataTables CSS and JS -->
 
 {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -63,6 +97,12 @@
 <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.flash.min.js"></script>
 
+
+<script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- SweetAlert2 -->
+<script src="{{ asset('backend/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+<!-- Toastr -->
+<script src="{{ asset('backend/plugins/toastr/toastr.min.js') }}"></script>
 
 </body>
 

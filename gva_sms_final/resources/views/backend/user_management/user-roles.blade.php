@@ -1,21 +1,7 @@
 @extends('admin.admim-master')
 @section('admin_content')
     <!-- Content Header (Page header) -->
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Users Roles</h1>
-                </div><!-- /.col -->
-                {{-- <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Users</a></li>
-                        <li class="breadcrumb-item active">List</li>
-                    </ol>
-                </div><!-- /.col --> --}}
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-    </div>
+   
     <!-- Main content -->
     <div class="content">
 
@@ -51,13 +37,14 @@
                                         <td>{{ $role->role_name }}</td>
                                         <td>{{ $role->description }}</td>
                                         {{-- <td> --}}
-                                            {{-- Assuming you have a relationship between roles and permissions --}}
-                                            {{-- @foreach ($role->permissions as $permission)
+                                        {{-- Assuming you have a relationship between roles and permissions --}}
+                                        {{-- @foreach ($role->permissions as $permission)
                                                 {{ $permission->name }},
                                             @endforeach --}}
                                         {{-- </td> --}}
                                         <td>
                                             {{-- Edit Button --}}
+
                                             <button class="btn btn-primary btn-sm" data-toggle="modal"
                                                 data-target="#editRoleModal-{{ $role->id }}">
                                                 <i class="fas fa-edit"></i> Edit
@@ -67,6 +54,10 @@
                                                 data-target="#deleteRoleModal-{{ $role->id }}">
                                                 <i class="fas fa-trash-alt"></i> Delete
                                             </button>
+                                            <a href="{{route('edit.user.roles', $role->id)}}" class="btn btn-success btn-sm">
+                                               <i class='fas fa-user-edit'></i>
+                                                Edit Permissions
+                                            </a>
                                         </td>
                                     </tr>
 

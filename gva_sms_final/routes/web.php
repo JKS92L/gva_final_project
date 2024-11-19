@@ -143,18 +143,23 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     //TUCKSHOP MENU
     Route::prefix('tuckshop')->group(function () {
+         // SALES
         Route::get('/sales', [tuckshopController::class, 'viewSales'])->name('tuckShop.sales');
-        // //CRUD assigned class subjects
-        // Route::post('/assign-subjects', [AcademicsController::class, 'assignClassSubjects'])->name('academics.assign.classSubjects');
-        // Route::put('/update-class-subjects', [AcademicsController::class, 'updateClassSubjects'])->name('academics.update.class.subjects');
-        // Route::delete('/delete-class-subjects', [AcademicsController::class, 'destroyClassSubjects'])->name('academics.delete.class.subjects');
+        // add CRUD 
 
-        // //class subject teachers view
-        // Route::get('/class-subject-teacher', [AcademicsController::class, 'viewClassSubjectsTeachers'])->name('academics.class.subject.teacher');
-        // // fetch subjects in each grade by teacher
-        // Route::get('/fetch-subjects-teachers/{id}', [AcademicsController::class, 'fetchSubjectsAndTeachers']);
-        // //assign class subject class
-        // Route::post('/assign-subject-teachers', [AcademicsController::class, 'assignSubjectTeachers'])->name('assign.subject.teachers');
+        // INVENTORY MANAGEMENT
+        Route::get('/inventory', [tuckshopController::class, 'viewInventory'])->name('tuckShop.inventory.management');
+        // ajax get data
+        Route::get('/inventory/view', [tuckshopController::class, 'fetchInventory'])->name('tuckshop.inventory.view');
+
+        //CRUD
+        // Route::post('/inventory/add', [tuckshopController::class, 'addInventory'])->name('tuckshop.inventory.add');
+        Route::post('/inventory/add', [tuckshopController::class, 'addInventory'])->name('tuckshop.inventory.add');
+        Route::put('/inventory/edit/{id}', [tuckshopController::class, 'editInventory'])->name('tuckshop.inventory.edit');
+        Route::delete('/inventory/delete/{id}', [tuckshopController::class, 'deleteInventory'])->name('tuckshop.inventory.delete');
+
+
+
 
     });
 

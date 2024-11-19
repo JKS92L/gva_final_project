@@ -10,13 +10,67 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Sales</li>
+                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal"
+                            data-target="#studentListModal">
+                            View Student Balances
+                        </button>
                     </ol>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Student List -->
+    <div class="modal fade" id="studentListModal" tabindex="-1" role="dialog" aria-labelledby="studentListModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="studentListModalLabel">All Students</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="studentTable" class="table table-bordered table-hover text-nowrap no-footer table-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Gender</th>
+                                <th>Grade</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($students as $key => $student)
+                                @php
+                                    $balance = \App\Models\PocketMoneyAccount::where('student_id', $student->id)->sum(
+                                        'deposit_amount',
+                                    );
+                                @endphp
+                                <tr>
+                                    <td>{{ $key + 1 }}</td>
+                                    <td>{{ $student->firstname }} {{ $student->lastname }}</td>
+                                    <td>{{ ucfirst($student->gender) ?? 'N/A' }}</td>
+                                    <td>{{ $student->grade->gradeno ?? 'N/A' }} - {{ $student->grade->class_name ?? 'N/A' }}
+                                    </td>
+                                    <td>{{ number_format($balance, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
@@ -35,11 +89,27 @@
                                     <select name="student_id" id="studentName" class="form-control form-control-sm select2"
                                         required>
                                         <option value="">Search and Select Student</option>
-                                        <option value="1">John Doe</option>
-                                        <option value="2">Jane Smith</option>
-                                        <option value="3">Samuel Brown</option>
+                                        @foreach ($students as $student)
+                                            @php
+                                                $balance = \App\Models\PocketMoneyAccount::where(
+                                                    'student_id',
+                                                    $student->id,
+                                                )->sum('deposit_amount');
+                                            @endphp
+                                            @if ($balance > 0)
+                                                <option value="{{ $student->id }}">
+                                                    {{ $student->firstname }} {{ $student->lastname }} -
+                                                    ({{ $student->grade->gradeno ?? 'N/A' }} -
+                                                    {{ $student->grade->class_name ?? 'N/A' }})
+                                                    -
+                                                    Bal: {{ number_format($balance, 2) }}
+                                                </option>
+                                            @endif
+                                        @endforeach
                                     </select>
+
                                 </div>
+
 
 
 
@@ -50,10 +120,14 @@
                                             <label for="itemName">Item</label>
                                             <select name="item_id[]" class="form-control form-control-sm select2" required>
                                                 <option value="">Search and Select Item</option>
-                                                <option value="1" data-price="2.50">Apple - $2.50</option>
-                                                <option value="2" data-price="1.00">Banana - $1.00</option>
-                                                <option value="3" data-price="3.00">Orange - $3.00</option>
+                                                @foreach ($items as $item)
+                                                    <option value="{{ $item->id }}"
+                                                        data-price="{{ number_format($item->price, 2) }}">
+                                                        {{ $item->name }} - ZMK {{ number_format($item->price, 2) }}
+                                                    </option>
+                                                @endforeach
                                             </select>
+
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="quantity">Quantity</label>
@@ -154,10 +228,31 @@
                         </div>
                     </div>
                 </div>
+
+
+
             </div>
         </div>
     </div>
     <script>
+         const items = @json($items);
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#studentTable').DataTable({
+                "paging": true, // Enables pagination
+                "searching": true, // Enables search box
+                "ordering": true, // Enables column sorting
+                "info": true, // Shows table info (e.g., "Showing 1-10 of 20")
+                "lengthChange": true, // Allows changing number of rows shown
+                "pageLength": 8, // Default number of rows shown per page
+                "language": {
+                    "search": "Search Students:",
+                    "lengthMenu": "Show _MENU_ entries"
+                }
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Select2 plugin
             $('.select2').select2({
@@ -188,26 +283,36 @@
             }
 
             // Add a new item row
+
+           
+            // Add a new item row
             function addItemRow() {
                 const row = document.createElement('div');
                 row.classList.add('row', 'item-row', 'mt-2');
+
+                // Generate the options dynamically
+                let options = '<option value="">Search and Select Item</option>';
+                items.forEach(item => {
+                    options += `<option value="${item.id}" data-price="${item.price.toFixed(2)}">
+                        ${item.name} - ZMK ${item.price.toFixed(2)}
+                    </option>`;
+                });
+
                 row.innerHTML = `
-            <div class="form-group col-md-6">
-                <select name="item_id[]" class="form-control form-control-sm select2" required>
-                    <option value="">Search and Select Item</option>
-                    <option value="1" data-price="2.50">Apple - $2.50</option>
-                    <option value="2" data-price="1.00">Banana - $1.00</option>
-                    <option value="3" data-price="3.00">Orange - $3.00</option>
-                </select>
-            </div>
-            <div class="form-group col-md-4">
-                <input type="number" name="quantity[]" class="form-control form-control-sm quantity" min="1"
-                       placeholder="Enter Quantity" value="1" required>
-            </div>
-            <div class="form-group col-md-2">
-                <button type="button" class="btn btn-danger btn-sm btn-remove-item"><i class="fas fa-trash"></i></button>
-            </div>
-        `;
+        <div class="form-group col-md-6">
+            <select name="item_id[]" class="form-control form-control-sm select2" required>
+                ${options}
+            </select>
+        </div>
+        <div class="form-group col-md-4">
+            <input type="number" name="quantity[]" class="form-control form-control-sm quantity" min="1"
+                   placeholder="Enter Quantity" value="1" required>
+        </div>
+        <div class="form-group col-md-2">
+            <button type="button" class="btn btn-danger btn-sm btn-remove-item"><i class="fas fa-trash"></i></button>
+        </div>
+    `;
+
                 itemsContainer.appendChild(row);
 
                 // Reinitialize Select2 for the new row
@@ -220,6 +325,10 @@
                 row.querySelector('.quantity').addEventListener('input', calculateTotal);
                 row.querySelector('.select2').addEventListener('change', calculateTotal);
             }
+
+
+
+
 
             // Remove an item row
             function removeItemRow(event) {

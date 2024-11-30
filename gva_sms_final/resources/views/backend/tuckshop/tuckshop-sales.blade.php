@@ -45,7 +45,7 @@
                             @foreach ($students as $key => $student)
                                 @php
                                     $balance = \App\Models\PocketMoneyAccount::where('student_id', $student->id)->sum(
-                                        'deposit_amount',
+                                        'current_amount',
                                     );
                                 @endphp
                                 <tr>
@@ -82,37 +82,45 @@
                             <h3 class="card-title">Select Items</h3>
                         </div>
                         <div class="card-body">
-                            <form id="salesForm" method="POST" action="#">
 
-                                <div class="form-group col-md-12">
-                                    <label for="studentName">Student Name</label>
-                                    <select name="student_id" id="studentName" class="form-control form-control-sm select2"
-                                        required>
-                                        <option value="">Search and Select Student</option>
-                                        @foreach ($students as $student)
-                                            @php
-                                                $balance = \App\Models\PocketMoneyAccount::where(
-                                                    'student_id',
-                                                    $student->id,
-                                                )->sum('deposit_amount');
-                                            @endphp
-                                            @if ($balance > 0)
-                                                <option value="{{ $student->id }}">
-                                                    {{ $student->firstname }} {{ $student->lastname }} -
-                                                    ({{ $student->grade->gradeno ?? 'N/A' }} -
-                                                    {{ $student->grade->class_name ?? 'N/A' }})
-                                                    -
-                                                    Bal: {{ number_format($balance, 2) }}
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
+                            <form method="POST" action="{{ route('tuckshop.processTransaction') }}">
+                                @csrf
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="academic_term">Academic Term</label>
+                                        <select class="form-control form-control-sm" id="academic_term" name="academic_term" required>
+                                            <option value="">--Select a term--</option>
+                                            @foreach ($terms as $term)
+                                                <option value="{{ $term['id'] }}">{{ $term['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        <label for="studentName">Student Name</label>
+                                        <select name="student_id" id="studentName"
+                                            class="form-control form-control-sm select2" required>
+                                            <option value="">Search and Select Student</option>
+                                            @foreach ($students as $student)
+                                                @php
+                                                    $balance = \App\Models\PocketMoneyAccount::where(
+                                                        'student_id',
+                                                        $student->id,
+                                                    )->sum('current_amount');
+                                                @endphp
+                                                @if ($balance > 0)
+                                                    <option value="{{ $student->id }}">
+                                                        {{ $student->firstname }} {{ $student->lastname }} -
+                                                        ({{ $student->grade->gradeno ?? 'N/A' }} -
+                                                        {{ $student->grade->class_name ?? 'N/A' }})
+                                                        - Bal: {{ number_format($balance, 2) }}
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                 </div>
-
-
-
-
 
                                 <div id="itemsContainer">
                                     <div class="row item-row">
@@ -127,7 +135,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-
                                         </div>
                                         <div class="form-group col-md-4">
                                             <label for="quantity">Quantity</label>
@@ -135,7 +142,6 @@
                                                 class="form-control form-control-sm quantity" min="1"
                                                 placeholder="Enter Quantity" value="1" required>
                                         </div>
-
                                     </div>
                                 </div>
 
@@ -144,45 +150,21 @@
                                 </button>
 
                                 <div class="form-group mt-3">
-                                    <label for="totalCost">Total Cost</label>
+                                    <label for="totalCost">Total Cost (ZMK)</label>
                                     <input type="text" name="total_cost" id="totalCost"
-                                        class="form-control form-control-sm" readonly value="ZMK 0.00">
+                                        class="form-control form-control-sm" readonly value="0.00">
                                 </div>
 
-                                <button type="button" id="processSaleButton"
-                                    class="btn btn-success btn-block btn-sm">Process Sale</button>
+                                <div class="form-group">
+                                    <label for="withdrawCode">Withdraw Code</label>
+                                    <input type="password" name="withdraw_code" id="withdrawCode"
+                                        class="form-control form-control-sm" placeholder="Enter Withdraw Code" required>
+                                </div>
+
+                                <button type="submit" class="btn btn-success btn-sm">Process Transaction</button>
                             </form>
 
-                            <!-- Modal for Purchase Code -->
-                            <div class="modal fade" id="purchaseCodeModal" tabindex="-1" role="dialog"
-                                aria-labelledby="purchaseCodeModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="purchaseCodeModalLabel">Enter Purchase Code</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="form-group">
-                                                <label for="purchaseCode">Purchase Code</label>
-                                                <input type="text" id="purchaseCode" class="form-control"
-                                                    placeholder="Enter Purchase Code" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <p>Total Amount: <strong id="modalTotalDisplay">ZMK 0.00</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-dismiss="modal">Cancel</button>
-                                            <button type="button" id="confirmPurchaseButton"
-                                                class="btn btn-success">Confirm</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -205,166 +187,161 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Apple</td>
-                                        <td>2</td>
-                                        <td>$5.00</td>
-                                        <td>16-11-2024 10:30</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Banana</td>
-                                        <td>3</td>
-                                        <td>$3.00</td>
-                                        <td>16-11-2024 11:00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Orange</td>
-                                        <td>1</td>
-                                        <td>$3.00</td>
-                                        <td>16-11-2024 11:15</td>
-                                    </tr>
+                                    @forelse ($transactions as $transaction)
+                                        <tr>
+                                            <td>{{ $transaction->tuckshop_item->name ?? 'N/A' }}</td>
+                                            <td>{{ $transaction->quantity }}</td>
+                                            <td>ZMK {{ number_format($transaction->total_cost, 2) }}</td>
+                                            <td>{{ $transaction->transaction_date->format('d-m-Y H:i') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center">No transactions found</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
+                            <!-- Render pagination links -->
+                            <div class="d-flex justify-content-center">
+                                {{ $transactions->links() }}
+                            </div>
                         </div>
                     </div>
                 </div>
 
 
 
+
+
             </div>
         </div>
     </div>
+
     <script>
-         const items = @json($items);
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('#studentTable').DataTable({
-                "paging": true, // Enables pagination
-                "searching": true, // Enables search box
-                "ordering": true, // Enables column sorting
-                "info": true, // Shows table info (e.g., "Showing 1-10 of 20")
-                "lengthChange": true, // Allows changing number of rows shown
-                "pageLength": 8, // Default number of rows shown per page
-                "language": {
-                    "search": "Search Students:",
-                    "lengthMenu": "Show _MENU_ entries"
-                }
-            });
-        });
+        const items = @json($items);
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Select2 plugin
+            // Initialize Select2 for existing elements
             $('.select2').select2({
                 placeholder: "Search and Select",
-                allowClear: true
+                allowClear: true,
             });
 
             const itemsContainer = document.getElementById('itemsContainer');
             const addItemButton = document.getElementById('addItemButton');
-            const processSaleButton = document.getElementById('processSaleButton');
             const totalCostInput = document.getElementById('totalCost');
-            const purchaseCodeModal = new bootstrap.Modal(document.getElementById('purchaseCodeModal'), {});
-            const modalTotalDisplay = document.getElementById('modalTotalDisplay'); // Total display in modal
 
-            // Calculate the total cost dynamically
+            // Function to calculate the total cost dynamically
             function calculateTotal() {
                 let totalCost = 0;
+
                 itemsContainer.querySelectorAll('.item-row').forEach(row => {
-                    const itemSelect = row.querySelector('.select2');
-                    const quantityInput = row.querySelector('.quantity');
-                    const price = parseFloat(itemSelect.options[itemSelect.selectedIndex]?.getAttribute(
-                        'data-price')) || 0;
+                    const itemSelect = row.querySelector('select[name="item_id[]"]');
+                    const quantityInput = row.querySelector('input[name="quantity[]"]');
+
+                    const price = parseFloat(itemSelect.options[itemSelect.selectedIndex]?.dataset.price ||
+                        0);
                     const quantity = parseInt(quantityInput.value) || 0;
+
                     totalCost += price * quantity;
                 });
-                totalCostInput.value = `ZMK ${totalCost.toFixed(2)}`;
-                modalTotalDisplay.textContent = `ZMK ${totalCost.toFixed(2)}`;
+
+                // Update the total cost field
+                totalCostInput.value = ` ${totalCost.toFixed(2)}`;
             }
 
-            // Add a new item row
-
-           
-            // Add a new item row
+            // Function to add a new item row
             function addItemRow() {
                 const row = document.createElement('div');
                 row.classList.add('row', 'item-row', 'mt-2');
 
-                // Generate the options dynamically
-                let options = '<option value="">Search and Select Item</option>';
+                // Create item select dropdown
+                const itemGroup = document.createElement('div');
+                itemGroup.classList.add('form-group', 'col-md-6');
+                const itemSelect = document.createElement('select');
+                itemSelect.name = 'item_id[]';
+                itemSelect.classList.add('form-control', 'form-control-sm', 'select2');
+                itemSelect.required = true;
+                itemSelect.innerHTML = `<option value="">Search and Select Item</option>`;
                 items.forEach(item => {
-                    options += `<option value="${item.id}" data-price="${item.price.toFixed(2)}">
-                        ${item.name} - ZMK ${item.price.toFixed(2)}
-                    </option>`;
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.dataset.price = item.price.toFixed(2);
+                    option.textContent = `${item.name} - ${item.price.toFixed(2)}`;
+                    itemSelect.appendChild(option);
                 });
+                itemGroup.appendChild(itemSelect);
 
-                row.innerHTML = `
-        <div class="form-group col-md-6">
-            <select name="item_id[]" class="form-control form-control-sm select2" required>
-                ${options}
-            </select>
-        </div>
-        <div class="form-group col-md-4">
-            <input type="number" name="quantity[]" class="form-control form-control-sm quantity" min="1"
-                   placeholder="Enter Quantity" value="1" required>
-        </div>
-        <div class="form-group col-md-2">
-            <button type="button" class="btn btn-danger btn-sm btn-remove-item"><i class="fas fa-trash"></i></button>
-        </div>
-    `;
+                // Create quantity input
+                const quantityGroup = document.createElement('div');
+                quantityGroup.classList.add('form-group', 'col-md-4');
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.name = 'quantity[]';
+                quantityInput.classList.add('form-control', 'form-control-sm', 'quantity');
+                quantityInput.min = 1;
+                quantityInput.placeholder = 'Enter Quantity';
+                quantityInput.value = 1;
+                quantityInput.required = true;
+                quantityGroup.appendChild(quantityInput);
 
+                // Create remove button
+                const removeGroup = document.createElement('div');
+                removeGroup.classList.add('form-group', 'col-md-2');
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'btn-remove-item');
+                removeButton.innerHTML = '<i class="fas fa-trash"></i>';
+                removeGroup.appendChild(removeButton);
+
+                // Append all to the row
+                row.appendChild(itemGroup);
+                row.appendChild(quantityGroup);
+                row.appendChild(removeGroup);
+
+                // Add row to the container
                 itemsContainer.appendChild(row);
 
-                // Reinitialize Select2 for the new row
-                $(row).find('.select2').select2({
+                // Reinitialize Select2 for the new dropdown
+                $(itemSelect).select2({
                     placeholder: "Search and Select",
-                    allowClear: true
+                    allowClear: true,
                 });
 
-                // Attach dynamic calculation to the new row
-                row.querySelector('.quantity').addEventListener('input', calculateTotal);
-                row.querySelector('.select2').addEventListener('change', calculateTotal);
+                // Attach event listeners for dynamic calculation
+                itemSelect.addEventListener('change', calculateTotal);
+                quantityInput.addEventListener('input', calculateTotal);
             }
 
-
-
-
-
-            // Remove an item row
+            // Function to remove an item row
             function removeItemRow(event) {
-                if (event.target.classList.contains('btn-remove-item')) {
-                    event.target.closest('.item-row').remove();
+                if (event.target.closest('.btn-remove-item')) {
+                    const row = event.target.closest('.item-row');
+                    row.remove();
                     calculateTotal();
+
+                    // Show warning if no items remain
+                    if (!itemsContainer.querySelector('.item-row')) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Items Left',
+                            text: 'You need at least one item to proceed.',
+                            toast: true,
+                            position: 'top-end',
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+                    }
                 }
             }
 
             // Attach event listeners
-            addItemButton.addEventListener('click', function() {
-                addItemRow();
-            });
-
+            addItemButton.addEventListener('click', addItemRow);
             itemsContainer.addEventListener('click', removeItemRow);
 
             // Update total when item or quantity changes
             itemsContainer.addEventListener('change', calculateTotal);
             itemsContainer.addEventListener('input', calculateTotal);
-
-            // Show the modal and update the total in the modal
-            processSaleButton.addEventListener('click', function() {
-                calculateTotal(); // Ensure the total is up-to-date
-                purchaseCodeModal.show();
-            });
-
-            // Confirm purchase (form submission logic can go here)
-            document.getElementById('confirmPurchaseButton').addEventListener('click', function() {
-                const purchaseCode = document.getElementById('purchaseCode').value.trim();
-                if (purchaseCode) {
-                    alert(`Processing payment with purchase code: ${purchaseCode}`);
-                    document.getElementById('salesForm').submit(); // Submit the form
-                } else {
-                    alert('Please enter a valid purchase code.');
-                }
-            });
         });
     </script>
 @endsection

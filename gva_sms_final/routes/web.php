@@ -145,7 +145,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::prefix('tuckshop')->group(function () {
          // SALES
         Route::get('/sales', [tuckshopController::class, 'viewSales'])->name('tuckShop.sales');
-        // add CRUD 
+        // SALES CRUD 
+        Route::post('/process-sale', [TuckShopController::class, 'processTransaction'])->name('tuckshop.processTransaction');
+
+
+
+
 
         // INVENTORY MANAGEMENT
         Route::get('/inventory', [tuckshopController::class, 'viewInventory'])->name('tuckShop.inventory.management');
@@ -306,10 +311,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 
 
-    Route::prefix('accounts/expenses')->group(function () {
+    Route::prefix('accounts/transactions')->group(function () {
         // Route for Deposit Records
         Route::get('/deposit-records', [AccountsAndDepositsController::class, 'showDepositRecords'])
             ->name('accounts.expenses.deposit-records');
+
+        //withdraw pocket money
+        Route::post('/withdraws', [AccountsAndDepositsController::class, 'storeWithdrawal'])->name('pocket-money.withdraw');
 
         // Route for Add New Deposit
         Route::post('/deposit-new-record', [AccountsAndDepositsController::class, 'storeDeposit'])
@@ -325,9 +333,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         Route::get('/bank-reconciliation', [AccountsAndDepositsController::class, 'showBankReconciliation'])
             ->name('accounts.expenses.bank-reconciliation');
         // Route to store a new bank reconciliation record
-        Route::post('/bank-reconciliation/store',
-            [AccountsAndDepositsController::class, 'storeBankReconciliation']
-        )
+        Route::post('/bank-reconciliation/store',[AccountsAndDepositsController::class, 'storeBankReconciliation'] )
         ->name('accounts.expenses.bank-reconciliation.store');
         Route::put('accounts/expenses/bank-reconciliation/update/{id}', [AccountsAndDepositsController::class, 'updateBankReconciliation'])
         ->name('accounts.expenses.bank-reconciliation.update');
@@ -335,6 +341,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         // Route to delete a bank reconciliation record
         Route::delete('/bank-reconciliation/{id}', [AccountsAndDepositsController::class, 'destroyBankReconciliation'])
         ->name('accounts.expenses.bank-reconciliation.destroy');
+
 
         //filter ajax route
         Route::get('accounts/expenses/bank-reconciliation/filter', [AccountsAndDepositsController::class, 'filterBankReconciliation'])->name('accounts.expenses.bank-reconciliation.filter');

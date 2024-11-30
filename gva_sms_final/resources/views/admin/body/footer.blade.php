@@ -12,39 +12,23 @@
 </div>
 <!-- ./alerts -->
 <!-- Check if there's a success message in the session -->
-@if (session('success'))
+@if (session('success') || session('error'))
     <script>
         $(document).ready(function() {
             Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: "{{ session('success') }}",
+                icon: '{{ session('success') ? 'success' : 'error' }}',
+                title: '{{ session('success') ? 'Success!' : 'Error!' }}',
+                text: "{{ session('success') ?: session('error') }}",
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 3500,
                 timerProgressBar: true,
             });
         });
     </script>
 @endif
 
-@if ($errors->has('error'))
-    <script>
-        $(document).ready(function() {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: "{{ $errors->first('error') }}",
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3400,
-                timerProgressBar: true,
-            });
-        });
-    </script>
-@endif
 
 
 <!-- jQuery -->

@@ -36,6 +36,15 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+                            <label for="academic_term">Academic Term</label>
+                            <select class="form-control" id="academic_term" name="academic_term" required>
+                                <option value="">--Select a term--</option>
+                                @foreach ($terms as $term)
+                                    <option value="{{ $term['id'] }}">{{ $term['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <!-- Pupil Selection -->
                         <div class="form-group">
                             <label for="student_id">Pupil</label>
@@ -48,7 +57,6 @@
                                 @endforeach
                             </select>
                         </div>
-
 
                         <!-- Deposit Amount -->
                         <div class="form-group">
@@ -71,11 +79,7 @@
                             <input type="text" class="form-control" id="receipt_number" name="receipt_number">
                         </div>
 
-                        <!-- Deposit Date -->
-                        <div class="form-group">
-                            <label for="deposit_date">Deposit Date</label>
-                            <input type="date" class="form-control" id="deposit_date" name="deposit_date" required>
-                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -98,10 +102,12 @@
                             <tr>
                                 <th>#</th>
                                 <th>Pupil Name</th>
+                                <th>Current Amount</th>
                                 <th>Deposit Amount</th>
                                 <th>Method</th>
                                 <th>Receipt Number</th>
-                                <th>Deposit Date</th>
+                                <th>Withdraw Code</th>
+                                {{-- <th>Deposit Date</th> --}}
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -111,10 +117,12 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $deposit->student->firstname . ' ' . $deposit->student->lastname . ' (' . $deposit->student->grade->gradeno . $deposit->student->grade->class_name . ')' ?? 'Unknown' }}
                                     </td>
-                                    <td>{{ number_format($deposit->deposit_amount, 2) }}</td>
+                                    <td>{{ number_format($deposit->current_amount, 2) }}</td>
+                                    <td>{{ number_format($deposit->initial_deposit, 2) }}</td>
                                     <td>{{ ucfirst($deposit->deposit_method) }}</td>
                                     <td>{{ $deposit->receipt_number ?? 'N/A' }}</td>
-                                    <td>{{ $deposit->deposit_date->format('d M Y') }}</td>
+                                    <td>{{ $deposit->withdraw_code }}</td>
+                                    {{-- <td>{{ $deposit->deposit_date->format('d M Y') }}</td> --}}
                                     <td>
                                         <!-- Edit Button -->
                                         <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
@@ -126,6 +134,11 @@
                                         <button type="button" class="btn btn-sm btn-danger" data-toggle="modal"
                                             data-target="#deleteDepositModal{{ $deposit->id }}">
                                             <i class="fas fa-trash-alt"></i> Delete
+                                        </button>
+
+                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
+                                            data-target="#withDrawCashModal{{ $deposit->id }}">
+                                            <i class="fas fa-money-bill-wave"></i> Withdraw
                                         </button>
                                     </td>
                                 </tr>
@@ -153,7 +166,7 @@
                                                     <div class="form-group">
                                                         <label for="deposit_amount">Deposit Amount</label>
                                                         <input type="number" class="form-control" name="deposit_amount"
-                                                            value="{{ $deposit->deposit_amount }}" required>
+                                                            value="{{ $deposit->initial_deposit }}" required>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="method">Method</label>
@@ -174,9 +187,9 @@
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="deposit_date">Deposit Date</label>
-                                                        <input type="date" class="form-control" name="deposit_date"
+                                                        {{-- <input type="date" class="form-control" name="deposit_date"
                                                             value="{{ $deposit->deposit_date->format('Y-m-d') }}"
-                                                            required>
+                                                            required> --}}
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -220,6 +233,68 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Withdraw Modal -->
+                                <div class="modal fade" id="withDrawCashModal{{ $deposit->id }}" tabindex="-1"
+                                    aria-labelledby="withdrawModalLabel{{ $deposit->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="{{ route('pocket-money.withdraw') }}" method="POST">
+                                                @csrf
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="withdrawModalLabel{{ $deposit->id }}">
+                                                        Withdraw Pocket Money for:
+                                                        <span
+                                                            class="text-primary">{{ $deposit->student->firstname . ' ' . $deposit->student->lastname }}</span>
+                                                        ({{ $deposit->student->grade->gradeno . $deposit->student->grade->class_name }})
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <!-- Current Balance -->
+                                                    <div class="mb-3">
+                                                        <p>
+                                                            Current Balance:
+                                                            <span class="text-success fw-bold">ZMK
+                                                                {{ number_format($deposit->current_amount, 2) }}</span>
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Hidden Field for Deposit ID -->
+                                                    <input type="hidden" name="transaction_id" value="{{ $deposit->id }}">
+
+                                                    <!-- Withdrawal Amount -->
+                                                    <div class="mb-3">
+                                                        <label for="withdraw_amount_{{ $deposit->id }}"
+                                                            class="form-label">Withdrawal Amount</label>
+                                                        <input type="number" class="form-control"
+                                                            id="withdraw_amount_{{ $deposit->id }}"
+                                                            name="withdraw_amount" min="1"
+                                                            max="{{ $deposit->current_amount }}"
+                                                            placeholder="Enter withdrawal amount" required>
+                                                    </div>
+
+                                                    <!-- Withdrawal Description -->
+                                                    <div class="mb-3">
+                                                        <label for="withdraw_description_{{ $deposit->id }}"
+                                                            class="form-label">Description (Optional)</label>
+                                                        <textarea class="form-control" id="withdraw_description_{{ $deposit->id }}" name="withdraw_description"
+                                                            rows="3" placeholder="Enter description (optional)"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary">Confirm
+                                                        Withdrawal</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
                             @empty
                                 <tr>
                                     <td colspan="7" class="text-center">No deposit records found.</td>
@@ -233,7 +308,7 @@
 
         </div>
     </div>
-  
+
 
     <script>
         $(document).ready(function() {

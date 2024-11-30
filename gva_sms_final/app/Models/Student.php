@@ -91,5 +91,10 @@ class Student extends Model
     {
         return $this->hasMany(TuckShopTransaction::class, 'student_id');
     }
+    public function pocketMoneyAccount()
+    {
+        return $this->hasOne(PocketMoneyAccount::class, 'student_id');
+    }
+
 
 }

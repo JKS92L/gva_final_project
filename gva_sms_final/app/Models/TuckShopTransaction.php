@@ -9,34 +9,38 @@ class TuckShopTransaction extends Model
 {
     use HasFactory;
 
-    // Define the table associated with the model (if it's not the plural form of the model name)
-    protected $table = 'tuck_shop_transaction'; // Change this to your actual table name
+    protected $table = 'tuckShop_transaction';
 
-    // Fillable fields
     protected $fillable = [
         'student_id',
+        'academic_session_id',//interger
+        'academic_term',// string, e.g term 1
         'item_id',
         'quantity',
         'total_cost',
+        'reference_transaction_id',
         'transaction_date',
     ];
 
-    // Cast the decimal fields to ensure they are treated correctly
     protected $casts = [
         'total_cost' => 'decimal:2',
         'transaction_date' => 'datetime',
     ];
 
-    // Define the relationship with the Student model
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    // Define the relationship with the Item model
-    public function tuckshop_items()
+    public function tuckshop_item()
     {
-        return $this->belongsTo(TuckShopItems::class, 'item_id');
+        return $this->belongsTo(TuckShopItem::class, 'item_id');
     }
-    
+     // Define relationship with PocketMoneyTransaction
+    public function pocketMoneyTransactions()
+    {
+        return $this->hasMany(PocketMoneyTransaction::class, 'transaction_id');
+    }
+
 }
+

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Fee;
 use App\Models\User;
 use App\Models\Grade;
@@ -10,8 +11,11 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\Bedspace;
 use App\Models\Department;
-use App\Models\StudentParent;
+use App\Models\StudentFee;
+use App\Models\ParentDetail;
 use Illuminate\Http\Request;
+use App\Models\StudentParent;
+use App\Models\StudentSibling;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -19,15 +23,26 @@ use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
+    // public function studentDetails()
+    // {
+    //     // Fetch all students with related data like grade, hostel, siblings, and guardians
+    //     $students = Student::with(['grade', 'siblings', 'hostel', 'bedspace', 'parent'])->get();
+    //     return view('backend.students.student-details', compact('students'));
+    // }
+
     public function studentDetails()
     {
-        // Fetch all students with related data like grade, hostel, siblings, and guardians
         $students = Student::with(['grade', 'siblings', 'hostel', 'bedspace', 'parent'])->get();
         return view('backend.students.student-details', compact('students'));
     }
 
+
+
+
+
+
     // student CRUD
-    public function edit($id)
+    public function editStudent($id)
     {
         // Fetch the student with related data (grade, siblings, hostel, bedspace, parent) and user data
         $student = Student::with(['grade', 'siblings', 'hostel', 'bedspace', 'parent', 'user'])
@@ -40,23 +55,27 @@ class StudentController extends Controller
         $grades = Grade::all();
 
         // Fetch all hostels for the hostel dropdown
-        $hostels = Hostel::all(); // Ensure you have a Hostel model
+        $hostels = Hostel::all();
 
         // Fetch bedspaces for the selected hostel
-        $bedspaces = Bedspace::where('hostel_id', $student->hostel_id)->get(); // Assuming bedspaces have a 'hostel_id' column
+        $bedspaces = Bedspace::where('hostel_id', $student->hostel_id)->get();
 
-        // Fetch all students for the siblings select field
-        $students = Student::where('sibling_ids', '!=', $id)->get(); // Get all students except the current one
+        // Fetch all students excluding the current one for the siblings select field
+        $students = Student::where('id', '!=', $id)->get();
 
         // Fetch all fees and decode the fee_session_group_id JSON
-        $fees = Fee::all(); // Fetch all fees
-        // Decode the fee_session_group_id JSON, ensuring it's always an array
+        $fees = Fee::all();
         $selectedFeeIds = json_decode($student->fee_session_group_id, true) ?? []; // Default to an empty array if null
 
+        // Fetch the siblings of the current student
+        $siblings = Student::whereHas('siblings', function ($query) use ($id) {
+            $query->where('student_id', $id);
+        })->get();
 
         // Return the edit view with the student and user data, and other necessary data
-        return view('backend.students.edit', compact('student', 'user', 'grades', 'hostels', 'bedspaces', 'students', 'fees', 'selectedFeeIds'));
+        return view('backend.students.edit-student', compact('student', 'user', 'grades', 'hostels', 'bedspaces', 'students', 'fees', 'selectedFeeIds', 'siblings'));
     }
+
 
 
     public function update(Request $request, $id)
@@ -113,30 +132,47 @@ class StudentController extends Controller
     }
 
 
+    //AJAX method call - fetch hostels by gender
+    public function getHostelsByGender($gender)
+    {
+        // Fetch active hostels filtered by gender
+        $hostels = Hostel::active()->where('hostel_gender', strtolower($gender))->get();
+
+        // Return the hostels as JSON response
+        return response()->json($hostels);
+    }
+
     // AJAX method to fetch bedspaces for the selected hostel
     public function fetchBedspaces(Request $request)
     {
-        $bedspaces = Bedspace::where('id', $request->get('hostel_id'))->get();
+        // Validate the incoming request
+        $request->validate([
+            'hostel_id' => 'required|exists:hostels,id',
+        ]);
+
+        // Fetch bedspaces for the given hostel ID
+        $bedspaces = Bedspace::where('hostel_id', $request->get('hostel_id'))->get();
 
         return response()->json([
             'status' => $bedspaces->isNotEmpty() ? 'success' : 'error',
             'bedspaces' => $bedspaces,
-            'message' => $bedspaces->isNotEmpty() ? null : 'No bedspaces found.'
+            'message' => $bedspaces->isNotEmpty() ? null : 'No bedspaces found for the selected hostel.',
         ]);
     }
 
-    //register a new student
-    public function store(Request $request)
+
+
+    // //register a new student and related records
+    public function storeStudentAndParentDetails(Request $request)
     {
-        // Validate request data including photo validation
+        // Validate request data
         $request->validate([
-            // User table fields
+            // User fields
             'username' => 'required|string|max:255|unique:users,username',
             'student_email' => 'required|email|unique:users,email|max:255',
             'student_phone_number' => 'nullable|string|max:15',
-            'password' => 'required|string|min:4|confirmed',
 
-            // Student table fields
+            // Student fields
             'ecz_no' => 'required|string|max:255',
             'class_id' => 'required|exists:grades,id',
             'student_type' => 'required|string|max:255',
@@ -144,39 +180,52 @@ class StudentController extends Controller
             'lastname' => 'required|string|max:255',
             'gender' => 'required|string|max:10',
             'dob' => 'required|date',
-            'nrc_id_no' => 'nullable|string|max:255',
-            'religion' => 'nullable|string|max:255',
             'admission_date' => 'required|date',
-            'medical_condition' => 'nullable|string|max:255',
-            'hostel_id' => 'nullable|exists:hostels,hostel_id',
-            'sibling_ids' => 'nullable|array',
-            'student_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:4048',
-            'bedspace_id' => 'nullable|exists:bedspaces,id',
-            'hostel_teacher_id' => 'nullable|exists:teachers,id',
 
+            // Guardian details
+            'guardian1_name' => 'nullable|string|max:255',
+            'guardian1_phone' => 'nullable|string|max:15',
+            'guardian1_email' => 'nullable|email|max:255|unique:users,email',
+            'guardian1_occupation' => 'nullable|string|max:255',
+            'guardian1_relationship' => 'nullable|string|max:255',
+            'guardian1_address' => 'nullable|string|max:500',
+            'guardian2_name' => 'nullable|string|max:255',
+            'guardian2_phone' => 'nullable|string|max:15',
+            'guardian2_email' => 'nullable|email|max:255|unique:users,email',
+            'guardian2_occupation' => 'nullable|string|max:255',
+            'guardian2_relationship' => 'nullable|string|max:255',
+            'guardian2_address' => 'nullable|string|max:500',
+
+            // Sibling selection
+            'sibling_ids' => 'nullable|array',
+            'sibling_ids.*' => 'exists:students,id', // Ensure sibling IDs are valid
+
+            // Fee selection
             'fee_session_group_id' => 'nullable|array',
-            'fee_session_group_id.*' => 'exists:fees,id',
+            'fee_session_group_id.*' => 'exists:fees,id', // Ensure fee IDs are valid
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Handle file upload (if photo exists)
-            $photoPath = $request->hasFile('student_photo') ? $request->file('student_photo')->store('uploads/students', 'public') : null;
+            // Handle student profile picture if provided
+            $photoPath = $request->hasFile('student_photo')
+                ? $request->file('student_photo')->store('uploads/students', 'public')
+                : null;
 
-            // Create student user account in the 'users' table
+            // Create student user account
             $user = User::create([
                 'username' => $request->input('username'),
-                'contact_number' => $request->input('student_phone_number'),
                 'email' => $request->input('student_email'),
-                'role_id' => 3, // Student role ID
+                'contact_number' => $request->input('student_phone_number'),
                 'name' => $request->input('firstname') . ' ' . $request->input('lastname'),
-                'password' => Hash::make($request->input('password')),
+                'password' => Hash::make('gva-student'),
+                'role_id' => 3, // Student role ID
                 'profile_picture' => $photoPath,
-                'status' => 1, // Active status
+                'status' => 1,
             ]);
 
-            // Create student record in the 'students' table
+            // Create student record
             $student = Student::create([
                 'user_id' => $user->id,
                 'ecz_no' => $request->input('ecz_no'),
@@ -186,122 +235,99 @@ class StudentController extends Controller
                 'lastname' => $request->input('lastname'),
                 'gender' => $request->input('gender'),
                 'dob' => $request->input('dob'),
-                'nrc_id_no' => $request->input('nrc_id_no'),
-                'religion' => $request->input('religion'),
                 'admission_date' => $request->input('admission_date'),
-                'medical_condition' => $request->input('medical_condition'),
-                'hostel_id' => $request->input('hostel_id'),
-                'bedspace_id' => $request->input('bedspace_id'),
-                'sibling_ids' => json_encode($request->input('sibling_ids', [])),
                 'student_photo' => $photoPath,
-                'bedspace_id' => $request->input('bedspace_id'),
-                'hostel_teacher_id' => $request->input('hostel_teacher_id'),
             ]);
 
-            // Handle sibling linking (optional, if needed)
-            if (!empty($request->input('sibling_ids'))) {
-                $this->linkSiblings($request->input('sibling_ids'), $student);
+            // Handle siblings
+            if ($request->filled('sibling_ids')) {
+                $siblingParentIds = StudentSibling::whereIn('student_id', $request->input('sibling_ids'))
+                    ->pluck('parent_id')
+                    ->unique();
+
+                foreach ($siblingParentIds as $parentId) {
+                    StudentSibling::create([
+                        'student_id' => $student->id,
+                        'parent_id' => $parentId,
+                    ]);
+                }
+            } else {
+                // If no siblings, handle new parent creation
+                $guardianIds = [];
+
+                if ($request->filled('guardian1_name')) {
+                    $guardian1 = User::create([
+                        'username' => $request->input('guardian1_name'),
+                        'email' => $request->input('guardian1_email'),
+                        'name' => $request->input('guardian1_name'),
+                        'contact_number' => $request->input('guardian1_phone'),
+                        'password' => Hash::make('defaultpassword'), // Default password
+                        'role_id' => 4, // Guardian role
+                        'status' => 1,
+                    ]);
+
+                    ParentDetail::create([
+                        'user_id' => $guardian1->id,
+                        'student_id' => $student->id,
+                        'relation' => $request->input('guardian1_relationship'),
+                        'occupation' => $request->input('guardian1_occupation'),
+                        'address' => $request->input('guardian1_address'),
+                    ]);
+
+                    $guardianIds[] = $guardian1->id;
+                }
+
+                if ($request->filled('guardian2_name')) {
+                    $guardian2 = User::create([
+                        'username' => $request->input('guardian2_name'),
+                        'email' => $request->input('guardian2_email'),
+                        'name' => $request->input('guardian2_name'),
+                        'contact_number' => $request->input('guardian2_phone'),
+                        'password' => Hash::make('gva-parent'),
+                        'role_id' => 4,
+                        'status' => 1,
+                    ]);
+
+                    ParentDetail::create([
+                        'user_id' => $guardian2->id,
+                        'student_id' => $student->id,
+                        'relation' => $request->input('guardian2_relationship'),
+                        'occupation' => $request->input('guardian2_occupation'),
+                        'address' => $request->input('guardian2_address'),
+                    ]);
+
+                    $guardianIds[] = $guardian2->id;
+                }
+
+                foreach ($guardianIds as $parentId) {
+                    StudentSibling::create([
+                        'student_id' => $student->id,
+                        'parent_id' => $parentId,
+                    ]);
+                }
+            }
+
+            // Handle fees
+            if ($request->filled('fee_session_group_id')) {
+                $feeData = [];
+                foreach ($request->input('fee_session_group_id') as $feeId) {
+                    $feeData[] = [
+                        'student_id' => $student->id,
+                        'fee_id' => $feeId,
+                    ];
+                }
+                StudentFee::insert($feeData);
             }
 
             DB::commit();
-
-            return redirect()->back()->with('success', 'Student registered successfully!');
-        } catch (\PDOException $e) {
+            return redirect()->back()->with('success', 'Student, related details, and fees registered successfully!');
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Database error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Database error: ' . $e->getMessage());
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('An error occurred: ' . $e->getMessage());
+            Log::error('Error occurred: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 
 
-    /**
-     * Create or update the parent record in the 'parents' and 'users' table.
-     */
-    // protected function createOrUpdateParent($request, $student)
-    // {
-    //     // Check if parent exists by email (father or mother)
-    //     $parent = StudentParent::where('father_email', $request->input('father_email'))
-    //         ->orWhere('mother_email', $request->input('mother_email'))
-    //         ->first();
-
-    //     if (!$parent) {
-    //         // First, create the parent user account
-    //         $parentUser = User::create([
-    //             'username' => $request->input('father_email') ?: $request->input('mother_email'),
-    //             'email' => $request->input('father_email') ?: $request->input('mother_email'),
-    //             'contact_number' => $request->input('mother_phone') . '/' . $request->input('father_phone'),
-    //             'role_id' => 5, // Parent role ID
-    //             'name' => $request->input('father_name') ?: $request->input('mother_name'),
-    //             'password' => Hash::make('gva-sms'), // Set default password, to be updated by parent
-    //             'status' => 1, // Active status
-    //         ]);
-
-    //         // Now create the parent record and insert the user_id from the created user
-    //         $parent = StudentParent::create([
-    //             'user_id' => $parentUser->id, // Associate with the user created above
-    //             'student_ids' => json_encode([$student->id]), // Insert student ID
-    //             'father_name' => $request->input('father_name'),
-    //             'mother_name' => $request->input('mother_name'),
-    //             'father_phone' => $request->input('father_phone'),
-    //             'mother_phone' => $request->input('mother_phone'),
-    //             'father_email' => $request->input('father_email'),
-    //             'mother_email' => $request->input('mother_email'),
-    //             'father_address' => $request->input('father_address'),
-    //             'mother_address' => $request->input('mother_address'),
-    //         ]);
-    //     }
-
-    //     // Set the parent_id in the student record
-    //     $student->parent_id = $parent->id;
-    //     $student->save();
-
-    //     return $parent;
-    // }
-
-
-    /**
-     * Link siblings to the same parent.
-     **/
-    // protected function linkSiblings(array $siblingIds, $student)
-    // {
-    //     if (count($siblingIds) > 0) {
-    //         // Assume the first sibling has the correct parent (use the first sibling's parent_id)
-    //         $firstSibling = Student::find($siblingIds[0]);
-
-    //         if ($firstSibling && $firstSibling->parent_id) {
-    //             // Set the new student's parent_id to that of the first sibling
-    //             $student->parent_id = $firstSibling->parent_id;
-    //             $student->save();
-    //         }
-
-    //         // Link the newly registered student ID to each existing sibling's sibling_ids
-    //         foreach ($siblingIds as $siblingId) {
-    //             $sibling = Student::find($siblingId);
-    //             if ($sibling) {
-    //                 // Decode the existing sibling_ids from JSON
-    //                 $currentSiblingIds = json_decode($sibling->sibling_ids, true) ?? [];
-
-    //                 // Check if the new student's ID is already in the array to avoid duplicates
-    //                 if (!in_array($student->id, $currentSiblingIds)) {
-    //                     // Add the new student's ID to the sibling_ids
-    //                     $currentSiblingIds[] = $student->id;
-
-    //                     // Encode the array back to JSON and save it
-    //                     $sibling->sibling_ids = json_encode($currentSiblingIds);
-    //                     $sibling->save();
-    //                 }
-
-    //                 // Optionally, ensure the sibling shares the same parent_id
-    //                 if ($sibling->parent_id !== $student->parent_id) {
-    //                     $sibling->parent_id = $student->parent_id;
-    //                     $sibling->save();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    ///add more methods
 }

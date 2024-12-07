@@ -18,12 +18,12 @@ class ClassSubjectTeacher extends Model
     ];
 
 
-    public function subjects()
+    public function subject()
     {
         return $this->belongsTo(Subject::class, 'subject_id');
     }
 
-    public function teachers()
+    public function teacher()
     {
         return $this->belongsTo(Teacher::class, 'teacher_id');
     }

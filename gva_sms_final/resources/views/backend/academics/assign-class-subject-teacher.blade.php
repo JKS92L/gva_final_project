@@ -53,8 +53,8 @@
                         <form id="assignTeachersForm" method="POST">
                             @csrf
                             <input type="hidden" id="class_id" name="class_id" value="">
-
                             <input type="hidden" id="session_id" name="session_id" value="">
+
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
@@ -67,8 +67,8 @@
                                     <!-- Dynamic content will be injected here by AJAX -->
                                 </tbody>
                             </table>
-                            <button id="updateAssignedTeachers" type="button"
-                                class="btn btn-success btn-sm float-right">Update Assigned Teachers</button>
+                            <button id="updateAssignedTeachers" type="submit"
+                                class="btn btn-success btn-sm float-right">Save Changes</button>
                         </form>
 
                     </div>
@@ -88,17 +88,13 @@
                 e.preventDefault();
 
                 let gradeId = $('#grade').val();
-                let selectedGradeName = $('#grade option:selected').text(); // Get selected class name
+                let selectedGradeName = $('#grade option:selected').text();
 
                 $.ajax({
-                    url: '/admin/academics/fetch-subjects-teachers/' + gradeId,
+                    url: '/academics/fetch-subjects-teachers/' + gradeId,
                     type: 'GET',
                     success: function(response) {
-                        // Assign fetched values to hidden inputs
                         $('#class_id').val(gradeId);
-                        console.log(response);
-
-                        // Update the card header with the selected class name
                         $('#class-name').removeClass('text-info').text(selectedGradeName);
 
                         let tableBody = $('table tbody');
@@ -107,24 +103,19 @@
                         response.classSubjects.forEach((classSubject, index) => {
                             $('#session_id').val(classSubject.academic_session_id);
 
-                            // Build each row with subject and teacher information
-                            let row = `<tr>
-                    <td>${index + 1}</td>
-                    <td>${classSubject.subjects.name}</td>
-                    
-                    <!-- Hidden input to store subject ID for each row -->
-                    <input type="hidden" name="subject_id[]" value="${classSubject.subject_id}" />
-
-                    <td>
-                        <select name="teacher_id[]" class="form-control">`;
-
-                            // Get assigned teacher ID if available
                             let assignedTeacherId = classSubject.assigned_teachers
                                 .length > 0 ?
                                 classSubject.assigned_teachers[0].teacher_id :
                                 null;
 
-                            // Add major teachers with conditional selection
+                            let row = `<tr>
+                    <td>${index + 1}</td>
+                    <td>${classSubject.subjects.name}</td>
+                    <input type="hidden" name="subject_id[]" value="${classSubject.subject_id}" />
+                    <td>
+                        <select name="teacher_id[]" class="form-control">`;
+
+                            // Add major teachers
                             classSubject.subjects.major_teachers.forEach(teacher => {
                                 let prefix = teacher.gender === 'Male' ? 'Mr.' :
                                     'Ms.';
@@ -136,7 +127,7 @@
                                     `<option value="${teacher.id}" ${selected}>${fullName} (Major)</option>`;
                             });
 
-                            // Add minor teachers with conditional selection
+                            // Add minor teachers
                             classSubject.subjects.minor_teachers.forEach(teacher => {
                                 let prefix = teacher.gender === 'Male' ? 'Mr.' :
                                     'Ms.';
@@ -154,7 +145,6 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        // Revert to default message if error occurs
                         $('#class-name').addClass('text-info').text('Select Class');
                     }
                 });
@@ -162,9 +152,8 @@
 
 
 
-            // update the assigned teachers lesson
 
-            // Event listener for updating assigned teachers
+            // save the assigned teachers lesson
             $('#updateAssignedTeachers').on('click', function(e) {
                 e.preventDefault();
 
@@ -173,9 +162,9 @@
                 // Iterate over each table row to get subject and teacher IDs
                 $('table tbody tr').each(function() {
                     let subjectId = $(this).find('input[name="subject_id[]"]')
-                .val(); // Fetch subject ID from hidden input
+                        .val(); // Fetch subject ID from hidden input
                     let teacherId = $(this).find('select[name="teacher_id[]"]')
-                .val(); // Fetch selected teacher ID
+                        .val(); // Fetch selected teacher ID
 
                     assignments.push({
                         subject_id: subjectId,
@@ -185,7 +174,7 @@
 
                 // AJAX request to update the assignments
                 $.ajax({
-                    url: '/admin/academics/assign-subject-teachers',
+                    url: '/academics/assign-class-subject-teachers',
                     type: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -196,13 +185,27 @@
                         subjects: assignments, // Send subject-teacher assignments array
                     },
                     success: function(response) {
-                        alert(response.message); // Display success message
+                        Swal.fire({
+                            icon: 'success', // Success icon
+                            title: 'Success',
+                            text: response.message, // Display the success message
+                            timer: 3000, // Auto close after 3 seconds
+                            showConfirmButton: false // Hide confirm button
+                        });
                     },
                     error: function(xhr) {
                         console.error('Error:', xhr.responseText); // Log error for debugging
+                        Swal.fire({
+                            icon: 'error', // Error icon
+                            title: 'Error',
+                            text: 'Something went wrong. Please try again.',
+                            showConfirmButton: true // Show confirm button for manual dismissal
+                        });
                     }
                 });
             });
+
+
 
         });
     </script>

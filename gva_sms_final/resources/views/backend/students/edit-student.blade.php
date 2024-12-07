@@ -151,9 +151,9 @@
                                         <select id="sibling_names" class="form-control small select2"
                                             name="sibling_ids[]" multiple="multiple" style="max-width: 100%">
                                             @foreach ($students as $sibling)
-                                                <!-- Change $student to $students -->
+                                                <!-- Check if the sibling is related to the current student -->
                                                 <option value="{{ $sibling->id }}"
-                                                    {{ in_array($sibling->id, json_decode($student->sibling_ids)) ? 'selected' : '' }}>
+                                                    {{ in_array($sibling->id, $student->siblings->pluck('id')->toArray()) ? 'selected' : '' }}>
                                                     {{ ucwords($sibling->firstname) }} {{ ucwords($sibling->lastname) }}
                                                     ({{ ucfirst($sibling->gender) }})
                                                     -
@@ -161,7 +161,6 @@
                                                 </option>
                                             @endforeach
                                         </select>
-
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -236,90 +235,148 @@
                         </div>
                     </div>
                     <!-- Guardian Details Card -->
-                    <div class="card mt-4">
+                    <!-- Guardian Details Card -->
+                    <div id="guardianDetailsCard" class="card mt-4">
                         <div class="card-header">
-                            <h5>Parent/Guardian Details</h5>
+                            <h4 class="card-title">Guardian Details</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="father_name" class="small">Father Name</label>
-                                        <input id="father_name" name="father_name" type="text"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('father_name', $student->parent->father_name ?? '') }}"
-                                            autocomplete="off">
+                                <div class="around10">
+                                    <div class="row">
+                                        <!-- Guardian 1 Details -->
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian1_name" class="small">Guardian 1 Name</label>
+                                                <input id="guardian1_name" name="guardian1_name" type="text"
+                                                    class="form-control form-control-sm" autocomplete="off"
+                                                    value="{{ old('guardian1_name', $student->guardians[0]->name ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian1_phone" class="small">Guardian 1 Phone</label>
+                                                <input id="guardian1_phone" name="guardian1_phone" type="text"
+                                                    class="form-control form-control-sm" autocomplete="off"
+                                                    value="{{ old('guardian1_phone', $student->guardians[0]->phone ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian1_occupation" class="small">Guardian 1
+                                                    Occupation</label>
+                                                <input id="guardian1_occupation" name="guardian1_occupation"
+                                                    type="text" class="form-control form-control-sm"
+                                                    value="{{ old('guardian1_occupation', $student->guardians[0]->occupation ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian1_email" class="small">Guardian 1 Email</label>
+                                                <input id="guardian1_email" name="guardian1_email" type="email"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('guardian1_email', $student->guardians[0]->email ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian1_relationship" class="small">Relationship</label>
+                                                <select id="guardian1_relationship" name="guardian1_relationship"
+                                                    class="form-control form-control-sm">
+                                                    <option value="" disabled selected>Select Relationship</option>
+                                                    <option value="mother"
+                                                        {{ old('guardian1_relationship', $student->guardians[0]->relationship ?? '') == 'mother' ? 'selected' : '' }}>
+                                                        Mother</option>
+                                                    <option value="father"
+                                                        {{ old('guardian1_relationship', $student->guardians[0]->relationship ?? '') == 'father' ? 'selected' : '' }}>
+                                                        Father</option>
+                                                    <option value="uncle"
+                                                        {{ old('guardian1_relationship', $student->guardians[0]->relationship ?? '') == 'uncle' ? 'selected' : '' }}>
+                                                        Uncle</option>
+                                                    <option value="aunt"
+                                                        {{ old('guardian1_relationship', $student->guardians[0]->relationship ?? '') == 'aunt' ? 'selected' : '' }}>
+                                                        Aunt</option>
+                                                    <option value="guardian"
+                                                        {{ old('guardian1_relationship', $student->guardians[0]->relationship ?? '') == 'guardian' ? 'selected' : '' }}>
+                                                        Guardian</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="guardian1_address" class="small">Guardian 1 Address</label>
+                                            <textarea id="guardian1_address" name="guardian1_address" class="form-control form-control-sm" rows="2">{{ old('guardian1_address', $student->guardians[0]->address ?? '') }}</textarea>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="father_phone" class="small">Father Phone</label>
-                                        <input id="father_phone" name="father_phone" type="text"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('father_phone', $student->parent->father_phone ?? '') }}"
-                                            autocomplete="off">
+                                    <hr>
+                                    <div class="row">
+                                        <!-- Guardian 2 Details -->
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian2_name" class="small">Guardian 2 Name</label>
+                                                <input id="guardian2_name" name="guardian2_name" type="text"
+                                                    class="form-control form-control-sm" autocomplete="off"
+                                                    value="{{ old('guardian2_name', $student->guardians[1]->name ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian2_phone" class="small">Guardian 2 Phone</label>
+                                                <input id="guardian2_phone" name="guardian2_phone" type="text"
+                                                    class="form-control form-control-sm" autocomplete="off"
+                                                    value="{{ old('guardian2_phone', $student->guardians[1]->phone ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian2_occupation" class="small">Guardian 2
+                                                    Occupation</label>
+                                                <input id="guardian2_occupation" name="guardian2_occupation"
+                                                    type="text" class="form-control form-control-sm"
+                                                    value="{{ old('guardian2_occupation', $student->guardians[1]->occupation ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian2_email" class="small">Guardian 2 Email</label>
+                                                <input id="guardian2_email" name="guardian2_email" type="email"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('guardian2_email', $student->guardians[1]->email ?? '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="guardian2_relationship" class="small">Relationship</label>
+                                                <select id="guardian2_relationship" name="guardian2_relationship"
+                                                    class="form-control form-control-sm">
+                                                    <option value="" disabled selected>Select Relationship</option>
+                                                    <option value="mother"
+                                                        {{ old('guardian2_relationship', $student->guardians[1]->relationship ?? '') == 'mother' ? 'selected' : '' }}>
+                                                        Mother</option>
+                                                    <option value="father"
+                                                        {{ old('guardian2_relationship', $student->guardians[1]->relationship ?? '') == 'father' ? 'selected' : '' }}>
+                                                        Father</option>
+                                                    <option value="uncle"
+                                                        {{ old('guardian2_relationship', $student->guardians[1]->relationship ?? '') == 'uncle' ? 'selected' : '' }}>
+                                                        Uncle</option>
+                                                    <option value="aunt"
+                                                        {{ old('guardian2_relationship', $student->guardians[1]->relationship ?? '') == 'aunt' ? 'selected' : '' }}>
+                                                        Aunt</option>
+                                                    <option value="guardian"
+                                                        {{ old('guardian2_relationship', $student->guardians[1]->relationship ?? '') == 'guardian' ? 'selected' : '' }}>
+                                                        Guardian</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="guardian2_address" class="small">Guardian 2 Address</label>
+                                            <textarea id="guardian2_address" name="guardian2_address" class="form-control form-control-sm" rows="2">{{ old('guardian2_address', $student->guardians[1]->address ?? '') }}</textarea>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="father_occupation" class="small">Father Occupation</label>
-                                        <input id="father_occupation" name="father_occupation" type="text"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('father_occupation', $student->parent->father_occupation ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="father_email" class="small">Father's Email</label>
-                                        <input id="father_email" name="father_email" type="email"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('father_email', $student->parent->father_email ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <label for="father_address" class="small">Father Address</label>
-                                    <textarea id="father_address" name="father_address" class="form-control form-control-sm" rows="2">{{ old('father_address', $student->parent->father_address ?? '') }}</textarea>
-                                </div>
-
-                                <div class="col-md-4 mt-3">
-                                    <div class="form-group">
-                                        <label for="mother_name" class="small">Mother Name</label>
-                                        <input id="mother_name" name="mother_name" type="text"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('mother_name', $student->parent->mother_name ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mt-3">
-                                    <div class="form-group">
-                                        <label for="mother_phone" class="small">Mother Phone</label>
-                                        <input id="mother_phone" name="mother_phone" type="text"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('mother_phone', $student->parent->mother_phone ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mt-3">
-                                    <div class="form-group">
-                                        <label for="mother_occupation" class="small">Mother Occupation</label>
-                                        <input id="mother_occupation" name="mother_occupation" type="text"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('mother_occupation', $student->parent->mother_occupation ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mt-3">
-                                    <div class="form-group">
-                                        <label for="mother_email" class="small">Mother's Email</label>
-                                        <input id="mother_email" name="mother_email" type="email"
-                                            class="form-control form-control-sm"
-                                            value="{{ old('mother_email', $student->parent->mother_email ?? '') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-8 mt-3">
-                                    <label for="mother_address" class="small">Mother's Address</label>
-                                    <textarea id="mother_address" name="mother_address" class="form-control form-control-sm" rows="2">{{ old('mother_address', $student->parent->mother_address ?? '') }}</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <!-- Fee Details Card -->
                     <div class="card mt-4">
                         <div class="card-header d-flex justify-content-between align-items-center">

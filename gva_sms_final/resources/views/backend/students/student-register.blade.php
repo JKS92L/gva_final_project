@@ -3,13 +3,12 @@
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-               
+
                 <!-- /.col -->
                 <div class="col-sm-12">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item">
-                            <a href="http://127.0.0.1:8000/admin/students/details" class="btn btn-primary btn-sm"
-                                role="button">
+                            <a href="http://127.0.0.1:8000/students/details" class="btn btn-primary btn-sm" role="button">
                                 View Student List
                             </a>
                         </li>
@@ -123,8 +122,8 @@
                                     <label for="gender" class="small">Gender</label> <small class="req"> *</small>
                                     <select class="form-control form-control-sm" name="gender">
                                         <option value="">Select</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
                                     </select>
                                 </div>
                             </div>
@@ -182,10 +181,9 @@
                                             </option>
                                         @endforeach
                                     </select>
-
-
                                 </div>
                             </div>
+
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="roll_no" class="small">Grade/Class</label>
@@ -245,31 +243,29 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Hostel Name -->
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="hostel_name" class="small">Hostel Name</label>
                                     <select class="form-control form-control-sm" id="hostel_name" name="hostel_id">
                                         <option value="">Select Hostel</option>
                                         @foreach ($hostels as $hostel)
-                                            <option value="{{ $hostel->hostel_id }}">
-                                                {{ $hostel->hostel_name . '( ' . $hostel->hostel_gender . ' )' }}
+                                            <option value="{{ $hostel->id }}">
+                                                {{ $hostel->hostel_name . ' (' . ucfirst($hostel->hostel_gender) . ')' }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- Bedspace Number -->
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="bedspaceSelect" class="small">Bedspace Number</label>
                                     <select class="form-control form-control-sm" id="bedspaceSelect" name="bedspace_id">
                                         <option value="">Select Bedspace</option>
-
                                     </select>
                                 </div>
                             </div>
+
 
                             <!-- Hostel Supervisor -->
                             <div class="col-md-4">
@@ -283,108 +279,119 @@
 
                     </div>
                 </div>
-                <!-- Guadian Details Card -->
-                {{-- <div class="card mt-4">
+
+                <!-- Guardian Details Card -->
+                <div id="guardianDetailsCard" class="card mt-4">
                     <div class="card-header">
-                        <h4 class="card-title">Parent/Guardin Details</h4>
+                        <h4 class="card-title">Guardian Details</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="around10">
                                 <div class="row">
+                                    <!-- Guardian 1 Details -->
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="exampleInputEmail1" class="small">Father
-                                                Name</label>
-                                            <input id="father_name" name="father_name" placeholder="" type="text"
+                                            <label for="guardian1_name" class="small">Guardian 1 Name</label>
+                                            <input id="guardian1_name" name="guardian1_name" type="text"
                                                 class="form-control form-control-sm" autocomplete="off">
-
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Father
-                                                Phone</label>
-                                            <input id="father_phone" name="father_phone" placeholder="" type="text"
+                                            <label for="guardian1_phone" class="small">Guardian 1 Phone</label>
+                                            <input id="guardian1_phone" name="guardian1_phone" type="text"
                                                 class="form-control form-control-sm" autocomplete="off">
-
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Father
-                                                Occupation</label>
-                                            <input id="father_occupation" name="father_occupation" placeholder=""
-                                                type="text" class="form-control form-control-sm">
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Father's
-                                                Email</label>
-                                            <input id="father_email" name="father_email" placeholder="" type="text"
+                                            <label for="guardian1_occupation" class="small">Guardian 1 Occupation</label>
+                                            <input id="guardian1_occupation" name="guardian1_occupation" type="text"
                                                 class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="guardian1_email" class="small">Guardian 1 Email</label>
+                                            <input id="guardian1_email" name="guardian1_email" type="email"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="guardian1_relationship" class="small">Relationship</label>
+                                            <select id="guardian1_relationship" name="guardian1_relationship"
+                                                class="form-control form-control-sm">
+                                                <option value="" disabled selected>Select Relationship</option>
+                                                <option value="mother">Mother</option>
+                                                <option value="father">Father</option>
+                                                <option value="uncle">Uncle</option>
+                                                <option value="aunt">Aunt</option>
+                                                <option value="guardian">Guardian</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-8">
-                                        <label for="exampleInputEmail1"class="small">Father Address</label>
-                                        <textarea id="father_address" name="father_address" placeholder="" class="form-control form-control-sm"
-                                            rows="2"></textarea>
+                                        <label for="guardian1_address" class="small">Guardian 1 Address</label>
+                                        <textarea id="guardian1_address" name="guardian1_address" class="form-control form-control-sm" rows="2"></textarea>
                                     </div>
-                                    <br class="text-danger" style="width: 100%">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Mother
-                                                Name</label>
-                                            <input id="mother_name" name="mother_name" placeholder="" type="text"
-                                                class="form-control form-control-sm">
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Mother
-                                                Phone</label>
-                                            <input id="mother_phone" name="mother_phone" placeholder="" type="number"
-                                                class="form-control form-control-sm">
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Mother
-                                                Occupation</label>
-                                            <input id="mother_occupation" name="mother_occupation" placeholder=""
-                                                type="text" class="form-control form-control-sm">
-
-                                        </div>
-                                    </div>
-
                                 </div>
+                                <hr>
                                 <div class="row">
+                                    <!-- Guardian 2 Details -->
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="exampleInputEmail1"class="small">Mother's
-                                                Email</label>
-                                            <input id="mother_email" name="mother_email" placeholder="" type="text"
+                                            <label for="guardian2_name" class="small">Guardian 2 Name</label>
+                                            <input id="guardian2_name" name="guardian2_name" type="text"
+                                                class="form-control form-control-sm" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="guardian2_phone" class="small">Guardian 2 Phone</label>
+                                            <input id="guardian2_phone" name="guardian2_phone" type="text"
+                                                class="form-control form-control-sm" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="guardian2_occupation" class="small">Guardian 2 Occupation</label>
+                                            <input id="guardian2_occupation" name="guardian2_occupation" type="text"
                                                 class="form-control form-control-sm">
-
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="guardian2_email" class="small">Guardian 2 Email</label>
+                                            <input id="guardian2_email" name="guardian2_email" type="email"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="guardian2_relationship" class="small">Relationship</label>
+                                            <select id="guardian2_relationship" name="guardian2_relationship"
+                                                class="form-control form-control-sm">
+                                                <option value="" disabled selected>Select Relationship</option>
+                                                <option value="mother">Mother</option>
+                                                <option value="father">Father</option>
+                                                <option value="uncle">Uncle</option>
+                                                <option value="aunt">Aunt</option>
+                                                <option value="guardian">Guardian</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-8">
-                                        <label for="exampleInputEmail1"class="small">Mother's
-                                            Address</label>
-                                        <textarea id="mather_address" name="mather_address" placeholder="" class="form-control form-control-sm"
-                                            rows="2"></textarea>
-
+                                        <label for="guardian2_address" class="small">Guardian 2 Address</label>
+                                        <textarea id="guardian2_address" name="guardian2_address" class="form-control form-control-sm" rows="2"></textarea>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
-                </div> --}}
+                </div>
+
                 <!-- Fee Details Card -->
                 <div class="card mt-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -471,28 +478,6 @@
                                 </div>
                             </div>
 
-                            <!-- Password -->
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="password" class="small">Password</label>
-                                    <input id="password" name="password" type="password"
-                                        class="form-control form-control-sm" autocomplete="off"
-                                        placeholder="Enter Password" required>
-                                </div>
-                            </div>
-
-                            <!-- Confirm Password -->
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="password_confirmation" class="small">Confirm Password</label>
-                                    <input id="password_confirmation" name="password_confirmation" type="password"
-                                        class="form-control form-control-sm" autocomplete="off"
-                                        placeholder="Confirm Password" required>
-                                    <span id="password_match_error" style="color: red; display: none;">Passwords do not
-                                        match</span>
-                                </div>
-                            </div>
-
                         </div>
 
 
@@ -511,53 +496,106 @@
     </div>
 
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+
     <script type="text/javascript">
         $(document).ready(function() {
             $('.select2').select2();
-            // alert('Jquery Loaded');
-            $("#hostel_name").on("change", function() {
-                // alert('Script running 2');
-                var hostelId = $(this).val();
+
+            // fetch hostels based on gender
+            $('select[name="gender"]').on('change', function() {
+                let gender = $(this).val(); // Get the selected gender
+
+                if (gender) {
+                    // Make an AJAX call to fetch hostels
+                    $.ajax({
+                        url: '/students/get-hostels/' + gender, // Endpoint defined in the route
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            let hostelSelect = $('#hostel_name');
+                            hostelSelect.empty(); // Clear the current options
+                            hostelSelect.append(
+                                '<option value="">Select Hostel</option>'
+                            ); // Add default option
+
+                            // Loop through the hostels and append them as options
+                            $.each(data, function(key, hostel) {
+                                hostelSelect.append(
+                                    `<option value="${hostel.id}">
+                                    ${hostel.hostel_name} (${hostel.hostel_gender.charAt(0).toUpperCase() + hostel.hostel_gender.slice(1)})
+                                </option>`
+                                );
+                            });
+                        },
+                        error: function() {
+                            alert('Unable to fetch hostels. Please try again later.');
+                        }
+                    });
+                } else {
+                    // If no gender is selected, reset the hostel select field
+                    $('#hostel_name').empty().append('<option value="">Select Hostel</option>');
+                }
+            });
+            //fetch bedspaces 
+            $('#hostel_name').change(function() {
+                let hostelId = $(this).val();
+                let bedspaceSelect = $('#bedspaceSelect');
+
+                // Clear existing bedspace options
+                bedspaceSelect.html('<option value="">Select Bedspace</option>');
 
                 if (hostelId) {
                     $.ajax({
-                        url: "{{ route('fetch.bedspaces') }}", // Correct route for fetching bedspaces
-                        type: "GET",
+                        url: '/students/fetch-bedspaces', // Route to your controller method
+                        type: 'GET',
                         data: {
-                            hostel_id: hostelId,
+                            hostel_id: hostelId
                         },
                         success: function(response) {
-                            if (response.status === "success") {
-                                $("#bedspaceSelect").empty(); // Clear previous options
-                                $("#bedspaceSelect").append(
-                                    '<option value="">Select bedspace no</option>'
-                                );
-
-                                // Populate bedspaces dynamically
-                                $.each(response.bedspaces, function(key, bedspace) {
-                                    $("#bedspaceSelect").append(
-                                        '<option value="' +
-                                        bedspace.id +
-                                        '">' +
-                                        bedspace.bedspace_no +
-                                        "</option>"
+                            if (response.status === 'success') {
+                                $.each(response.bedspaces, function(index,
+                                    bedspace) {
+                                    bedspaceSelect.append(
+                                        `<option value="${bedspace.id}">${bedspace.bedspace_no}</option>`
                                     );
                                 });
+                            } else {
+                                alert(response.message);
                             }
                         },
                         error: function(xhr) {
-                            console.log("Error fetching bedspaces:", xhr.responseText);
+                            alert('An error occurred while fetching bedspaces.');
                         },
                     });
-                } else {
-                    // If no hostel is selected, clear the bedspace dropdown
-                    $("#bedspaceSelect").empty();
-                    $("#bedspaceSelect").append(
-                        '<option value="">Select bedspace no</option>'
-                    );
                 }
             });
+
+            // Function to toggle the visibility of the guardian details card
+            function toggleGuardianDetails() {
+                if ($('#sibling_names').val().length > 0) {
+                    // Siblings selected, hide guardian details smoothly
+                    $('#guardianDetailsCard').slideUp();
+                } else {
+                    // No siblings selected, show guardian details smoothly
+                    $('#guardianDetailsCard').slideDown();
+                }
+            }
+
+            // Initialize toggle on page load
+            toggleGuardianDetails();
+
+            // Attach change event to sibling_names
+            $('#sibling_names').on('change', function() {
+                toggleGuardianDetails();
+            });
+
+
+
+
+
+
+
 
 
 

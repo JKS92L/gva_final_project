@@ -113,43 +113,30 @@
                                 <td>{{ $student->ecz_no }}</td>
                                 <td>{{ $student->firstname }} {{ $student->lastname }}</td>
                                 <td>
-                                    {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}
-                                    <!-- Assuming grade is a related model -->
+                                    {{ $student->grade->gradeno ?? 'N/A' }} {{ $student->grade->class_name ?? '' }}
                                 </td>
-
-                                <td>{{ $student->student_type }}</td>
-                                <td>{{ $student->dob->format('d/m/Y') }}</td>
-                                <td>{{ $student->gender }}</td>
+                                <td>{{ ucfirst($student->student_type) }}</td>
+                                <td>{{ $student->dob ? $student->dob->format('d/m/Y') : 'N/A' }}</td>
+                                <td>{{ ucfirst($student->gender) }}</td>
                                 <td>
                                     <a href="#" data-toggle="tooltip"
-                                        title="@foreach ($student->siblings as $sibling) {{ $sibling->name }} @if (!$loop->last), @endif @endforeach">
+                                        title="@foreach ($student->siblings as $sibling) {{ $sibling->firstname }} {{ $sibling->lastname }} @if (!$loop->last), @endif @endforeach">
                                         {{ $student->siblings->count() }}
                                     </a>
-
                                 </td>
                                 <td>
                                     {{ $student->hostel ? $student->hostel->hostel_name : 'N/A' }}
+                                    @if ($student->bedspace)
+                                        ({{ $student->bedspace->bedspace_no }})
+                                    @endif
                                 </td>
-                                {{-- <td>{{ $student->parent->father_phone . ' (Father)' ?? ($student->parent->mother_phone . ' (Mother)' ?? 'N/A') }}
-                                </td> --}}
                                 <td>
                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                        data-target="#viewModal-{{ $student->id }}">
-                                        View
-                                    </button>
-                                    {{-- edit button --}}
+                                        data-target="#viewModal-{{ $student->id }}">View</button>
                                     <button class="btn btn-danger btn-sm" data-toggle="modal"
                                         data-target="#deleteConfirmModal-{{ $student->id }}">Delete</button>
-
-                                    <a href=" {{ route('students.edit', $student->id) }}" class="btn btn-warning btn-sm">
-                                        Edit
-                                    </a>
-                                    {{-- <form action="{{ route('students.destroy', $student->id) }}" method="POST"
-                                        style="display:inline-block;">
-                                        @csrf
-                                        @method('DELETE')
-                                        
-                                    </form> --}}
+                                    <a href="{{ route('students.edit', $student->id) }}"
+                                        class="btn btn-warning btn-sm">Edit</a>
                                 </td>
                             </tr>
 

@@ -90,10 +90,6 @@ class Teacher extends Model
         ->withPivot('class_id', 'subject_type')
         ->withTimestamps();
     }
-
-
-
-
     /**
      * A teacher may have a role (belongs to one role).
      */

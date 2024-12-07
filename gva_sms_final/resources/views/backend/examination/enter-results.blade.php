@@ -1,10 +1,25 @@
 @extends('admin.admim-master')
 @section('admin_content')
     <style>
+        .table th,
+        .table td {
+            text-align: center;
+        }
 
+        .form-control[disabled] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        .mark-absent, .mark-present {
+            cursor: pointer;
+        }
+
+        .info-message {
+            display: none;
+            margin-top: 10px;
+        }
     </style>
-
-    <!-- /.content-header -->
 
     <!-- Main content -->
     <div class="content">
@@ -15,75 +30,61 @@
                 </div>
 
                 <div class="card-body">
-                    {{-- Form for selecting academic year, term, grade, class, and subject --}}
-                    <form id="resultsForm">
-
+                    {{-- Form for selecting academic year, term, grade/class, and subject --}}
+                    <form id="resultsForm" action="{{ route('save.results') }}" method="POST">
+                        @csrf
                         <div class="form-row">
-                            <!-- Academic Year -->
+                            <!-- Academic Term -->
                             <div class="form-group col-md-3">
-                                <label for="academicYear">Academic Year</label>
-                                <select id="academicYear" class="form-control form-control-sm" name="academicYear">
-                                    <option selected disabled>Select Academic Year</option>
-                                    <option>2023/2024</option>
-                                    <option>2024/2025</option>
-                                    <option>2025/2026</option>
-                                    <!-- Add more years as needed -->
-                                </select>
-                            </div>
-
-                            <!-- Term -->
-                            <div class="form-group col-md-3">
-                                <label for="term">Term</label>
-                                <select id="term" class="form-control form-control-sm" name="term">
-                                    <option selected disabled>Select Term</option>
-                                    <option>Term 1</option>
-                                    <option>Term 2</option>
-                                    <option>Term 3</option>
-                                    <!-- Add more terms as needed -->
+                                <label for="academic_term">Academic Term</label>
+                                <select class="form-control form-control-sm" id="academic_term" name="academic_term" required>
+                                    <option value="">--Select a term--</option>
+                                    @foreach ($terms as $term)
+                                        <option value="{{ $term['id'] }}">{{ $term['name'] }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
                             <!-- Grade -->
                             <div class="form-group col-md-3">
-                                <label for="grade">Grade</label>
-                                <select id="grade" class="form-control form-control-sm" name="grade">
-                                    <option selected disabled>Select Grade</option>
-                                    <option>Grade 10</option>
-                                    <option>Grade 11</option>
-                                    <option>Grade 12</option>
-                                    <!-- Add more grades as needed -->
+                                <label for="class_id">Grade/Class</label>
+                                <select id="class_id" name="class_id" class="form-control form-control-sm" required>
+                                    <option value="">Select Grade/Class</option>
+                                    @foreach ($grades as $grade)
+                                        <option value="{{ $grade->id }}">
+                                            {{ $grade->gradeno . ' ' . $grade->class_name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
                             <!-- Subject -->
                             <div class="form-group col-md-3">
                                 <label for="subject">Subject</label>
-                                <select id="subject" class="form-control form-control-sm" name="subject">
-                                    <option selected disabled>Select Subject</option>
+                                <select id="subject" class="form-control form-control-sm" name="subject" required>
+                                    <option value="" disabled selected>Select Subject</option>
                                     <option>Mathematics</option>
                                     <option>English</option>
                                     <option>Science</option>
-                                    <!-- Add more subjects as needed -->
+                                    <!-- Add more subjects dynamically -->
                                 </select>
                             </div>
-                             <div class="form-group col-md-3">
+
+                            <!-- Exam Type -->
+                            <div class="form-group col-md-3">
                                 <label for="examtype">Exam Type</label>
-                                <select id="examtype" class="form-control form-control-sm" name="examtype">
-                                    <option selected disabled>Select Term</option>
-                                    <option>midterm</option>
-                                    <option>End of term </option>
+                                <select id="examtype" class="form-control form-control-sm" name="examtype" required>
+                                    <option value="" disabled selected>Select Exam Type</option>
                                     <option>Midterm</option>
-                                    <!-- Add more terms as needed -->
+                                    <option>End of Term</option>
                                 </select>
                             </div>
 
                             <!-- Show Register Button -->
-                            <div class="form-group col-md-3 mt-3">
-                                <button type="button" id="showRegister" class="btn btn-primary btn-sm">Show Class
-                                    Register</button>
+                            <div class="form-group col-md-12 mt-3">
+                                <button type="button" id="showRegister" class="btn btn-primary btn-sm">Show Class Register</button>
                             </div>
                         </div>
-
 
                         <div id="classRegister" class="mt-4" style="display: none;">
                             {{-- Table for entering results --}}
@@ -94,116 +95,68 @@
                                         <tr>
                                             <th>Student ID</th>
                                             <th>Student Name</th>
-                                            <th>Results</th>
-                                            <th>Action</th>
+                                            <th>Marks (%)</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- Dummy Data --}}
-                                        <tr>
-                                            <td>STU-001</td>
-                                            <td>John Doe</td>
-                                            <td>
-                                                <input type="text" class="form-control"
-                                                    placeholder="Enter result here" />
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-warning btn-sm mark-absent"
-                                                    type="button">Absent</button>
-                                                <button class="btn btn-success btn-sm mark-present" type="button"
-                                                    style="display: none;">Enter</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>STU-002</td>
-                                            <td>Jane Smith</td>
-                                            <td>
-                                                <input type="text" class="form-control"
-                                                    placeholder="Enter result here" />
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-warning btn-sm mark-absent"
-                                                    type="button">Absent</button>
-                                                <button class="btn btn-success btn-sm mark-present" type="button"
-                                                    style="display: none;">Enter</button>
-                                            </td>
-                                        </tr>
-                                        {{-- Add more students as needed --}}
+                                        {{-- Dynamically populated using JavaScript --}}
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-
-                        <div class="form-group mt-4">
-                            <button type="submit" class="btn btn-primary">Save Results</button>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-success btn-sm">Save Results</button>
+                                <button type="button" class="btn btn-secondary btn-sm" id="clearRegister">Clear All</button>
+                            </div>
                         </div>
                     </form>
+
+                    {{-- Information Messages --}}
+                    <div id="infoMessage" class="alert alert-success info-message" role="alert">
+                        Results saved successfully!
+                    </div>
+                    <div id="errorMessage" class="alert alert-danger info-message" role="alert">
+                        An error occurred while saving results.
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    {{-- Push extra CSS --}}
-    {{-- 
-    <link rel="stylesheet" href="/css/custom_datatables.css"> --}}
-    <style>
-        .table th,
-        .table td {
-            text-align: center;
-        }
-
-        .mark-absent {
-            cursor: pointer;
-        }
-
-        .mark-present {
-            cursor: pointer;
-        }
-
-        .form-control[disabled] {
-            background-color: #e9ecef;
-            cursor: not-allowed;
-        }
-    </style>
-
-
-    {{-- Push extra scripts --}}
-
     <script>
-        // JavaScript to handle showing class register
-        document.getElementById('showRegister').addEventListener('click', function() {
+        document.getElementById('showRegister').addEventListener('click', function () {
+            const classId = document.getElementById('class_id').value;
+            const subject = document.getElementById('subject').value;
+
+            if (!classId || !subject) {
+                alert('Please select a grade/class and subject before proceeding.');
+                return;
+            }
+
             document.getElementById('classRegister').style.display = 'block';
+
+            // Mock: Dynamically populate class register table
+            const tableBody = document.querySelector('#classRegister tbody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td>STU-001</td>
+                    <td>John Doe</td>
+                    <td><input type="text" name="marks[]" class="form-control form-control-sm" placeholder="Enter marks" required></td>
+                    <td><button type="button" class="btn btn-warning btn-sm mark-absent">Absent</button></td>
+                </tr>
+                <tr>
+                    <td>STU-002</td>
+                    <td>Jane Smith</td>
+                    <td><input type="text" name="marks[]" class="form-control form-control-sm" placeholder="Enter marks" required></td>
+                    <td><button type="button" class="btn btn-warning btn-sm mark-absent">Absent</button></td>
+                </tr>
+            `;
         });
 
-        // JavaScript to handle marking as absent
-        document.querySelectorAll('.mark-absent').forEach(button => {
-            button.addEventListener('click', function() {
-                const inputField = this.closest('tr').querySelector('input.form-control');
-                const enterButton = this.closest('tr').querySelector('.mark-present');
-                inputField.value = 'ABSENT';
-                inputField.setAttribute('disabled', true);
-                this.style.display = 'none';
-                enterButton.style.display = 'inline-block';
-            });
-        });
-
-        // JavaScript to handle marking as present
-        document.querySelectorAll('.mark-present').forEach(button => {
-            button.addEventListener('click', function() {
-                const inputField = this.closest('tr').querySelector('input.form-control');
-                inputField.removeAttribute('disabled');
-                inputField.focus();
-                this.style.display = 'none';
-                this.closest('tr').querySelector('.mark-absent').style.display = 'inline-block';
-            });
-        });
-
-        // JavaScript to handle form submission
-        document.getElementById('resultsForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            // Add logic to handle form submission
-            alert('Results have been saved.');
+        // Clear all inputs
+        document.getElementById('clearRegister').addEventListener('click', function () {
+            document.getElementById('resultsForm').reset();
+            document.getElementById('classRegister').style.display = 'none';
         });
     </script>
 @endsection

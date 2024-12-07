@@ -39,7 +39,6 @@ class AccountsAndDepositsController extends Controller
     }
 
     // Store a new deposit record
-    
     public function storeDeposit(Request $request)
     {
         // Validate incoming request

@@ -29,11 +29,9 @@ class Student extends Model
         'admission_date',         // Date of admission
         'medical_condition',      // Any medical conditions the student has
         'hostel_id',              // Foreign key for the hostel (if applicable)
-        'sibling_ids',            // JSON-encoded array of sibling IDs
         'student_photo',          // Path to the student's photo
         'bedspace_id',            // Foreign key for the bedspace in the hostel
         'hostel_teacher_id',      // Foreign key for the hostel teacher
-        'fee_session_group_id'
     ];
 
 
@@ -44,10 +42,6 @@ class Student extends Model
         'fee_session_group_id' => 'array', // JSON field
         'sibling_ids' => 'array', // JSON field
     ];
-
-
-  
-        
 
 
     public function grade()
@@ -70,9 +64,18 @@ class Student extends Model
     // Relationship for Siblings (students who share the same parent)
     public function siblings()
     {
-        return $this->hasMany(Student::class, 'parent_id', 'parent_id')
-            ->where('id', '!=', $this->id);  // Exclude the current student
+        return $this->hasManyThrough(
+            Student::class,
+            StudentSibling::class,
+            'student_id',          // Foreign key on the student_sibling table for the current student
+            'id',                  // Foreign key on the students table
+            'id',                  // Local key on the students table
+            'student_id'           // Local key on the student_sibling table
+        );
     }
+
+
+
 
     //relationship
     public function user()
@@ -83,7 +86,7 @@ class Student extends Model
     // The student belongs to one parent
     public function parent()
     {
-        return $this->belongsTo(StudentParent::class, 'parent_id');
+        return $this->belongsTo(ParentDetail::class, 'parent_id');
     }
 
 
@@ -95,6 +98,12 @@ class Student extends Model
     {
         return $this->hasOne(PocketMoneyAccount::class, 'student_id');
     }
+
+    public function fees()
+    {
+        return $this->hasMany(StudentFee::class);
+    }
+
 
 
 }

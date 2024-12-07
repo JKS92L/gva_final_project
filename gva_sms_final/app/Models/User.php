@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -61,6 +62,16 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(UserRole::class, 'role_id');
+    }
+
+
+    public function hasPermission($permission)
+    {
+        // Fetch user permissions from user_roles_permissions table
+        return DB::table('user_roles_permissions')
+            ->where('role_id', $this->role_id)
+            ->where($permission, 1) // Check if the permission (e.g., can_view) is granted
+            ->exists();
     }
 
 

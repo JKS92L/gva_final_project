@@ -127,31 +127,29 @@
                             <tbody>
                                 @foreach ($teachers as $teacher)
                                     <tr>
-                                        <td>{{ $teacher->id }}</td>
-                                        <td>{{ $teacher->first_name }} {{ $teacher->last_name }}</td>
-                                        <td>{{ $teacher->gender }}</td>
+                                        <td>{{ $teacher->id ?? 'N/A' }}</td>
+                                        <td>{{ $teacher->first_name ?? 'N/A' }} {{ $teacher->last_name ?? '' }}</td>
+                                        <td>{{ $teacher->gender ?? 'N/A' }}</td>
                                         <td>{{ $teacher->user->role->role_name ?? 'N/A' }}</td>
                                         <td>{{ $teacher->department->name ?? 'N/A' }}</td>
                                         <td>
-                                            @if ($teacher->majorSubjects->isNotEmpty())
-                                                {{ $teacher->majorSubjects->pluck('short_code')->join(', ') }}
-                                            @endif
+                                            {{ $teacher->majorSubjects->isNotEmpty() ? $teacher->majorSubjects->pluck('short_code')->join(', ') : 'N/A' }}
                                         </td>
                                         <td>
-                                            @if ($teacher->minorSubjects->isNotEmpty())
-                                                {{ $teacher->minorSubjects->pluck('name')->join(', ') }}
-                                            @endif
+                                            {{ $teacher->minorSubjects->isNotEmpty() ? $teacher->minorSubjects->pluck('name')->join(', ') : 'N/A' }}
                                         </td>
-                                        <td>{{ $teacher->user->email }}</td>
-                                        <td>{{ $teacher->user->contact_number }}</td>
-                                        <td>{{ $teacher->user->status == 1 ? 'Active' : 'Inactive' }}</td>
-                                        <td>{{ $teacher->date_of_hire }}</td>
+                                        <td>{{ $teacher->user->email ?? 'N/A' }}</td>
+                                        <td>{{ $teacher->user->contact_number ?? 'N/A' }}</td>
+                                        <td>{{ isset($teacher->user->status) ? ($teacher->user->status == 1 ? 'Active' : 'Inactive') : 'N/A' }}
+                                        </td>
+                                        <td>{{ $teacher->date_of_hire ?? 'N/A' }}</td>
                                         <td>
                                             <!-- Trigger for View Modal -->
                                             <button class="btn btn-sm btn-primary" data-toggle="modal"
                                                 data-target="#viewTeacherModal{{ $teacher->id }}">View</button>
                                             <!-- Edit and Delete buttons -->
-                                           <a href="{{ route('teachers.edit', $teacher->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                            <a href="{{ route('teachers.edit', $teacher->id) }}"
+                                                class="btn btn-sm btn-warning">Edit</a>
                                             <button class="btn btn-sm btn-danger" data-toggle="modal"
                                                 data-target="#deleteTeacherModal{{ $teacher->id }}">Delete</button>
                                         </td>
@@ -162,7 +160,6 @@
                                         role="dialog" aria-labelledby="viewTeacherModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                                             <div class="modal-content">
-                                                <!-- Modal Header -->
                                                 <div class="modal-header bg-primary text-white">
                                                     <h5 class="modal-title" id="viewTeacherModalLabel">Teacher Details</h5>
                                                     <button type="button" class="close text-white" data-dismiss="modal"
@@ -171,9 +168,7 @@
                                                     </button>
                                                 </div>
 
-                                                <!-- Modal Body -->
                                                 <div class="modal-body">
-                                                    <!-- ID Card Design -->
                                                     <div class="row">
                                                         <!-- Teacher's Photo -->
                                                         <div class="col-md-4 text-center">
@@ -183,46 +178,48 @@
                                                         </div>
                                                         <!-- Teacher's Information -->
                                                         <div class="col-md-8">
-                                                            <h4 class="font-weight-bold">{{ $teacher->first_name }}
-                                                                {{ $teacher->last_name }}</h4>
-                                                            <p><strong>Username:</strong> {{ $teacher->user->username }}
+                                                            <h4 class="font-weight-bold">
+                                                                {{ $teacher->first_name ?? 'N/A' }}
+                                                                {{ $teacher->last_name ?? '' }}</h4>
+                                                            <p><strong>Username:</strong>
+                                                                {{ $teacher->user->username ?? 'N/A' }}</p>
+                                                            <p><strong>Email:</strong> {{ $teacher->user->email ?? 'N/A' }}
                                                             </p>
-                                                            <p><strong>Email:</strong> {{ $teacher->user->email }}</p>
                                                             <p><strong>Contact:</strong>
-                                                                {{ $teacher->user->contact_number }}</p>
-                                                            <p><strong>Gender:</strong> {{ $teacher->gender }}</p>
+                                                                {{ $teacher->user->contact_number ?? 'N/A' }}</p>
+                                                            <p><strong>Gender:</strong> {{ $teacher->gender ?? 'N/A' }}</p>
                                                             <p><strong>Position:</strong>
                                                                 {{ $teacher->user->role->role_name ?? 'N/A' }}</p>
                                                             <p><strong>Department:</strong>
                                                                 {{ $teacher->department->name ?? 'N/A' }}</p>
                                                             <p><strong>Major Subjects:</strong>
-                                                                {{ $teacher->majorSubjects->pluck('short_code')->join(', ') ?? 'N/A' }}
+                                                                {{ $teacher->majorSubjects->isNotEmpty() ? $teacher->majorSubjects->pluck('short_code')->join(', ') : 'N/A' }}
                                                             </p>
                                                             <p><strong>Minor Subjects:</strong>
-                                                                {{ $teacher->minorSubjects->pluck('name')->join(', ') ?? 'N/A' }}
+                                                                {{ $teacher->minorSubjects->isNotEmpty() ? $teacher->minorSubjects->pluck('name')->join(', ') : 'N/A' }}
                                                             </p>
                                                             <p><strong>Date of Birth:</strong>
-                                                                {{ $teacher->date_of_birth }}</p>
-                                                            <p><strong>Date Joined:</strong> {{ $teacher->date_of_hire }}
-                                                            </p>
+                                                                {{ $teacher->date_of_birth ?? 'N/A' }}</p>
+                                                            <p><strong>Date Joined:</strong>
+                                                                {{ $teacher->date_of_hire ?? 'N/A' }}</p>
                                                             <p><strong>Years of Experience:</strong>
-                                                                {{ $teacher->years_of_experience }}</p>
+                                                                {{ $teacher->years_of_experience ?? 'N/A' }}</p>
                                                             <p><strong>Qualifications:</strong>
                                                                 {{ $teacher->qualifications ?? 'N/A' }}</p>
                                                             <p><strong>Bank Account No:</strong>
-                                                                {{ $teacher->bank_account_no }}</p>
-                                                            <p><strong>Bank Name:</strong> {{ $teacher->bank_name }}</p>
+                                                                {{ $teacher->bank_account_no ?? 'N/A' }}</p>
+                                                            <p><strong>Bank Name:</strong>
+                                                                {{ $teacher->bank_name ?? 'N/A' }}</p>
                                                             <p><strong>Emergency Contact:</strong>
-                                                                {{ $teacher->emergency_contact_name }}</p>
+                                                                {{ $teacher->emergency_contact_name ?? 'N/A' }}</p>
                                                             <p><strong>Emergency Contact Relation:</strong>
-                                                                {{ $teacher->emergency_contact_relation }}</p>
+                                                                {{ $teacher->emergency_contact_relation ?? 'N/A' }}</p>
                                                             <p><strong>Emergency Contact Phone:</strong>
-                                                                {{ $teacher->emergency_contact_phone }}</p>
+                                                                {{ $teacher->emergency_contact_phone ?? 'N/A' }}</p>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- Modal Footer -->
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary col-md-12 btn-sm"
                                                         data-dismiss="modal">Close</button>
@@ -230,7 +227,6 @@
                                             </div>
                                         </div>
                                     </div>
-
 
                                     <!-- Delete Confirmation Modal -->
                                     <div class="modal fade" id="deleteTeacherModal{{ $teacher->id }}" tabindex="-1"
@@ -246,8 +242,8 @@
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <p>Are you sure you want to delete {{ $teacher->first_name }}
-                                                        {{ $teacher->last_name }}?</p>
+                                                    <p>Are you sure you want to delete {{ $teacher->first_name ?? 'N/A' }}
+                                                        {{ $teacher->last_name ?? '' }}?</p>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary"
@@ -264,7 +260,6 @@
                                     </div>
                                 @endforeach
                             </tbody>
-
                         </table>
 
 

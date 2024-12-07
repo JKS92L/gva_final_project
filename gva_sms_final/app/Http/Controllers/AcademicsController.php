@@ -25,6 +25,16 @@ class AcademicsController extends Controller
     // }
     public function viewAssignClassSubjects()
     {
+        // Fetch active academic sessions, sorted by the newest year first
+        $academicSessions = AcademicSession::where('is_active', 1)->orderBy('academic_year', 'desc')->get();
+
+        // Prepare terms in the sorted order
+        $terms = [];
+        foreach ($academicSessions as $session) {
+            $terms[] = ['id' => $session->id . '-term1', 'name' => $session->academic_year . ' - Term 1'];
+            $terms[] = ['id' => $session->id . '-term2', 'name' => $session->academic_year . ' - Term 2'];
+            $terms[] = ['id' => $session->id . '-term3', 'name' => $session->academic_year . ' - Term 3'];
+        }
         // Retrieve grades with subjects and academic sessions, paginated
         $assignments = Grade::with(['subjects' => function ($query) {
             $query->withPivot('academic_session_id');
@@ -103,6 +113,7 @@ class AcademicsController extends Controller
     //CLASS SUBJECT TEACHERS 
     public function viewClassSubjectsTeachers()
     {
+
         // Get the most recent or current academic session
         $currentSession = AcademicSession::where('is_active', 1)->first();
 
@@ -119,30 +130,31 @@ class AcademicsController extends Controller
     //AJAX Query to fetch the grades and their subject teachers 
     public function fetchSubjectsAndTeachers($id)
     {
-        // Fetch subjects with major and minor teachers, and existing assignments
         $classSubjects = AssignClassSubject::with([
             'subjects.majorTeachers',
             'subjects.minorTeachers',
             'assignedTeachers' => function ($query) {
-                $query->where('session_id', session('current_academic_session_id'));
+                // Join teachers table explicitly to fetch assigned teachers
+                $query->join('teachers', 'class_subject_teachers.teacher_id', '=', 'teachers.id');
             }
         ])
-            ->where('grade_id', $id)
-            ->get();
-        //$sessionId = AcademicSession::where('id', true)->first()->id ?? null; // Adjust logic to retrieve session
+        ->where('grade_id', $id)
+        ->get();
+        // dd($classSubjects->toSql());
 
         return response()->json([
             'classSubjects' => $classSubjects,
-           // 'sessionId' => $sessionId,
         ]);
     }
 
- 
+
+
+
 
 
 
     // assign teacher to class subjects
-    public function assignSubjectTeachers(Request $request)
+    public function assignSubjectTeachersToClass(Request $request)
     {
         $validatedData = $request->validate([
             'session_id' => 'required|integer',

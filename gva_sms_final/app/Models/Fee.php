@@ -18,4 +18,10 @@ class Fee extends Model
         'account_no',
         'fee_status',
     ];
+
+    public function students()
+    {
+        return $this->hasMany(StudentFee::class);
+    }
+
 }

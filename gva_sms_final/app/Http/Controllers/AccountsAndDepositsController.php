@@ -20,7 +20,7 @@ class AccountsAndDepositsController extends Controller
         $deposits = PocketMoneyAccount::with('student')->orderBy('created_at', 'desc')->get();
         $students = Student::with([
             'grade',
-            'parent'
+            'guardians'
         ])->get();
 
         // Fetch active academic sessions, sorted by the newest year first
@@ -116,7 +116,7 @@ class AccountsAndDepositsController extends Controller
             'withdraw_amount' => 'required|numeric|min:1', // Positive amount
             'withdraw_description' => 'nullable|string|max:255', // Optional description
         ]);
-        
+
         // Retrieve the pocket money account record
         $account = PocketMoneyAccount::findOrFail($validated['transaction_id']);
 
@@ -234,9 +234,9 @@ class AccountsAndDepositsController extends Controller
     {
         $bankDeposits = PocketMoneyAccount::with('student')
             ->where('deposit_method', 'bank')
-            ->orderBy('deposit_date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
-        $students = Student::with(['grade', 'parent'])->get();
+        $students = Student::with(['grade', 'guardians'])->get();
 
         return view('backend.accountsAndDeposits.bank-reconciliation', compact('bankDeposits', 'students'));
     }
@@ -402,8 +402,4 @@ class AccountsAndDepositsController extends Controller
             'pupilCount'
         ));
     }
-
-
-
-
 }

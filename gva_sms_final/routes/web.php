@@ -115,6 +115,7 @@ Route::middleware(['auth'])->group(function () {
             });
     }
 });
+
 // User Management Routes
 Route::prefix('/users')->group(function () {
 
@@ -158,12 +159,14 @@ Route::prefix('teachers')->group(function () {
 
 // // Student Management Routes
 Route::prefix('students')->group(function () {
+    //STUDENT DETAILS SUB-MENU ROUTES
     // views 
-    Route::get('/details', [studentController::class, 'studentDetails'])->name('student-details');
-    Route::get('/admission', [StudentController::class, 'studentAdmission'])->name('student-admission');
+    Route::get('/details', [studentController::class, 'viewStudentDetails'])->name('student-details');
     //student-register
     Route::get('/student-registration-form', [StudentController::class, 'viewRegForm'])->name('view.studentreg.form');
-    
+    // Ajax Call fetch sibling's guardian details
+    Route::post('/fetch-guardian-details', [StudentController::class, 'fetchGuardianDetails']);
+
     //ajax call - fetch hostels by gender
     Route::get('/get-hostels/{gender}', [StudentController::class, 'getHostelsByGender'])->name('getHostelsByGender');
     // ajax call to fetch bedspaces 
@@ -175,17 +178,21 @@ Route::prefix('students')->group(function () {
     Route::get('/edit/{id}', [StudentController::class, 'editStudent'])->name('students.edit');
 
     // Route for updating a student (PUT or PATCH request to submit the edited data)
-    Route::put('/update/{id}', [StudentController::class, 'update'])->name('students.update');
+    Route::put('/update/{id}', [StudentController::class, 'updateStudentAllSection'])->name('students.update');
 
     // Route for deleting a student (DELETE request)
-    Route::delete('/delete/{id}', [StudentController::class, 'destroy'])->name('students.destroy');
+    Route::delete('/delete/{id}', [StudentController::class, 'destroyStudent'])->name('students.destroy');
 
-    //ALL DUMMY ROUTES FOR
-    // Route::get('/dummy', [StudentController::class, 'dummy'])->name('student-register');
-    // Route::get('/dummy', [StudentController::class, 'viewRegForm'])->name('attendance-register]');
-    // Route::get('/dummy', [StudentController::class, 'dummy'])->name('lesson-observation');
-    // Route::get('/dummy', [StudentController::class, 'dummy'])->name('lesson-observation');
+    //STUDENT ENROLLMENT PROCESSES
+    Route::get('/enrollment-process', [StudentController::class, 'viewEnrollmentProcess'])->name('enrollment-process');
+    Route::post('/store-enrollment', [StudentController::class, 'storeEnrollmentRecord'])->name('store.enrollment.record');
+    //CRUD
+    Route::put('/student-admission-approve/{id}', [StudentController::class, 'studentAdmissionApprove'])->name('studentsAdmission.approve');
+    Route::put('/student-admission-reject/{id}', [StudentController::class, 'studentAdmissionReject'])->name('studentsAdmission.reject');
 
+    //STUDENT TERMLY ADMISSIONS
+    Route::get('/admission', [StudentController::class, 'viewTermlyAdmissions'])->name('student.termly.admission');
+    Route::post('/student-home-permission/store', [StudentController::class, 'storeStudentHomePermission'])->name('student-home-permission.store');
 });
 
 // // Examination Management Routes
@@ -195,8 +202,6 @@ Route::prefix('exams')->group(function () {
     // Add save results
     Route::get('', [ExamResultsController::class, 'storeResults'])->name('save.results');
 });
-
-
 
 // // ACADEMICS TAB
 Route::prefix('academics')->group(function () {
@@ -235,7 +240,6 @@ Route::prefix('tuckshop')->group(function () {
     Route::post('/inventory/add', [tuckshopController::class, 'addInventory'])->name('tuckshop.inventory.add');
     Route::put('/inventory/edit/{id}', [tuckshopController::class, 'editInventory'])->name('tuckshop.inventory.edit');
     Route::delete('/inventory/delete/{id}', [tuckshopController::class, 'deleteInventory'])->name('tuckshop.inventory.delete');
-
 });
 
 
@@ -347,9 +351,6 @@ Route::prefix('systemSettings')->group(function () {
 
     // Student Profile Update
     Route::get('/student-profile-update', [SystemSettingsController::class, 'studentProfileUpdate'])->name('system.student-profile-update');
-
-    // Online Admission
-    Route::get('/online-admission', [SystemSettingsController::class, 'onlineAdmission'])->name('system.online-admission');
 
     // File Types
     Route::get('/file-types', [SystemSettingsController::class, 'fileTypes'])->name('system.file-types');

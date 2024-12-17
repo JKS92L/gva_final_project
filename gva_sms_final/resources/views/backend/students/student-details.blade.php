@@ -28,68 +28,52 @@
             <div class="col-md-3 col-sm-6 col-12">
                 <div class="info-box shadow-none">
                     <span class="info-box-icon bg-info"><i class="fas fa-bed"></i></span>
-
                     <div class="info-box-content">
                         <span class="info-box-text">Boarders</span>
-                        <span class="info-box-number">120</span> <!-- Replace with dynamic data -->
+                        <span class="info-box-number">{{ $stats['boarders'] }}</span>
                     </div>
-                    <!-- /.info-box-content -->
                 </div>
-                <!-- /.info-box -->
             </div>
-            <!-- /.col -->
 
             <!-- Day Scholars Widget -->
             <div class="col-md-3 col-sm-6 col-12">
                 <div class="info-box shadow-sm">
                     <span class="info-box-icon bg-success"><i class="fas fa-bus"></i></span>
-
                     <div class="info-box-content">
                         <span class="info-box-text">Day Scholars</span>
-                        <span class="info-box-number">80</span> <!-- Replace with dynamic data -->
+                        <span class="info-box-number">{{ $stats['dayScholars'] }}</span>
                     </div>
-                    <!-- /.info-box-content -->
                 </div>
-                <!-- /.info-box -->
             </div>
-            <!-- /.col -->
 
             <!-- Boys Widget -->
             <div class="col-md-3 col-sm-6 col-12">
                 <div class="info-box shadow">
                     <span class="info-box-icon bg-warning"><i class="fas fa-male"></i></span>
-
                     <div class="info-box-content">
                         <span class="info-box-text">Boys</span>
-                        <span class="info-box-number">100</span> <!-- Replace with dynamic data -->
+                        <span class="info-box-number">{{ $stats['boys'] }}</span>
                     </div>
-                    <!-- /.info-box-content -->
                 </div>
-                <!-- /.info-box -->
             </div>
-            <!-- /.col -->
 
             <!-- Girls Widget -->
             <div class="col-md-3 col-sm-6 col-12">
                 <div class="info-box shadow-lg">
                     <span class="info-box-icon bg-danger"><i class="fas fa-female"></i></span>
-
                     <div class="info-box-content">
                         <span class="info-box-text">Girls</span>
-                        <span class="info-box-number">100</span> <!-- Replace with dynamic data -->
+                        <span class="info-box-number">{{ $stats['girls'] }}</span>
                     </div>
-                    <!-- /.info-box-content -->
                 </div>
-                <!-- /.info-box -->
             </div>
-            <!-- /.col -->
         </div>
 
 
         <!-- Table with Pupils List -->
         <div class="card">
             <div class="card-header">
-                <h4>Student Details</h4>
+                <h5>Student Details</h5>
             </div>
             <div class="card-body table-responsive p-2">
                 <table class="table table-bordered table-hover text-nowrap" id="studentDetails">
@@ -103,25 +87,26 @@
                             <th>Gender</th>
                             <th>Siblings</th>
                             <th>Hostel (Bedspace#)</th>
-                            {{-- <th>Guardian Contact No.</th> --}}
+                            <th>Admitted date</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($students as $student)
                             <tr>
-                                <td>{{ $student->ecz_no }}</td>
-                                <td>{{ $student->firstname }} {{ $student->lastname }}</td>
+                                <td>{{ $student->ecz_no ?? 'N/A' }}</td>
+                                <td>{{ $student->firstname ?? 'N/A' }} {{ $student->lastname ?? '' }}</td>
                                 <td>
                                     {{ $student->grade->gradeno ?? 'N/A' }} {{ $student->grade->class_name ?? '' }}
                                 </td>
-                                <td>{{ ucfirst($student->student_type) }}</td>
+                                <td>{{ ucfirst($student->student_type ?? 'N/A') }}</td>
                                 <td>{{ $student->dob ? $student->dob->format('d/m/Y') : 'N/A' }}</td>
-                                <td>{{ ucfirst($student->gender) }}</td>
+                                <td>{{ ucfirst($student->gender ?? 'N/A') }}</td>
                                 <td>
                                     <a href="#" data-toggle="tooltip"
                                         title="@foreach ($student->siblings as $sibling) {{ $sibling->firstname }} {{ $sibling->lastname }} @if (!$loop->last), @endif @endforeach">
-                                        {{ $student->siblings->count() }}
+                                        {{ $student->siblings->count() ?? 0 }}
                                     </a>
                                 </td>
                                 <td>
@@ -129,6 +114,15 @@
                                     @if ($student->bedspace)
                                         ({{ $student->bedspace->bedspace_no }})
                                     @endif
+                                </td>
+                                <td>
+                                    {{ $student->admission_date ? $student->admission_date->format('d/m/Y') : 'N/A' }}
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge badge-{{ $student->active_status === 'enrolled' ? 'success' : 'warning' }}">
+                                        {{ ucfirst($student->active_status) }}
+                                    </span>
                                 </td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
@@ -139,7 +133,6 @@
                                         class="btn btn-warning btn-sm">Edit</a>
                                 </td>
                             </tr>
-
 
                             <!-- View More Modal -->
                             <div class="modal fade" id="viewModal-{{ $student->id }}" tabindex="-1" role="dialog"
@@ -166,53 +159,58 @@
                                                 <div class="col-md-8">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h6>Exam Number: <span
-                                                                    id="modalExamNumber">{{ $student->ecz_no }}</span></h6>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <h6>Pupil's Name: <span
-                                                                    id="modalPupilName">{{ $student->firstname }}
-                                                                    {{ $student->lastname }}</span></h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <h6>Grade: <span id="modalGrade">
-                                                                    {{-- {{ $student->grade->gradeno }} --}}
-                                                                    Work on the grade ids
-                                                                </span></h6>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <h6>Class: <span
-                                                                    id="modalClass">{{ $student->class_id }}</span></h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <h6>Student Type: <span
-                                                                    id="modalStudentType">{{ $student->student_type }}</span>
+                                                            <h6>Exam Number: <strong
+                                                                    id="modalExamNumber">{{ $student->ecz_no ?? 'N/A' }}</strong>
                                                             </h6>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <h6>D.O.B: <span
-                                                                    id="modalDOB">{{ $student->dob->format('d/m/Y') }}</span>
+                                                            <h6>Pupil's Name:
+                                                                <strong
+                                                                    id="modalPupilName">{{ $student->firstname ?? 'N/A' }}
+                                                                    {{ $student->lastname ?? '' }}</strong>
                                                             </h6>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h6>Gender: <span
-                                                                    id="modalGender">{{ $student->gender }}</span></h6>
+                                                            <h6>Grade: <strong
+                                                                    id="modalGrade">{{ $student->grade->gradeno ?? 'N/A' }}</strong>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Class: <strong
+                                                                    id="modalClass">{{ $student->grade->class_name ?? 'N/A' }}</strong>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Student Type: <strong
+                                                                    id="modalStudentType">{{ ucfirst($student->student_type ?? 'N/A') }}</strong>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>D.O.B: <strong
+                                                                    id="modalDOB">{{ $student->dob ? $student->dob->format('d/m/Y') : 'N/A' }}</strong>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Gender: <strong
+                                                                    id="modalGender">{{ ucfirst($student->gender ?? 'N/A') }}</strong>
+                                                            </h6>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <h6>Siblings:
-                                                                <span id="modalSiblings">
-                                                                    @if ($student->siblings->count() > 0)
+                                                                <strong id="modalSiblings">
+                                                                    @if ($student->siblings && $student->siblings->count() > 0)
                                                                         @foreach ($student->siblings as $sibling)
-                                                                            {{ $sibling->firstname }}
-                                                                            {{ $sibling->lastname }}
-                                                                            ({{ $sibling->grade->name }} - Class
-                                                                            {{ $sibling->class_id }})
+                                                                            {{ $sibling->firstname ?? 'N/A' }}
+                                                                            {{ $sibling->lastname ?? '' }}
+                                                                            ({{ $sibling->grade->gradeno ?? 'N/A' }} -
+                                                                            Class
+                                                                            {{ $sibling->grade->class_name ?? 'N/A' }})
                                                                             @if (!$loop->last)
                                                                                 ,
                                                                             @endif
@@ -220,50 +218,44 @@
                                                                     @else
                                                                         None
                                                                     @endif
-                                                                </span>
+                                                                </strong>
                                                             </h6>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h6>Guardian Name: <span
-                                                                    id="modalGuardianName">{{ $student->father_name ?? $student->mother_name }}</span>
+                                                            <h6>Hostel: <strong
+                                                                    id="modalHostel">{{ $student->hostel->hostel_name ?? 'N/A' }}</strong>
                                                             </h6>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <h6>Guardian Contact: <span
-                                                                    id="modalGuardianContact">{{ $student->father_phone ?? $student->mother_phone }}</span>
-                                                            </h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <h6>Residential Address: <span
-                                                                    id="modalResAddress">{{ $student->father_address ?? ($student->mother_address ?? 'N/A') }}</span>
+                                                            <h6>Bedspace: <strong
+                                                                    id="modalBedspace">{{ $student->bedspace->bedspace_no ?? 'N/A' }}</strong>
                                                             </h6>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h6>Hostel: <span
-                                                                    id="modalHostel">{{ $student->hostel->hostel_name ?? 'N/A' }}</span>
+                                                            <h6>Medical Condition: <strong
+                                                                    id="modalMedical">{{ $student->medical_condition ?? 'None' }}</strong>
                                                             </h6>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <h6>Bedspace: <span
-                                                                    id="modalBedspace">{{ $student->hostel->bedspace_no ?? 'N/A' }}</span>
+                                                            <h6>Admission Date:
+                                                                <strong
+                                                                    id="modalAdmission">{{ $student->admission_date ? $student->admission_date->format('d/m/Y') : 'N/A' }}</strong>
                                                             </h6>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <h6>Medical Condition: <span
-                                                                    id="modalMedical">{{ $student->medical_condition ?? 'None' }}</span>
-                                                            </h6>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <h6>Admission Date: <span
-                                                                    id="modalAdmission">{{ $student->admission_date->format('d/m/Y') }}</span>
+                                                            <h6>Active Status:
+                                                                <strong id="modalActiveStatus">
+                                                                    <span
+                                                                        class="badge badge-{{ $student->active_status === 'enrolled' ? 'success' : ($student->active_status === 'rejected' ? 'danger' : 'warning') }}">
+                                                                        {{ ucfirst($student->active_status ?? 'N/A') }}
+                                                                    </span>
+                                                                </strong>
                                                             </h6>
                                                         </div>
                                                     </div>
@@ -277,14 +269,15 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- confirm delete modal --}}
+                            <!-- Delete Confirmation Modal -->
                             <div class="modal fade" id="deleteConfirmModal-{{ $student->id }}" tabindex="-1"
-                                role="dialog" aria-labelledby="deleteStudentLabel" aria-hidden="true">
+                                role="dialog" aria-labelledby="deleteConfirmModalLabel-{{ $student->id }}"
+                                aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteStudentLabel">
-                                                Confirm Deletion for {{ $student->firstname }} {{ $student->lastname }}
+                                            <h5 class="modal-title" id="deleteConfirmModalLabel-{{ $student->id }}">
+                                                Confirm Deletion
                                             </h5>
                                             <button type="button" class="close" data-dismiss="modal"
                                                 aria-label="Close">
@@ -292,21 +285,18 @@
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <p>Are you sure you want to delete this student?</p>
-                                            <p><strong>Student Name:</strong> {{ $student->firstname }}
-                                                {{ $student->lastname }}</p>
-                                            <p><strong>Gender:</strong> {{ ucfirst($student->gender) }}</p>
-                                            <p><strong>Grade:</strong>
-                                                {{ $student->grade->gradeno . ' ' . $student->grade->class_name }}</p>
+                                            Are you sure you want to delete the record for
+                                            <strong>{{ $student->firstname }} {{ $student->lastname }}</strong>?
+                                            This action cannot be undone.
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
                                                 data-dismiss="modal">Cancel</button>
                                             <form action="{{ route('students.destroy', $student->id) }}" method="POST"
-                                                style="display:inline-block;">
+                                                style="display: inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                                <button type="submit" class="btn btn-danger">Confirm Delete</button>
                                             </form>
                                         </div>
                                     </div>
@@ -314,6 +304,7 @@
                             </div>
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -324,7 +315,7 @@
 
 
 
-    {{-- Add here extra stylesheets sms_project/public/css/custom_datatables.css --}}
+
 
 
     <style>

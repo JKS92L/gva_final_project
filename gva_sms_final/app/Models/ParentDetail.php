@@ -37,7 +37,8 @@ class ParentDetail extends Model
      */
     protected $fillable = [
         'user_id',         // ID of the parent in the users table
-        'student_id',      // ID of the associated student
+        'student_id',      // ID of the associated student from students table
+        'guardian_gender', // Gender
         'relation',        // Relation to the student (e.g., Father, Mother, Guardian)
         'occupation',      // Parent's occupation
         'address',         // Parent's address
@@ -50,12 +51,11 @@ class ParentDetail extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
     /**
      * Get the student associated with the parent detail.
      */
     public function student()
     {
-        return $this->belongsTo(Student::class, 'student_id');
+        return $this->belongsToMany(Student::class, 'student_id');
     }
 }

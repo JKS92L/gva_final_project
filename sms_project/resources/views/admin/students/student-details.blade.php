@@ -287,8 +287,7 @@
 @push('js')
     <script>
         // js scrips here 
-
-        $(document).ready(function() {
+$(document).ready(function() {
 
             // Define your variables
             var schoolAdress = `

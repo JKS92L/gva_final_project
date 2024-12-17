@@ -22,7 +22,7 @@ class tuckshopController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $students = Student::with(['grade', 'parent'])->get();
+        $students = Student::with(['grade', 'guardians'])->get();
 
         $items = TuckshopInventory::all()->map(function ($item) {
             $item->price = (float) $item->price; // Ensure price is numeric

@@ -17,19 +17,24 @@ class StudentSibling extends Model
         'is_active',
     ];
 
-    public function parent()
+    public function guardians()
     {
         return $this->belongsTo(ParentDetail::class, 'parent_id');
     }
 
+    public function siblings()
+    {
+        return $this->hasMany(StudentSibling::class, 'parent_id', 'parent_id')
+            ->where('student_id', '!=', $this->student_id);
+    }
 
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    public function siblingStudent()
+    public function parentUser()
     {
-        return $this->belongsTo(Student::class, 'sibling_student_id');
+        return $this->belongsTo(User::class, 'parent_id');
     }
 }

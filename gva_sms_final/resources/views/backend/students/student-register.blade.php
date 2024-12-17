@@ -170,9 +170,10 @@
                             <!-- Sibling Names -->
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="sibling_names" class="small">Select Siblings</label>
-                                    <select id="sibling_names" class="form-control small select2" name="sibling_ids[]"
-                                        multiple="multiple" style="max-width: 100%">
+                                    <label for="sibling_name" class="small">Select Sibling</label>
+                                    <select id="sibling_name" class="form-control small select2" name="sibling_id"
+                                        style="max-width: 100%">
+                                        <option value="" selected disabled>Select a sibling</option>
                                         @foreach ($students as $student)
                                             <option value="{{ $student->id }}">
                                                 {{ ucwords($student->firstname) }} {{ ucwords($student->lastname) }}
@@ -183,6 +184,8 @@
                                     </select>
                                 </div>
                             </div>
+
+
 
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -204,7 +207,7 @@
                                         *</small>
                                     <select id="student_type" name="student_type" class="form-control form-control-sm">
                                         <option value="">Select</option>
-                                        <option value='Day scholar'>Day scholar</option>
+                                        <option value='Day-Scholar'>Day scholar</option>
                                         <option value='Boarder'>Boarder</option>
                                     </select>
                                 </div>
@@ -320,15 +323,30 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
+                                            <label for="guardian1_gender" class="small">Gender</label>
+                                            <select id="guardian1_gender" name="guardian1_gender"
+                                                class="form-control form-control-sm" required>
+                                                <option value="" disabled selected>Select Gender</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group">
                                             <label for="guardian1_relationship" class="small">Relationship</label>
                                             <select id="guardian1_relationship" name="guardian1_relationship"
-                                                class="form-control form-control-sm">
+                                                class="form-control form-control-sm" required>
                                                 <option value="" disabled selected>Select Relationship</option>
                                                 <option value="mother">Mother</option>
                                                 <option value="father">Father</option>
                                                 <option value="uncle">Uncle</option>
                                                 <option value="aunt">Aunt</option>
+                                                <option value="brother">Brother</option>
+                                                <option value="sister">Sister</option>
                                                 <option value="guardian">Guardian</option>
+                                                <option value="other">Other</option>
                                             </select>
                                         </div>
                                     </div>
@@ -370,15 +388,29 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
+                                            <label for="guardian2_gender" class="small">Gender</label>
+                                            <select id="guardian2_gender" name="guardian2_gender"
+                                                class="form-control form-control-sm">
+                                                <option value="" disabled selected>Select Gender</option>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
                                             <label for="guardian2_relationship" class="small">Relationship</label>
                                             <select id="guardian2_relationship" name="guardian2_relationship"
                                                 class="form-control form-control-sm">
-                                                <option value="" disabled selected>Select Relationship</option>
+                                                <option value="" selected>Select Relationship</option>
                                                 <option value="mother">Mother</option>
                                                 <option value="father">Father</option>
                                                 <option value="uncle">Uncle</option>
                                                 <option value="aunt">Aunt</option>
+                                                <option value="brother">Brother</option>
+                                                <option value="sister">Sister</option>
                                                 <option value="guardian">Guardian</option>
+                                                <option value="other">Other</option>
                                             </select>
                                         </div>
                                     </div>
@@ -445,7 +477,7 @@
                 <!-- Login  details-->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h4 class="card-title">Login details</h4>
+                        <h4 class="card-title">Student Login Details</h4>
                     </div>
                     <div class="card-body">
                         <!-- Additional Input Fields -->
@@ -477,7 +509,6 @@
                                         required>
                                 </div>
                             </div>
-
                         </div>
 
 
@@ -537,6 +568,7 @@
                     $('#hostel_name').empty().append('<option value="">Select Hostel</option>');
                 }
             });
+
             //fetch bedspaces 
             $('#hostel_name').change(function() {
                 let hostelId = $(this).val();
@@ -571,24 +603,98 @@
                 }
             });
 
-            // Function to toggle the visibility of the guardian details card
-            function toggleGuardianDetails() {
-                if ($('#sibling_names').val().length > 0) {
-                    // Siblings selected, hide guardian details smoothly
-                    $('#guardianDetailsCard').slideUp();
+
+            function fetchGuardianDetails(siblingId) {
+                if (siblingId) {
+                    $.ajax({
+                        url: '/students/fetch-guardian-details', // Update with the correct backend route
+                        method: 'POST',
+                        data: {
+                            sibling_id: siblingId,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            // Guardian 1
+                            console.log(response);
+                            if (response.guardian1) {
+                                $('#guardian1_name').val(response.guardian1.name).prop('disabled',
+                                    true);
+                                $('#guardian1_phone').val(response.guardian1.contact_number).prop(
+                                    'disabled', true);
+                                $('#guardian1_email').val(response.guardian1.email).prop('disabled',
+                                    true);
+                                $('#guardian1_gender').val(response.guardian1.guardian_gender).prop(
+                                    'disabled',
+                                    true);
+
+                                $('#guardian1_occupation').val(response.guardian1.occupation).prop(
+                                    'disabled', true);
+                                $('#guardian1_address').val(response.guardian1.address).prop('disabled',
+                                    true);
+                            } else {
+                                $('#guardian1_name, #guardian1_phone, #guardian1_email, #guardian1_occupation, #guardian1_address')
+                                    .val('')
+                                    .prop('disabled', false);
+                            }
+
+                            // Guardian 2
+                            if (response.guardian2) {
+                                $('#guardian2_name').val(response.guardian2.name).prop('disabled',
+                                    true);
+                                $('#guardian2_phone').val(response.guardian2.contact_number).prop(
+                                    'disabled', true);
+                                $('#guardian2_email').val(response.guardian2.email).prop('disabled',
+                                    true);
+                                $('#guardian2_gender').val(response.guardian2.guardian_gender).prop(
+                                    'disabled',
+                                    true);
+                                $('#guardian2_occupation').val(response.guardian2.occupation).prop(
+                                    'disabled', true);
+                                $('#guardian2_address').val(response.guardian2.address).prop('disabled',
+                                    true);
+                            } else {
+                                $('#guardian2_name, #guardian2_phone, #guardian2_email, #guardian2_occupation, #guardian2_address')
+                                    .val('')
+                                    .prop('disabled', false);
+                            }
+
+                            // Always enable the relationship fields
+                            $('#guardian1_relationship, #guardian2_relationship').prop('disabled',
+                                false);
+
+                            // Show the guardian details card
+                            $('#guardianDetailsCard').slideDown();
+                        },
+                        error: function(xhr) {
+                            console.error('Failed to fetch guardian details:', xhr.responseText);
+                        }
+                    });
                 } else {
-                    // No siblings selected, show guardian details smoothly
-                    $('#guardianDetailsCard').slideDown();
+                    // No sibling ID selected, enable all fields
+                    $('#guardian1_name, #guardian1_phone, #guardian1_email, #guardian1_occupation, #guardian1_address')
+                        .val('')
+                        .prop('disabled', false);
+                    $('#guardian2_name, #guardian2_phone, #guardian2_email, #guardian2_occupation, #guardian2_address')
+                        .val('')
+                        .prop('disabled', false);
+
+                    // Relationship fields remain enabled
+                    $('#guardian1_relationship, #guardian2_relationship').prop('disabled', false);
+
+                    // Optionally hide the guardian details card
+                    $('#guardianDetailsCard').slideUp();
                 }
             }
 
-            // Initialize toggle on page load
-            toggleGuardianDetails();
-
-            // Attach change event to sibling_names
-            $('#sibling_names').on('change', function() {
-                toggleGuardianDetails();
+            $('#sibling_name').on('change', function() {
+                const siblingId = $(this).val();
+                fetchGuardianDetails(siblingId);
             });
+
+
+            //Call the function
+
+
 
 
 

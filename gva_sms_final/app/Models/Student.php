@@ -10,47 +10,41 @@ class Student extends Model
 {
     use HasFactory;
 
-    // Define the table associated with the model
-    protected $table = 'students'; // The table name is "students"
+    protected $table = 'students';
 
-    // Specify which attributes are mass assignable
     protected $fillable = [
-        'user_id',                // Foreign key linking to the users table
-        'ecz_no',                 // Examination number
-        'class_id',               // Foreign key for the class the student belongs to
-        'student_type',           // Type of student (e.g., full-time, part-time)
-        'firstname',              // Student's first name
-        'lastname',               // Student's last name
-        'other_name',             // Any other names
-        'gender',                 // Gender of the student
-        'dob',                    // Date of birth
-        'nrc_id_no',              // National Registration Card ID number
-        'religion',               // Student's religion
-        'admission_date',         // Date of admission
-        'medical_condition',      // Any medical conditions the student has
-        'hostel_id',              // Foreign key for the hostel (if applicable)
-        'student_photo',          // Path to the student's photo
-        'bedspace_id',            // Foreign key for the bedspace in the hostel
-        'hostel_teacher_id',      // Foreign key for the hostel teacher
+        'user_id',
+        'ecz_no',
+        'class_id',
+        'student_type',
+        'firstname',
+        'lastname',
+        'other_name',
+        'gender',
+        'dob',
+        'nrc_id_no',
+        'religion',
+        'admission_date',
+        'medical_condition',
+        'hostel_id',
+        'student_photo',
+        'bedspace_id',
+        'hostel_teacher_id',
+        'active_status',
     ];
 
-
-    // Define casts for attributes that should be automatically converted to native types
     protected $casts = [
         'dob' => 'date',
         'admission_date' => 'date',
-        'fee_session_group_id' => 'array', // JSON field
-        'sibling_ids' => 'array', // JSON field
+        'fee_session_group_id' => 'array',
+        'sibling_ids' => 'array',
     ];
-
 
     public function grade()
     {
-        return $this->belongsTo(Grade::class, 'class_id'); // 'class_id' is the foreign key in the students table.
+        return $this->belongsTo(Grade::class, 'class_id');
     }
 
-
-    // The student belongs to one hostel
     public function hostel()
     {
         return $this->belongsTo(Hostel::class, 'hostel_id');
@@ -60,50 +54,75 @@ class Student extends Model
     {
         return $this->belongsTo(Bedspace::class);
     }
+    public function admissions()
+    {
+        return $this->hasMany(Admissions::class, 'student_id');
+    }
 
-    // Relationship for Siblings (students who share the same parent)
+    // public function siblings()
+    // {
+    //     return $this->hasManyThrough(
+    //         Student::class,
+    //         StudentSibling::class,
+    //         'student_id',          // Foreign key on the student_sibling table
+    //         'id',                  // Foreign key on the students table
+    //         'id',                  // Local key on the students table
+    //         'student_id'           // Local key on the student_sibling table
+    //     );
+    // }
     public function siblings()
     {
-        return $this->hasManyThrough(
+        return $this->belongsToMany(
             Student::class,
-            StudentSibling::class,
-            'student_id',          // Foreign key on the student_sibling table for the current student
-            'id',                  // Foreign key on the students table
-            'id',                  // Local key on the students table
-            'student_id'           // Local key on the student_sibling table
-        );
+            'student_sibling',   // Pivot table
+            'student_id',        // Foreign key on the pivot table for the current student
+            'student_id',        // Foreign key on the pivot table for siblings
+            'id',                // Local key on the students table
+            'id'                 // Local key on the students table
+        )->where('students.id', '!=', $this->id); // Exclude the current student
     }
 
 
-
-
-    //relationship
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // The student belongs to one parent
-    public function parent()
-    {
-        return $this->belongsTo(ParentDetail::class, 'parent_id');
-    }
-
-
     public function tuckshop_transactions()
     {
         return $this->hasMany(TuckShopTransaction::class, 'student_id');
     }
+
     public function pocketMoneyAccount()
     {
         return $this->hasOne(PocketMoneyAccount::class, 'student_id');
     }
 
-    public function fees()
+
+    // public function guardians
+    public function guardians()
     {
-        return $this->hasMany(StudentFee::class);
+        return $this->belongsToMany(
+            User::class,
+            'student_sibling',     // Pivot table
+            'student_id',          // Foreign key on the pivot table for the student
+            'parent_id',           // Foreign key on the pivot table for guardians
+            'id',                  // Local key on the students table
+            'id'                   // Local key on the users table (guardians)
+        );
     }
 
 
+   
+
+    public function studentFee()
+    {
+        return $this->hasMany(StudentFee::class, 'student_id');
+    }
+
+    public function hostelTeacher()
+    {
+        return $this->belongsTo(User::class, 'hostel_teacher_id');
+    }
 
 }

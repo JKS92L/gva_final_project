@@ -1,77 +1,358 @@
 @extends('admin.admim-master')
 @section('admin_content')
+    <style>
+        /* General Button Styling */
+        .custom-btn-permission,
+        .custom-btn-Clear-in,
+        .custom-btn-Clear-out,
+        .custom-btn-disciplinary {
+            font-size: 0.9em;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: none;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Permission Button */
+        .custom-btn-permission {
+            background-color: #007bff;
+            /* Blue */
+        }
+
+        .custom-btn-permission:hover {
+            background-color: #0056b3;
+            /* Darker Blue */
+            transform: scale(1.1);
+            /* Smooth enlarge */
+        }
+
+        /* Clean-In Button */
+        .custom-btn-Clear-in {
+            background-color: #28a745;
+            /* Green */
+        }
+
+        .custom-btn-Clear-in:hover {
+            background-color: #1e7e34;
+            /* Darker Green */
+            transform: scale(1.1);
+        }
+
+        /* Clean-Out Button */
+        .custom-btn-Clear-out {
+            background-color: #ffc107;
+            /* Yellow */
+            color: #212529;
+        }
+
+        .custom-btn-Clear-out:hover {
+            background-color: #e0a800;
+            /* Darker Yellow */
+            transform: scale(1.1);
+        }
+
+        /* Disciplinary Action Button */
+        .custom-btn-disciplinary {
+            background-color: #dc3545;
+            /* Red */
+        }
+
+        .custom-btn-disciplinary:hover {
+            background-color: #bd2130;
+            /* Darker Red */
+            transform: scale(1.1);
+        }
+
+        /* Tooltip Styling */
+        .custom-btn-permission[title]:hover::after,
+        .custom-btn-Clear-in[title]:hover::after,
+        .custom-btn-Clear-out[title]:hover::after,
+        .custom-btn-disciplinary[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 0.8em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
     <!-- Content Header (Page header) -->
-    <div class="content-header">
+    <div class="content-header py-3 bg-light shadow-sm">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Student Admission</h1>
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0">Termly Student Admissions Management</h2>
+                    <p class="text-muted">Clear-in/out, give permissions and disciplinary actions from here</p>
                 </div>
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+                <div class="col-md-4 text-md-right mt-3 mt-md-0 btn-group-sm">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#admitStudentModal">
+                        <i class="fas fa-user-plus"></i> Add New Enrollment
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            {{-- Button to trigger the admission modal --}}
-            <div class="card-header row">
-                <div class="col-md-9 d-flex align-items-center">
-                    <h1 class="card-title mb-0">Admitted Students</h1>
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
                 </div>
+            @endif
 
-                <div class="col-md-3 d-flex justify-content-end">
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#admitStudentModal">
-                        Admit New Students
-                    </button>
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-            </div>
-
+            @endif
 
             {{-- Table showing admitted students --}}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Exam Number</th>
-                            <th>Student Name</th>
-                            <th>Grade</th>
-                            <th>Class</th>
-                            <th>Admitted Term</th>
-                            <th>Admitted Year</th>
-                            <th>Admitted By</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- Dummy Data --}}
-                        <tr>
-                            <td>123456</td>
-                            <td>John Doe</td>
-                            <td>10</td>
-                            <td>A</td>
-                            <td>Term 1</td>
-                            <td>2024</td>
-                            <td>Admin</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger">Remove</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>654321</td>
-                            <td>Jane Smith</td>
-                            <td>12</td>
-                            <td>B</td>
-                            <td>Term 2</td>
-                            <td>2024</td>
-                            <td>Admin</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger">Remove</button>
-                            </td>
-                        </tr>
-                        {{-- Add more rows as needed --}}
-                    </tbody>
-                </table>
+            <div class="card">
+                <div class="card-header">
+                    <h5>Student Details</h5>
+                </div>
+                <div class="card-body table-responsive p-2">
+                    <table class="table table-bordered table-hover text-nowrap mb-4 table-sm" id="studentDetails">
+                        <thead class="">
+                            <tr>
+                                <th>Exam Number</th>
+                                <th>Pupil's Name</th>
+                                <th>Grade</th>
+                                <th>Student Type</th>
+                                <th>Guardian/Parent</th>
+                                <th>Enrollment Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($students as $student)
+                                <tr>
+                                    <td>{{ $student->ecz_no ?? 'N/A' }}</td>
+                                    <td>
+                                        {{ $student->firstname ?? 'N/A' }} {{ $student->lastname ?? '' }}
+                                        - {{ ucfirst('(' . $student->gender . ')' ?? 'N/A') }}
+                                    </td>
+                                    <td>
+                                        {{ $student->grade->gradeno ?? 'N/A' }} {{ $student->grade->class_name ?? '' }}
+                                    </td>
+                                    <td>{{ ucfirst($student->student_type ?? 'N/A') }}</td>
+                                    <td>
+                                        <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
+                                            @foreach ($student->guardians as $guardian)
+                                                <li>
+                                                    {{ $guardian->name }}
+                                                    @if ($guardian->contact_number)
+                                                        ({{ $guardian->contact_number }})
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-{{ $student->active_status === 'enrolled' ? 'success' : 'warning' }}">
+                                            {{ ucfirst($student->active_status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <!-- Permission Button -->
+                                        <button class="btn custom-btn-permission" data-toggle="modal"
+                                            data-target="#permissionModal-{{ $student->id }}" title="Grant Permission">
+                                            <i class="fas fa-home"></i>
+                                        </button>
+
+                                        <!-- Clean-In Button -->
+                                        <button class="btn custom-btn-Clear-in" data-toggle="modal"
+                                            data-target="#ClearInModal-{{ $student->id }}" title="Clear-In">
+                                            <i class="fas fa-sign-in-alt"></i>
+                                        </button>
+
+                                        <!-- Clean-Out Button -->
+                                        <button class="btn custom-btn-Clear-out" data-toggle="modal"
+                                            data-target="#clearOutModal-{{ $student->id }}" title="Clear-Out">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                        </button>
+
+                                        <!-- Disciplinary Action Button -->
+                                        <button class="btn custom-btn-disciplinary" data-toggle="modal"
+                                            data-target="#disciplinaryModal-{{ $student->id }}"
+                                            title="Disciplinary Action">
+                                            <i class="fas fa-gavel"></i>
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+
+                                {{-- MODALS  --}}
+                                <!-- Permissions Modal -->
+                                <div class="modal fade" id="permissionModal-{{ $student->id }}" tabindex="-1"
+                                    role="dialog" aria-labelledby="permissionModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-ml" role="document">
+                                        <div class="modal-content">
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="permissionModalLabel">Grant Permission for
+                                                    <span class="text-bold text-white"> {{ $student->firstname ?? 'N/A' }}
+                                                        {{ $student->lastname ?? '' }}</span>
+                                                </h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form id="grantPermissionForm-{{ $student->id }}"
+                                                action="{{ route('student-home-permission.store') }}" method="POST">
+
+                                                @csrf
+                                                <!-- Modal Body -->
+                                                <div class="modal-body">
+                                                    {{-- student_id --}}
+                                                    <!-- Hidden Fields -->
+                                                    <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                                    <input type="hidden" name="approved_by"
+                                                        value="{{ auth()->user()->id }}">
+
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-12">
+                                                            <label for="term">Select Term</label>
+                                                            <select class="form-control form-control-sm" id="academic_term"
+                                                                name="academic_term" required>
+                                                                <option value="">--Select a term--</option>
+                                                                @foreach ($terms as $term)
+                                                                    <option value="{{ $term['id'] }}">
+                                                                        {{ $term['name'] }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- Permission Dates and Time -->
+                                                        <div class="form-group col-md-6">
+                                                            <label for="permission_start">Permission Start Date</label>
+                                                            <input type="date" class="form-control form-control-sm"
+                                                                id="permission_start-{{ $student->id }}"
+                                                                name="permission_start" required>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="permission_end">Permission End Date</label>
+                                                            <input type="date" class="form-control form-control-sm"
+                                                                id="permission_end-{{ $student->id }}"
+                                                                name="permission_end" required>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="pickup_time">Pick-Up Time</label>
+                                                            <input type="time" class="form-control form-control-sm"
+                                                                id="pickup_time-{{ $student->id }}" name="pickup_time"
+                                                                required>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label for="pickup_person">Pick-Up Person</label>
+                                                            <select class="form-control form-control-sm"
+                                                                id="pickup_person-{{ $student->id }}"
+                                                                name="pickup_person" required>
+                                                                <option value="parent">Parent</option>
+                                                                <option value="other">Other</option>
+                                                            </select>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Additional Inputs for "Other" Pick-Up Person -->
+                                                    <div id="other_pickup_details-{{ $student->id }}" class="d-none">
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-6">
+                                                                <label for="other_name">Name</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="other_name-{{ $student->id }}" name="other_name"
+                                                                    placeholder="Full Name">
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="other_nrc">NRC</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                                    placeholder="National Registration Card Number">
+                                                            </div>
+
+                                                            <div class="form-group col-md-6">
+                                                                <label for="other_contact">Contact Number</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="other_contact-{{ $student->id }}"
+                                                                    name="other_contact" placeholder="e.g., 097xxxxxxx">
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="vehicle_reg">Vehicle Registration #</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="vehicle_reg-{{ $student->id }}"
+                                                                    name="vehicle_reg"
+                                                                    placeholder="Vehicle Registration Number">
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+
+                                                    <select name="parent_id" id="parent_id"
+                                                        class="form-control form-control-sm">
+                                                        <option value="">--Select a guardian--</option>
+                                                        @foreach ($student->guardians as $guardian)
+                                                            <option value="{{ $guardian->id }}">
+                                                                {{ $guardian->name }} ({{ $guardian->contact_number }})
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+
+
+                                                    <div class="form-row">
+                                                        <!-- Reason for Pick-up -->
+                                                        <div class="form-group col-md-6">
+                                                            <label for="reason">Reason for Pick-Up</label>
+                                                            <textarea class="form-control form-control-sm" id="reason-{{ $student->id }}" name="reason" rows="3"
+                                                                placeholder="Provide a reason for the pick-up" required></textarea>
+                                                        </div>
+                                                        <!-- Comment by Deputy -->
+                                                        <div class="form-group col-md-6">
+                                                            <label for="deputy_comment">Comment by Deputy</label>
+                                                            <textarea class="form-control form-control-sm" id="deputy_comment-{{ $student->id }}" name="deputy_comment"
+                                                                rows="3" placeholder="Enter comments"></textarea>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+
+                                                <!-- Modal Footer -->
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary btn-sm"
+                                                        data-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                        form="grantPermissionForm-{{ $student->id }}">Grant
+                                                        Permission</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </tbody>
+
+                    </table>
+                </div>
             </div>
 
             {{-- Modal for admitting students --}}
@@ -87,7 +368,7 @@
                         </div>
                         <div class="modal-body">
                             {{-- Admission Form --}}
-                            <form action="" method="POST">
+                            <form action="{{ route('student-home-permission.store') }}" method="POST">
                                 @csrf
                                 {{-- Academic Year --}}
                                 <div class="form-group">
@@ -141,10 +422,38 @@
 
         </div>
     </div>
+    
     <script>
+        // new DataTable('#example2', {
+        //     layout: {
+        //         topStart: {
+        //             buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
+        //         }
+        //     }
+        // });
         $(document).ready(function() {
+            // $('#studentDetails').DataTable();
+
+            $('#studentDetails').DataTable();
+
+
+            $('[id^="pickup_person"]').on('change', function() {
+                const studentId = $(this).attr('id').split('-')[1]; // Extract student ID
+                const $otherDetails = $(`#other_pickup_details-${studentId}`);
+                const $parentIdInput = $('#parent_id'); // Target the static parent_id input directly
+
+                if ($(this).val() === 'other') {
+                    $otherDetails.removeClass('d-none'); // Show "Other" details
+                    $parentIdInput.addClass('d-none'); // Hide Parent ID input
+                } else {
+                    $otherDetails.addClass('d-none'); // Hide "Other" details
+                    $parentIdInput.removeClass('d-none'); // Show Parent ID input
+                }
+            });
+
             // Initialize select2 for student selection
             $('.select2').select2();
+
         });
     </script>
 @endsection

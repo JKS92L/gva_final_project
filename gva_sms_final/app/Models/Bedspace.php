@@ -14,6 +14,7 @@ class Bedspace extends Model
     protected $fillable = [
         'hostel_id',
         'bedspace_no',
+        'occupied_status'
     ];
 
     // Relationship with Hostel model

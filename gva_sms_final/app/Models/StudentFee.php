@@ -25,8 +25,8 @@ class StudentFee extends Model
     /**
      * Define the relationship with the Fee model.
      */
-    public function fee()
-    {
-        return $this->belongsTo(Fee::class);
-    }
+    // public function fee()
+    // {
+    //     return $this->belongsTo(Fee::class);
+    // }
 }

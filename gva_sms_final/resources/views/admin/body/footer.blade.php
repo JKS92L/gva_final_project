@@ -1,3 +1,4 @@
+
 <!-- Main Footer -->
 <footer class="main-footer">
     <!-- To the right -->
@@ -8,7 +9,7 @@
     <strong>Copyright &copy; 2021-2024 <a href="https://adminlte.io">CyberKorp</a>.</strong> All rights reserved.
 </footer>
 </div>
-<!-- ./ content wraper -->
+
 </div>
 <!-- ./alerts -->
 <!-- Check if there's a success message in the session -->
@@ -28,23 +29,12 @@
         });
     </script>
 @endif
-
-
+<script></script>
 
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('backend/plugins/jquery/jquery.min.js')}}"></script>
 <!-- Bootstrap 4 -->
 <script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-
-<!-- AdminLTE App -->
-<script src="{{ asset('backend/js/adminlte.min.js') }}"></script>
-
-{{-- optional plugins  --}}
-{{-- anychart --}}
-<script src="{{ asset('backend/plugins/chart.js/Chart.min.js') }}"></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="{{ asset('backend/js/pages/dashboard3.js') }}"></script>
-
 <!-- DataTables  & Plugins -->
 <script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -58,6 +48,23 @@
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+
+
+
+
+<!-- Bootstrap 4 -->
+<script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+<!-- AdminLTE App -->
+<script src="{{ asset('backend/js/adminlte.min.js') }}"></script>
+
+{{-- optional plugins  --}}
+{{-- anychart --}}
+<script src="{{ asset('backend/plugins/chart.js/Chart.min.js') }}"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{{ asset('backend/js/pages/dashboard3.js') }}"></script>
+
+
 <!-- Include DataTables CSS and JS -->
 
 {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
@@ -78,8 +85,8 @@
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <!-- DataTables Buttons Extension (for export options) -->
-<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.flash.min.js"></script>
+{{-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.flash.min.js"></script> --}}
 
 
 <script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

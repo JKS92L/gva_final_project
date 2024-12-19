@@ -1,4 +1,3 @@
-
 <!-- Main Footer -->
 <footer class="main-footer">
     <!-- To the right -->
@@ -9,7 +8,11 @@
     <strong>Copyright &copy; 2021-2024 <a href="https://adminlte.io">CyberKorp</a>.</strong> All rights reserved.
 </footer>
 </div>
-
+<!-- ./ content wraper -->
+ <!-- Add this before the closing </body> tag for Bootstrap JS for alerts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </div>
 <!-- ./alerts -->
 <!-- Check if there's a success message in the session -->

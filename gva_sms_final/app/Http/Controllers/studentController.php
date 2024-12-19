@@ -14,9 +14,11 @@ use App\Models\Admissions;
 use App\Models\Department;
 use App\Models\StudentFee;
 use App\Models\ParentDetail;
+use App\Models\SessionTerms;
 use Illuminate\Http\Request;
 use App\Models\StudentParent;
 use App\Helpers\CodeGenerator;
+use App\Models\StudentClearIn;
 use App\Models\StudentSibling;
 use App\Models\AcademicSession;
 use Illuminate\Validation\Rule;
@@ -26,6 +28,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Models\StudentHomePermission;
+use App\Models\StudentCheckInCheckOut;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -753,8 +756,12 @@ class StudentController extends Controller
             $terms[] = ['id' => $session->id . '-term3', 'name' => $session->academic_year . ' - Term 3'];
         }
 
-        $students = Student::with(['grade', 'hostel', 'bedspace', 'guardians'])->get();
+        $students = Student::with(['grade', 'hostel', 'bedspace', 'guardians', 'latestClearance', 'latestCheckin'])->get();
+          
 
+
+        $hostels = Hostel::all();
+        $bedspaces = Bedspace::all();
         // Attach sibling details for each student
         foreach ($students as $student) {
             // Fetch sibling IDs
@@ -771,15 +778,7 @@ class StudentController extends Controller
             // Attach siblings as a relationship-like property
             $student->setRelation('siblings', Student::whereIn('id', $siblingIds)->get());
         }
-
-        // Aggregated data for stats
-        // $stats = [
-        //     'boarders' => Student::where('student_type', 'Boarder')->count(),
-        //     'dayScholars' => Student::where('student_type', 'Day-Scholar')->count(),
-        //     'boys' => Student::where('gender', 'male')->count(),
-        //     'girls' => Student::where('gender', 'female')->count(),
-        // ];
-        return view('backend.students.student-admission', compact('students', 'terms'));
+        return view('backend.students.student-admission', compact('students', 'bedspaces', 'hostels', 'terms'));
     }
     public function storeStudentHomePermission(Request $request)
     {
@@ -831,10 +830,140 @@ class StudentController extends Controller
         StudentHomePermission::create($data);
 
         // Redirect with success message
-        return redirect()->route('student.termly.admission')
-        ->with('success', 'Student home permission created successfully.');
+        return redirect()->route('checkIns.admissions')
+            ->with('success', 'Student home permission created successfully.');
     }
+    //student Clean In
+    // public function storeStudentCheckIn(Request $request)
+    // {
+    //     // Validate the input data
+    //     $request->validate([
+    //         'student_id' => 'required|exists:students,id',
+    //         'academic_term' => 'required|string',
+    //         'clearIn_person' => 'required|string',
+    //         'check_in_time' => 'required|date_format:H:i',
+    //         'other_name' => 'nullable|string|max:255',
+    //         'other_nrc' => 'nullable|string',
+    //         'vehicle_reg'=> 'nullable|string',
+    //         'parent_id'=> 'nullable|exists:users,id',
+    //         'other_contact' => 'nullable|string|max:15|regex:/^[0-9+\s()-]+$/',
+    //         'brought_by_relationship' => 'nullable|string|max:255',
+    //         'cleared_by' => 'required|exists:users,id',
+    //     ]);
 
+    //     // Extract academic year ID and term number
+    //     if (strpos($request->input('academic_term'), '-') === false) {
+    //         return back()->with('error', 'Invalid academic term format.');
+    //     }
+
+    //     [$academicYearId, $academicTermNo] = explode('-', $request->input('academic_term'));
+
+    //     // Validate extracted values
+    //     if (!is_numeric($academicYearId)) {
+    //         return back()->with('error', 'Invalid academic term values.');
+    //     }
+
+    //     // Process checkbox inputs and ensure boolean values
+    //     $checkboxes = ['clearance_accounts', 'clearance_secretary', 'clearance_search', 'clearance_patron'];
+    //     $processedCheckboxes = [];
+    //     foreach ($checkboxes as $checkbox) {
+    //         $processedCheckboxes[$checkbox] = filter_var($request->input($checkbox, false), FILTER_VALIDATE_BOOLEAN);
+    //     }
+
+    //     // Store the data in the database
+    //     StudentClearIn::create(array_merge($processedCheckboxes, [
+    //         'student_id' => $request->input('student_id'),
+    //         'academic_term_id' => $academicYearId,
+    //         'academic_term_no' => $academicTermNo,
+    //         'check_in_time' => $request->input('check_in_time'),
+    //         'brought_by_name' => $request->input('other_name'),
+    //         'other_nrc'=> $request->input('brought_by_nrc'),
+    //         'brought_vehicle_reg'=> $request->input('brought_vehicle_reg'),
+    //         'brought_by_contact' => $request->input('other_contact'),
+    //         'parent_id'=> $request->input('parent_id'),
+    //         'brought_by_relationship' => $request->input('brought_by_relationship'),
+    //         'cleared_by' => $request->input('cleared_by'),
+    //     ]));
+
+
+
+    //     // Redirect back with a success message
+    //     return redirect()->back()->with('success', 'Student cleared in successfully.');
+    // }
+    public function storeStudentCheckIn(Request $request)
+    {
+        // Validate the input data
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'academic_term' => 'required|string',
+            'clearIn_person' => 'required|string',
+            'check_in_time' => 'required|date_format:H:i',
+            'other_name' => 'nullable|string|max:255',
+            'other_nrc' => 'nullable|string',
+            'vehicle_reg' => 'nullable|string',
+            'parent_id' => 'nullable|exists:users,id',
+            'other_contact' => 'nullable|string|max:15|regex:/^[0-9+\s()-]+$/',
+            'brought_by_relationship' => 'nullable|string|max:255',
+            'cleared_by' => 'required|exists:users,id',
+            'hostel_id' => 'nullable|exists:hostels,id',
+            'bedspace_id' => 'nullable|exists:bedspaces,id',
+        ]);
+
+        // Extract academic year ID and term number
+        if (strpos($request->input('academic_term'), '-') === false) {
+            return back()->with('error', 'Invalid academic term format.');
+        }
+
+        [$academicYearId, $academicTermNo] = explode('-', $request->input('academic_term'));
+
+        // Validate extracted values
+        if (!is_numeric($academicYearId)) {
+            return back()->with('error', 'Invalid academic term values.');
+        }
+
+        // Process checkbox inputs and ensure boolean values
+        $checkboxes = ['clearance_accounts', 'clearance_secretary', 'clearance_search', 'clearance_patron'];
+        $processedCheckboxes = [];
+        foreach ($checkboxes as $checkbox) {
+            $processedCheckboxes[$checkbox] = filter_var($request->input($checkbox, false), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Handle already assigned hostel/bedspace
+        $studentId = $request->input('student_id');
+        $student = Student::with(['hostel', 'bedspace'])->findOrFail($studentId);
+
+        if ($student->hostel || $student->bedspace) {
+            return back()->with('error', 'This student is already assigned to a hostel or bedspace.');
+        }
+
+        // Store the check-in data
+        StudentClearIn::create(array_merge($processedCheckboxes, [
+            'student_id' => $studentId,
+            'academic_term_id' => $academicYearId,
+            'academic_term_no' => $academicTermNo,
+            'check_in_time' => $request->input('check_in_time'),
+            'brought_by_name' => $request->input('other_name'),
+            'other_nrc' => $request->input('brought_by_nrc'),
+            'brought_vehicle_reg' => $request->input('brought_vehicle_reg'),
+            'brought_by_contact' => $request->input('other_contact'),
+            'parent_id' => $request->input('parent_id'),
+            'brought_by_relationship' => $request->input('brought_by_relationship'),
+            'cleared_by' => $request->input('cleared_by'),
+        ]));
+
+        // Insert into StudentCheckInCheckOut
+        if ($request->input('hostel_id') && $request->input('bedspace_id')) {
+            StudentCheckInCheckOut::create([
+                'student_id' => $studentId,
+                'hostel_id' => $request->input('hostel_id'),
+                'bedspace_id' => $request->input('bedspace_id'),
+                'room_status' => 'check_in', // Example status, adjust as needed
+            ]);
+        }
+
+        // Redirect back with a success message
+        return redirect()->back()->with('success', 'Student checked in successfully.');
+    }
 
 
 
@@ -844,13 +973,100 @@ class StudentController extends Controller
     //STUDENT ENROLLMENT METHODS
     public function viewEnrollmentProcess()
     {
+        // Fetch academic years (from AcademicSession)
+        $academicYears = AcademicSession::with(['terms' => function ($query) {
+            $query->select('id', 'term_number', 'academic_year_id')->orderBy('term_number', 'asc');
+        }])
+            ->select('id', 'academic_year')
+            ->orderBy('academic_year', 'desc')
+            ->get();
+
+        // Fetch terms (from SessionTerms)
+        $terms = SessionTerms::select('id', 'term_number', 'academic_year_id')->orderBy('term_number', 'asc')->get();
+
+        // Fetch other necessary data
         $grades = Grade::all();
         $fees = Fee::all();
         $hostels = Hostel::all();
-        // Eager load the grades with students
-        $students = Student::with('grade', 'admissions', 'guardians', 'siblings')->get();
-        return view('backend.students.enrollment-process', compact('grades', 'fees', 'hostels', 'students'));
+
+        // Fetch all students with basic relationships
+        $allStudents = Student::with(['grade', 'guardians', 'siblings', 'admissions.academicSession', 'admissions.term'])->get();
+
+        // Filter students with admissions and map enrolled year and term
+        $studentsWithAdmissions = $allStudents->filter(function ($student) {
+            return $student->admissions->isNotEmpty();
+        })->map(function ($student) {
+            $admission = $student->admissions->first();
+            if ($admission && $admission->academicSession) {
+                $student->enrolled_year = $admission->academicSession->academic_year;
+                $student->enrolled_term = $admission->academic_term_no;
+            } else {
+                $student->enrolled_year = 'Not enrolled';
+                $student->enrolled_term = 'N/A';
+            }
+            return $student;
+        });
+
+        // Pass data to the view
+        return view('backend.students.enrollment-process', [
+            'grades' => $grades,
+            'fees' => $fees,
+            'hostels' => $hostels,
+            'students' => $studentsWithAdmissions, // For rendering the table
+            'academicYears' => $academicYears, // For academic year dropdown
+            'terms' => $terms, // For term dropdown
+            'allStudents' => $allStudents // Reused with additional relationships
+        ]);
     }
+    //fetch enrolment by year - ajax method:
+    public function enrollmentFilterByYear(Request $request)
+    {
+        // Validate the input
+        $request->validate([
+            'academic_year_id' => 'required|integer',
+            'term_number' => 'required|integer',
+        ]);
+
+        // Extract year and term from the request
+        $academicYearId = $request->input('academic_year_id');
+        $termNumber = $request->input('term_number');
+
+        // Fetch students with relationships and filter by the given year and term
+        $students = Student::with(['admissions.academicSession', 'admissions.term', 'grade', 'guardians'])
+            ->whereHas('admissions', function ($query) use ($academicYearId, $termNumber) {
+                $query->where('academic_year_id', $academicYearId)
+                    ->where('academic_term_no', $termNumber);
+            })
+            ->get()
+            ->map(function ($student) {
+                $admission = $student->admissions->first();
+                if ($admission && $admission->academicSession) {
+                    $student->enrolled_year = $admission->academicSession->academic_year;
+                    $student->enrolled_term = $admission->academic_term_no;
+                } else {
+                    $student->enrolled_year = 'Not enrolled';
+                    $student->enrolled_term = 'N/A';
+                }
+                return $student;
+            });
+
+        // Return JSON response
+        return response()->json(['students' => $students]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function storeEnrollmentRecord(Request $request)
     {
         // Validate request data
@@ -937,10 +1153,19 @@ class StudentController extends Controller
             // Generate a unique admission ID
             $admissionId = CodeGenerator::uniqueAdmissionID(Admissions::class, 'admission_id');
 
+            // / Extract academic year ID and term number
+            if (!str_contains($request->input('academic_term'), '-')) {
+                return back()->with('error', 'Invalid academic term format.');
+            }
+
+            [$academicYearId, $termId] = explode('-', $request->input('academic_term'));
+
             // Create admission record
             Admissions::create([
+                'academic_year_id' => $academicYearId,
+                'academic_term_no' => $termId,
                 'admission_id' => $admissionId,
-                'student_id' => $student->id,
+                'student_id' => $student->id
             ]);
 
             // Handle sibling selection
@@ -1030,13 +1255,13 @@ class StudentController extends Controller
     {
         try {
             $request->validate([
-                'apptude_score' => 'required|integer|min:50|max:100',
+                'aptitude_score' => 'required|integer|min:50|max:100',
             ]);
 
             $admission = Admissions::where('student_id', $id)->firstOrFail();
             $admission->update([
-                'apptude_score' => $request->apptude_score,
-                'reject_reasons' => 'PASSED',
+                'aptitude_score' => $request->apptude_score,
+                'reject_reasons' => 'Congratulations!, PASSED TEST',
             ]);
 
             $student = Student::findOrFail($id);
@@ -1059,12 +1284,12 @@ class StudentController extends Controller
         try {
             $request->validate([
                 'reject_reasons' => 'required|string|max:250',
-                'apptude_score' => 'required|integer|max:49',
+                'aptitude_score' => 'required|integer|max:49',
             ]);
 
             $admission = Admissions::where('student_id', $id)->firstOrFail();
             $admission->update([
-                'apptude_score' => $request->apptude_score,
+                'aptitude_score' => $request->apptude_score,
                 'reject_reasons' => $request->reject_reasons,
             ]);
 
@@ -1082,11 +1307,6 @@ class StudentController extends Controller
             return redirect()->back()->with('error', 'An error occurred while rejecting the student enrollment.');
         }
     }
-
-
-
-
-
 
 
     public function disableStudent()

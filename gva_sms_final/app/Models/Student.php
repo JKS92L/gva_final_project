@@ -26,10 +26,7 @@ class Student extends Model
         'religion',
         'admission_date',
         'medical_condition',
-        'hostel_id',
         'student_photo',
-        'bedspace_id',
-        'hostel_teacher_id',
         'active_status',
     ];
 
@@ -39,6 +36,32 @@ class Student extends Model
         'fee_session_group_id' => 'array',
         'sibling_ids' => 'array',
     ];
+    public function enrolledTerm()
+    {
+        $admission = $this->admissions()->with('term')->first();
+
+        return $admission ? $admission->term : null;
+    }
+
+    public function getAdmittedYearAndTerm()
+    {
+        // Fetch the first admission record
+        $admission = $this->admissions()
+            ->with(['academicSession'])
+            ->first();
+
+        if (!$admission || !$admission->academicSession) {
+            return 'Not enrolled';
+        }
+
+        // Construct year and term details
+        $academicYear = $admission->academicSession->academic_year;
+        $termNumber = $admission->academic_term_no;
+
+        return "{$academicYear} - Term {$termNumber}";
+    }
+
+
 
     public function grade()
     {
@@ -54,22 +77,62 @@ class Student extends Model
     {
         return $this->belongsTo(Bedspace::class);
     }
+    /**
+     * Define the relationship with the StudentCheckin model.
+     */
+    public function checkins()
+    {
+        return $this->hasMany(StudentCheckInCheckOut::class);
+    }
+
+    /**
+     * Get the latest check-in or check-out record for the student.
+     */
+    public function latestCheckin()
+    {
+        return $this->hasOne(StudentCheckInCheckOut::class)->latestOfMany();
+    }
+
+
+    /**
+     * Get the latest check-out record specifically.
+     */
+    public function latestCheckout()
+    {
+        return $this->hasOne(StudentCheckInCheckOut::class)
+            ->latestOfMany()
+            ->where('room_status', 'check_out');
+    }
+
     public function admissions()
     {
         return $this->hasMany(Admissions::class, 'student_id');
     }
 
-    // public function siblings()
-    // {
-    //     return $this->hasManyThrough(
-    //         Student::class,
-    //         StudentSibling::class,
-    //         'student_id',          // Foreign key on the student_sibling table
-    //         'id',                  // Foreign key on the students table
-    //         'id',                  // Local key on the students table
-    //         'student_id'           // Local key on the student_sibling table
-    //     );
-    // }
+    /**
+     * Define the relationship with the StudentClearIn model.
+     */
+    public function clearanceRecords()
+    {
+        return $this->hasMany(StudentClearIn::class, 'student_id');
+    }
+
+    /**
+     * Get the latest clearance record for the student.
+     */
+    public function latestClearance()
+    {
+        return $this->hasOne(StudentClearIn::class, 'student_id')->latestOfMany();
+    }
+
+    /**
+     * Get the clearance record for a specific term.
+     */
+    public function clearanceForTerm($academicTermId)
+    {
+        return $this->hasOne(StudentClearIn::class, 'student_id')->where('academic_term_id', $academicTermId)->first();
+    }
+
     public function siblings()
     {
         return $this->belongsToMany(
@@ -113,7 +176,10 @@ class Student extends Model
     }
 
 
-   
+    public function admission()
+    {
+        return $this->hasOne(Admissions::class, 'student_id');
+    }
 
     public function studentFee()
     {
@@ -124,5 +190,4 @@ class Student extends Model
     {
         return $this->belongsTo(User::class, 'hostel_teacher_id');
     }
-
 }

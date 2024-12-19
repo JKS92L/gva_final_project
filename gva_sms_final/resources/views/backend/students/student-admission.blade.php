@@ -123,7 +123,7 @@
             @endif
 
             {{-- Table showing admitted students --}}
-            <div class="card">
+            <div class="container card">
                 <div class="card-header">
                     <h5>Student Details</h5>
                 </div>
@@ -348,6 +348,240 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- ClearIn modals --}}
+                                <div class="modal fade" id="ClearInModal-{{ $student->id }}" tabindex="-1"
+                                    role="dialog" aria-labelledby="ClearInModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-ml" role="document">
+                                        <div class="modal-content">
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ClearInModalLabel">Clear-In for
+                                                    <span class="text-bold text-white">{{ $student->firstname ?? 'N/A' }}
+                                                        {{ $student->lastname ?? '' }}</span>
+                                                </h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+
+                                            <form id="clearInForm-{{ $student->id }}"
+                                                action="{{ route('student-clear-in.store') }}" method="POST">
+                                                @csrf
+
+                                                <!-- Modal Body -->
+                                                <div class="modal-body">
+                                                    <!-- Hidden Fields -->
+                                                    <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                                    <input type="hidden" name="cleared_by"
+                                                        value="{{ auth()->user()->id }}">
+
+                                                    <!-- Term and Year Selection -->
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-12">
+                                                            <label for="term" class="small">Select Term</label>
+                                                            <select class="form-control form-control-sm"
+                                                                id="academic_term-{{ $student->id }}"
+                                                                name="academic_term" required>
+                                                                <option value="">--Select a term--</option>
+                                                                @foreach ($terms as $term)
+                                                                    <option value="{{ $term['id'] }}">
+                                                                        {{ $term['name'] }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Clearance Checklist -->
+                                                    <div class="form-row">
+                                                        <label class="small">Clearance From:</label>
+                                                        <div class="form-group col-md-4">
+                                                            <!-- Hidden input to send false if checkbox is unchecked -->
+                                                            <input type="hidden" name="clearance_accounts"
+                                                                value="false">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="clearance_accounts-{{ $student->id }}"
+                                                                    name="clearance_accounts" value="true">
+                                                                <label class="form-check-label"
+                                                                    for="clearance_accounts-{{ $student->id }}">
+                                                                    Accounts Office
+                                                                </label>
+                                                            </div>
+
+                                                            <input type="hidden" name="clearance_secretary"
+                                                                value="false">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="clearance_secretary-{{ $student->id }}"
+                                                                    name="clearance_secretary" value="true">
+                                                                <label class="form-check-label"
+                                                                    for="clearance_secretary-{{ $student->id }}">
+                                                                    Secretary
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-md-4">
+                                                            <input type="hidden" name="clearance_search" value="false">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="clearance_search-{{ $student->id }}"
+                                                                    name="clearance_search" value="true">
+                                                                <label class="form-check-label"
+                                                                    for="clearance_search-{{ $student->id }}">
+                                                                    Search Team
+                                                                </label>
+                                                            </div>
+
+                                                            <input type="hidden" name="clearance_patron" value="false">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="clearance_patron-{{ $student->id }}"
+                                                                    name="clearance_patron" value="true">
+                                                                <label class="form-check-label"
+                                                                    for="clearance_patron-{{ $student->id }}">
+                                                                    Patron
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="form-group col-md-12">
+                                                            <label for="clearIn_person" class="small">Clear-In
+                                                                Guardian</label>
+                                                            <select class="form-control form-control-sm"
+                                                                id="clearIn_person-{{ $student->id }}"
+                                                                name="clearIn_person" required>
+                                                                <option value="">--Select--</option>
+                                                                <option value="parent">Parent</option>
+                                                                <option value="other">Other</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <!-- Check-In Time -->
+                                                        <div class="form-group col-md-12">
+                                                            <label for="check_in_time-{{ $student->id }}"
+                                                                class="small">Check-In Time</label>
+                                                            <input type="time" class="form-control form-control-sm"
+                                                                id="check_in_time-{{ $student->id }}"
+                                                                name="check_in_time" required>
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="hostel_name" class="small">Hostel
+                                                                    Name</label>
+                                                                <select class="form-control form-control-sm"
+                                                                    id="hostel_name-{{ $student->id }}" name="hostel_id"
+                                                                    {{ $student->hostel ? 'disabled' : '' }}>
+                                                                    <option value="">Select Hostel</option>
+                                                                    @foreach ($hostels as $hostel)
+                                                                        <option value="{{ $hostel->id }}"
+                                                                            {{ $student->hostel && $student->hostel->id == $hostel->id ? 'selected' : '' }}>
+                                                                            {{ $hostel->hostel_name . ' (' . ucfirst($hostel->hostel_gender) . ')' }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label for="bedspaceSelect" class="small">Bedspace
+                                                                    Number</label>
+                                                                <select class="form-control form-control-sm"
+                                                                    id="bedspaceSelect-{{ $student->id }}"
+                                                                    name="bedspace_id"
+                                                                    {{ $student->bedspace ? 'disabled' : '' }}>
+                                                                    <option value="">Select Bedspace</option>
+                                                                    @if ($student->bedspace)
+                                                                        <option value="{{ $student->bedspace->id }}"
+                                                                            selected>{{ $student->bedspace->bedspace_no }}
+                                                                        </option>
+                                                                    @endif
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+
+                                                    </div>
+
+
+                                                    <div id="other_clearIn_details-{{ $student->id }}" class="d-none">
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-6">
+                                                                <label for="other_name">Name</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="other_name-{{ $student->id }}" name="other_name"
+                                                                    placeholder="Full Name">
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="other_nrc">NRC</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                                    placeholder="National Registration Card Number">
+                                                            </div>
+
+                                                            <div class="form-group col-md-6">
+                                                                <label for="other_contact">Contact Number</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="other_contact-{{ $student->id }}"
+                                                                    name="other_contact" placeholder="e.g., 097xxxxxxx">
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="vehicle_reg">Vehicle Registration #</label>
+                                                                <input type="text" class="form-control form-control-sm"
+                                                                    id="vehicle_reg-{{ $student->id }}"
+                                                                    name="vehicle_reg"
+                                                                    placeholder="Vehicle Registration Number">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-md-12">
+                                                            <label
+                                                                for="brought_by_relationship">brought-by-relationship</label>
+                                                            <select class="form-control form-control-sm"
+                                                                id="brought_by_relationship-{{ $student->id }}"
+                                                                name="brought_by_relationship">
+                                                                <option value="">--Select--</option>
+                                                                <option value="brother">Brother</option>
+                                                                <option value="sister">Sister</option>
+                                                                <option value="uncle">Uncle</option>
+                                                                <option value="driver">Driver</option>
+                                                                <option value="other">Other</option>
+                                                            </select>
+                                                        </div>
+
+
+                                                    </div>
+
+                                                    <div class="form-group" id="parent_idCheckIn">
+                                                        <select name="parent_id" class="form-control form-control-sm">
+                                                            <option value="">--Select a guardian--</option>
+                                                            @foreach ($student->guardians as $guardian)
+                                                                <option value="{{ $guardian->id }}">
+                                                                    {{ $guardian->name }}
+                                                                    ({{ $guardian->contact_number }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Modal Footer -->
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary btn-sm"
+                                                        data-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-success btn-sm"
+                                                        form="clearInForm-{{ $student->id }}">
+                                                        Clear-In
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             @endforeach
                         </tbody>
 
@@ -422,7 +656,7 @@
 
         </div>
     </div>
-    
+
     <script>
         // new DataTable('#example2', {
         //     layout: {
@@ -436,11 +670,12 @@
 
             $('#studentDetails').DataTable();
 
-
+            // grant permissions
             $('[id^="pickup_person"]').on('change', function() {
                 const studentId = $(this).attr('id').split('-')[1]; // Extract student ID
                 const $otherDetails = $(`#other_pickup_details-${studentId}`);
-                const $parentIdInput = $('#parent_id'); // Target the static parent_id input directly
+                const $parentIdInput = $(
+                    `#parent_idCheckIn-${studentId}`); // Target the static parent_id input directly
 
                 if ($(this).val() === 'other') {
                     $otherDetails.removeClass('d-none'); // Show "Other" details
@@ -450,6 +685,78 @@
                     $parentIdInput.removeClass('d-none'); // Show Parent ID input
                 }
             });
+
+            // clearIn
+            $('[id^="clearIn_person"]').on('change', function() {
+                const studentId = $(this).attr('id').split('-')[1]; // Extract student ID
+                const $otherDetails = $(`#other_clearIn_details-${studentId}`);
+                const $parentIdInput = $('#parent_idCheckIn'); // Target the static parent_id input directly
+
+                if ($(this).val() === 'other') {
+                    $otherDetails.removeClass('d-none'); // Show "Other" details
+                    $parentIdInput.addClass('d-none'); // Hide Parent ID input
+                } else if ($(this).val() === 'parent') {
+                    $otherDetails.addClass('d-none'); // Hide "Other" details
+                    $parentIdInput.removeClass('d-none'); // Show Parent ID input
+                } else {
+                    $otherDetails.addClass('d-none'); // Hide "Other" details
+                    $parentIdInput.addClass('d-none'); // Show Parent ID input
+                }
+            });
+
+
+
+            //fetch bedspaces 
+            // Fetch bedspaces when a hostel is selected
+            $("select[id^='hostel_name-']").on("change", function() {
+                var hostelId = $(this).val(); // Get selected hostel ID
+                var studentId = $(this).attr('id').split('-')[
+                1]; // Extract the student ID from the element ID
+                var bedspaceSelect = $("#bedspaceSelect-" +
+                studentId); // Target the corresponding bedspace select
+
+                // Debug: Verify correct hostelId and studentId
+                console.log("Hostel ID:", hostelId);
+                console.log("Student ID:", studentId);
+
+                if (hostelId) {
+                    $.ajax({
+                        url: "{{ route('fetch.bedspaces') }}", // Backend route
+                        type: "GET",
+                        data: {
+                            hostel_id: hostelId
+                        },
+                        success: function(response) {
+                            if (response.status === "success") {
+                                bedspaceSelect.empty(); // Clear previous options
+                                bedspaceSelect.append(
+                                    '<option value="">Select bedspace no</option>');
+
+                                // Populate bedspaces dynamically
+                                $.each(response.bedspaces, function(key, bedspace) {
+                                    bedspaceSelect.append(
+                                        '<option value="' +
+                                        bedspace.id +
+                                        '">' +
+                                        bedspace.bedspace_no +
+                                        "</option>"
+                                    );
+                                });
+                            } else {
+                                console.log("Unexpected response:", response);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.log("Error fetching bedspaces:", xhr.responseText);
+                        },
+                    });
+                } else {
+                    // Clear the bedspace dropdown if no hostel is selected
+                    bedspaceSelect.empty();
+                    bedspaceSelect.append('<option value="">Select bedspace no</option>');
+                }
+            });
+
 
             // Initialize select2 for student selection
             $('.select2').select2();

@@ -186,13 +186,20 @@ Route::prefix('students')->group(function () {
     //STUDENT ENROLLMENT PROCESSES
     Route::get('/enrollment-process', [StudentController::class, 'viewEnrollmentProcess'])->name('enrollment-process');
     Route::post('/store-enrollment', [StudentController::class, 'storeEnrollmentRecord'])->name('store.enrollment.record');
+    // AJAX CALL - FETCH ENROLMENT BY YEAR
+    Route::get('/enrollmentFilterByYear', [StudentController::class, 'enrollmentFilterByYear'])->name('students.filterEnrollmentByYear');
+
     //CRUD
     Route::put('/student-admission-approve/{id}', [StudentController::class, 'studentAdmissionApprove'])->name('studentsAdmission.approve');
     Route::put('/student-admission-reject/{id}', [StudentController::class, 'studentAdmissionReject'])->name('studentsAdmission.reject');
 
     //STUDENT TERMLY ADMISSIONS
-    Route::get('/admission', [StudentController::class, 'viewTermlyAdmissions'])->name('student.termly.admission');
+    Route::get('/admission', [StudentController::class, 'viewTermlyAdmissions'])->name('checkIns.admissions');
     Route::post('/student-home-permission/store', [StudentController::class, 'storeStudentHomePermission'])->name('student-home-permission.store');
+    Route::post('/student-clear-in', [StudentController::class, 'storeStudentCheckIn'])->name('student-clear-in.store');
+    //CRUD
+   
+
 });
 
 // // Examination Management Routes

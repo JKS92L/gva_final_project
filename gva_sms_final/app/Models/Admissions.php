@@ -9,41 +9,33 @@ class Admissions extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
     protected $table = 'admissions';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
+        'academic_year_id',
+        'academic_term_no',
         'admission_id',
         'student_id',
         'apptude_score',
         'reject_reasons',
     ];
 
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
     public $timestamps = true;
 
-    /**
-     * Define the relationship with the Student model.
-     * Assuming there's a Student model related to this table.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    public function term()
+    {
+        return $this->belongsTo(SessionTerms::class, 'academic_term_no');
+    }
+
+    // Relationship with Student model
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
     }
-    
+
+    // Relationship with AcademicSession model
+    public function academicSession()
+    {
+        return $this->belongsTo(AcademicSession::class, 'academic_year_id');
+    }
 }

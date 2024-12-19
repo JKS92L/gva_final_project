@@ -15,39 +15,54 @@
             </div>
         </div>
     </div>
+    {{-- render --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <div class="container mt-4">
-        {{-- render --}}
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    <div class="content mt-4">
 
 
-        <div class="card shadow-sm">
+        <div class="container card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0">Online Admissions</h3>
+                <h3 class="card-title mb-0">Admissions</h3>
+
             </div>
+
             <div class="card-body">
-                <div class="table-responsive">
-                    <table id="enrollmentTable" class="table table-bordered table-hover text-nowrap">
+                <div class="table-responsive table-sm">
+                    <div class="form-group mb-9" style="max-width: 300px;">
+                        <label for="term" class="d-block">Filter By Year</label>
+                        <select class="form-control form-control-sm" id="academic_term" name="academic_term" required>
+                            <option value="">--Select a term--</option>
+                            @foreach ($academicYears as $year)
+                                @foreach ($year->terms as $term)
+                                    <option value="{{ $year->id }}-{{ $term->term_number }}">
+                                        {{ $year->academic_year }} - Term {{ $term->term_number }}
+                                    </option>
+                                @endforeach
+                            @endforeach
+                        </select>
+                    </div>
+                    <table id="enrollmentTable" class="table table-bordered table-hover text-nowrap table-sm">
                         <thead>
                             <tr>
                                 <th>S/N</th>
                                 <th>ECZ #</th>
                                 <th>Applicant Name</th>
                                 <th>Application ID</th>
+                                <th>Enrollment Year</th>
                                 <th>Grade/Class</th>
                                 <th>Parent(s) Name</th>
                                 <th>Submission Date</th>
@@ -60,19 +75,24 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $student->ecz_no }}</td>
-                                    <td>{{ $student->firstname . ' ' . $student->lastname }}</td>
+                                    <td>{{ $student->firstname }} {{ $student->lastname }}</td>
                                     <td>{{ $student->admissions->first()->admission_id ?? 'N/A' }}</td>
-                                    <td>{{ $student->grade->gradeno . ' ' . $student->grade->class_name ?? 'N/A' }}</td>
-                                    <td>
-                                        @foreach ($student->guardians as $guardian)
-                                            {{ $guardian->name }}
-                                            @if ($guardian->contact_number)
-                                                ({{ $guardian->contact_number }})
-                                            @endif
-                                            {{ !$loop->last ? ', ' : '' }}
-                                        @endforeach
+                                    <td>{{ $student->enrolled_year }} - {{ 'Term ' . $student->enrolled_term }}</td>
+                                    <td>{{ optional($student->grade)->gradeno }}
+                                        {{ optional($student->grade)->class_name }}
                                     </td>
-
+                                    <td>
+                                        <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
+                                            @foreach ($student->guardians as $guardian)
+                                                <li>
+                                                    {{ $guardian->name }}
+                                                    @if ($guardian->contact_number)
+                                                        ({{ $guardian->contact_number }})
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
                                     <td>{{ $student->created_at->format('d M, Y') }}</td>
                                     <td>
                                         <span
@@ -100,30 +120,31 @@
                                     aria-labelledby="approveStudentModalLabel{{ $student->id }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="approveStudentModalLabel{{ $student->id }}">
-                                                    Approve Enrollment for {{ $student->firstname }}
-                                                    {{ $student->lastname }}
-                                                </h5>
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
                                             <form action="{{ route('studentsAdmission.approve', $student->id) }}"
                                                 method="POST">
                                                 @csrf
-                                                @method('PUT') <!-- Use PUT method -->
+                                                @method('PUT')
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="approveStudentModalLabel{{ $student->id }}">Approve Enrollment
+                                                        for {{ $student->firstname }} {{ $student->lastname }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
                                                 <div class="modal-body">
                                                     <p>Are you sure you want to approve the enrollment of
                                                         <strong>{{ $student->firstname }}
                                                             {{ $student->lastname }}</strong> in grade
-                                                        <strong>{{ $student->grade->gradeno . $student->grade->class_name ?? 'N/A' }}</strong>?
+                                                        <strong>{{ optional($student->grade)->gradeno }}
+                                                            {{ optional($student->grade)->class_name }}</strong>?
                                                     </p>
                                                     <div class="form-group">
-                                                        <label for="apptudeScore{{ $student->id }}">Aptitude Score</label>
-                                                        <input type="number" name="apptude_score"
-                                                            id="apptudeScore{{ $student->id }}" class="form-control"
+                                                        <label for="aptitudeScore{{ $student->id }}">Aptitude
+                                                            Score</label>
+                                                        <input type="number" name="aptitude_score"
+                                                            id="aptitudeScore{{ $student->id }}" class="form-control"
                                                             placeholder="Enter aptitude score" required min="0"
                                                             max="100">
                                                     </div>
@@ -138,36 +159,34 @@
                                     </div>
                                 </div>
 
-
                                 <!-- Reject Modal -->
                                 <div class="modal fade" id="rejectStudentModal{{ $student->id }}" tabindex="-1"
                                     aria-labelledby="rejectStudentModalLabel{{ $student->id }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="rejectStudentModalLabel{{ $student->id }}">
-                                                    Reject Enrollment for {{ $student->firstname }}
-                                                    {{ $student->lastname }}
-                                                </h5>
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
                                             <form action="{{ route('studentsAdmission.reject', $student->id) }}"
                                                 method="POST">
                                                 @csrf
-                                                @method('PUT') <!-- Use PUT method -->
+                                                @method('PUT')
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title"
+                                                        id="rejectStudentModalLabel{{ $student->id }}">Reject Enrollment
+                                                        for {{ $student->firstname }} {{ $student->lastname }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
                                                 <div class="modal-body">
                                                     <p>Please provide a reason for rejecting the enrollment of
                                                         <strong>{{ $student->firstname }}
-                                                            {{ $student->lastname }}</strong> in grade
-                                                        <strong>{{ $student->grade->gradeno . $student->grade->class_name ?? 'N/A' }}</strong>:
+                                                            {{ $student->lastname }}</strong>:
                                                     </p>
                                                     <div class="form-group">
-                                                        <label for="apptudeScore{{ $student->id }}">Aptitude Score</label>
-                                                        <input type="number" name="apptude_score"
-                                                            id="apptudeScore{{ $student->id }}" class="form-control"
+                                                        <label for="aptitudeScore{{ $student->id }}">Aptitude
+                                                            Score</label>
+                                                        <input type="number" name="aptitude_score"
+                                                            id="aptitudeScore{{ $student->id }}" class="form-control"
                                                             placeholder="Enter aptitude score" required min="0"
                                                             max="100">
                                                     </div>
@@ -190,12 +209,12 @@
 
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">No student records found.</td>
+                                    <td colspan="9" class="text-center">No student records found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
-
                     </table>
+
 
                 </div>
             </div>
@@ -227,6 +246,22 @@
                             <div class="card-body">
                                 <!-- More rows here, keeping the structure consistent with form-control-sm -->
                                 <div class="row">
+
+                                    <div class="form-group col-md-12">
+                                        <label for="term">Select Term </label>
+                                        <select class="form-control form-control-sm" id="academic_term"
+                                            name="academic_term" required>
+                                            <option value="">--Select a term--</option>
+                                            @foreach ($academicYears as $year)
+                                                @foreach ($year->terms as $term)
+                                                    <option value="{{ $year->id }}-{{ $term->term_number }}">
+                                                        {{ $year->academic_year }} - Term {{ $term->term_number }}
+                                                    </option>
+                                                @endforeach
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="ecz_no" class="small">ECZ Exam Number</label> <small
@@ -320,8 +355,8 @@
                                             <label for="sibling_name" class="small">Select Sibling</label>
                                             <select id="sibling_name" class="form-control small select2"
                                                 name="sibling_id" style="max-width: 100%">
-                                                <option value="" selected>Select a sibling</option>
-                                                @foreach ($students as $student)
+                                                <option value="" selected disabled>Select a sibling</option>
+                                                @foreach ($allStudents as $student)
                                                     <option value="{{ $student->id }}">
                                                         {{ ucwords($student->firstname) }}
                                                         {{ ucwords($student->lastname) }}
@@ -761,6 +796,83 @@
             $('#sibling_name').on('change', function() {
                 const siblingId = $(this).val();
                 fetchGuardianDetails(siblingId);
+            });
+
+            //SORT ENROLLMENTS BY YEAR
+            $('#academic_term').change(function() {
+                const selectedValue = $(this).val();
+
+                if (selectedValue) {
+                    const [academicYearId, termNumber] = selectedValue.split('-');
+
+                    // Show loader
+                    // $('#loader').removeClass('d-none');
+
+                    $.ajax({
+                        url: "{{ route('students.filterEnrollmentByYear') }}", // Adjust this route as necessary
+                        type: "GET",
+                        data: {
+                            academic_year_id: academicYearId,
+                            term_number: termNumber,
+                        },
+                        beforeSend: function() {
+                            // Optional: Clear table content before loading
+                            $('#enrollmentTable tbody').html('');
+                        },
+                        success: function(response) {
+                            $('#enrollmentTable tbody').empty();
+
+                            if (response.students.length > 0) {
+                                response.students.forEach((student, index) => {
+                                    const guardians = student.guardians
+                                        .map(guardian =>
+                                            `<li>${guardian.name} (${guardian.contact_number || ''})</li>`
+                                        )
+                                        .join('');
+
+                                    const row = `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${student.ecz_no || 'N/A'}</td>
+                                    <td>${student.firstname} ${student.lastname}</td>
+                                    <td>${student.admissions[0]?.admission_id || 'N/A'}</td>
+                                    <td>${student.enrolled_year} - Term ${student.enrolled_term}</td>
+                                    <td>${student.grade?.gradeno || 'N/A'} ${student.grade?.class_name || ''}</td>
+                                    <td>
+                                        <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
+                                            ${guardians}
+                                        </ul>
+                                    </td>
+                                    <td>${new Date(student.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <span class="badge badge-${student.active_status === 'enrolled' ? 'success' : student.active_status === 'rejected' ? 'danger' : 'warning'}">
+                                            ${student.active_status.charAt(0).toUpperCase() + student.active_status.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#approveStudentModal${student.id}">Approve</button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectStudentModal${student.id}">Reject</button>
+                                    </td>
+                                </tr>
+                            `;
+
+                                    $('#enrollmentTable tbody').append(row);
+                                });
+                            } else {
+                                $('#enrollmentTable tbody').html(
+                                    '<tr><td colspan="10" class="text-center">No students found for the selected term.</td></tr>'
+                                );
+                            }
+                        },
+                        error: function() {
+                            alert('Failed to fetch students. Please try again.');
+                        },
+                        complete: function() {
+                            // Hide loader
+                            $('#loader').addClass('d-none');
+                        },
+                    });
+                }
             });
         });
     </script>

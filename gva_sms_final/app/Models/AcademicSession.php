@@ -9,10 +9,8 @@ class AcademicSession extends Model
 {
     use HasFactory;
 
-    // Define the table associated with the model
     protected $table = 'academicYear';
 
-    // Define fillable fields for mass assignment
     protected $fillable = [
         'academic_year',
         'term1_start',
@@ -25,51 +23,55 @@ class AcademicSession extends Model
         'created_by',
     ];
 
-    // Define relationships, if any
+    // Creator of the session
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    // Optionally, you can add custom accessors or methods to work with the terms more easily
-
-    // Accessor to get the active term dates
-    public function getActiveTermDates()
-    {
-        // Assuming you want to retrieve dates for all terms in one go
-        return [
-            'term1' => [
-                'start' => $this->term1_start,
-                'end' => $this->term1_end,
-            ],
-            'term2' => [
-                'start' => $this->term2_start,
-                'end' => $this->term2_end,
-            ],
-            'term3' => [
-                'start' => $this->term3_start,
-                'end' => $this->term3_end,
-            ],
-        ];
-    }
-
-    // Add a method to check the current active status
-    public function isActive()
-    {
-        return $this->status === 'active';
-    }
-
+    // Related session terms
     public function terms()
     {
         return $this->hasMany(SessionTerms::class, 'academic_year_id');
     }
 
+    // Subjects assigned through AssignClassSubject
     public function classSubjects()
     {
-        return $this->hasManyThrough(Subject::class, AssignClassSubject::class, 'academic_session_id', 'id', 'id', 'subject_id');
+        return $this->hasManyThrough(
+            Subject::class,
+            AssignClassSubject::class,
+            'academic_session_id', // Foreign key on AssignClassSubject
+            'id', // Foreign key on Subject
+            'id', // Local key on AcademicSession
+            'subject_id' // Local key on AssignClassSubject
+        );
     }
-    public function current()
+
+    // Alternative relationship for active/current terms
+    public function currentTerms()
     {
         return $this->hasMany(SessionTerms::class, 'session_id');
     }
+
+    // Helper to get active term dates
+    public function getActiveTermDates()
+    {
+        return [
+            'term1' => ['start' => $this->term1_start, 'end' => $this->term1_end],
+            'term2' => ['start' => $this->term2_start, 'end' => $this->term2_end],
+            'term3' => ['start' => $this->term3_start, 'end' => $this->term3_end],
+        ];
+    }
+
+    // Check if the session is active
+    public function isActive()
+    {
+        return $this->is_active === 1;
+    }
+    public function term()
+    {
+        return $this->belongsTo(SessionTerms::class, 'academic_term_no');
+    }
+
 }

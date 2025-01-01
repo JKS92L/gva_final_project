@@ -18,6 +18,9 @@ class StudentCheckInCheckOut extends Model
      */
     protected $fillable = [
         'student_id',
+        'academic_year_id',
+        'academic_term_no',
+        'student_id',
         'hostel_id',
         'bedspace_id',
         'room_status',
@@ -28,22 +31,16 @@ class StudentCheckInCheckOut extends Model
      */
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
-    /**
-     * Define the relationship with the Hostel model.
-     */
     public function hostel()
     {
-        return $this->belongsTo(Hostel::class);
+        return $this->belongsTo(Hostel::class, 'hostel_id');
     }
 
-    /**
-     * Define the relationship with the Bedspace model.
-     */
     public function bedspace()
     {
-        return $this->belongsTo(Bedspace::class);
+        return $this->belongsTo(Bedspace::class, 'bedspace_id');
     }
 }

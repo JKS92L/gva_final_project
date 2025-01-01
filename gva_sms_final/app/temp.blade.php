@@ -712,3 +712,1874 @@
              </div>
          </div>
      </div>
+     <table class="table table-bordered table-hover text-nowrap mb-4 table-sm" id="studentDetails">
+         <thead class="">
+             <tr>
+                 <th>Exam Number</th>
+                 <th>Pupil's Name</th>
+                 <th>Grade</th>
+                 <th>Student Type</th>
+                 <th>Guardian/Parent</th>
+                 <th>Enrollment Status</th>
+                 <th>Action</th>
+             </tr>
+         </thead>
+         <tbody>
+             @foreach ($students as $student)
+                 <tr>
+                     <td>{{ $student->ecz_no ?? 'N/A' }}</td>
+                     <td>
+                         {{ $student->firstname ?? 'N/A' }} {{ $student->lastname ?? '' }}
+                         - {{ ucfirst('(' . $student->gender . ')' ?? 'N/A') }}
+                     </td>
+                     <td>
+                         {{ $student->grade->gradeno ?? 'N/A' }} {{ $student->grade->class_name ?? '' }}
+                     </td>
+                     <td>{{ ucfirst($student->student_type ?? 'N/A') }}</td>
+                     <td>
+                         <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
+                             @foreach ($student->guardians as $guardian)
+                                 <li>
+                                     {{ $guardian->name }}
+                                     @if ($guardian->contact_number)
+                                         ({{ $guardian->contact_number }})
+                                     @endif
+                                 </li>
+                             @endforeach
+                         </ul>
+                     </td>
+                     <td>
+                         <span class="badge badge-{{ $student->active_status === 'enrolled' ? 'success' : 'warning' }}">
+                             {{ ucfirst($student->active_status) }}
+                         </span>
+                     </td>
+                     <td>
+                         <!-- Permission Button -->
+                         <button class="btn custom-btn-permission" data-toggle="modal"
+                             data-target="#permissionModal-{{ $student->id }}" title="Grant Permission">
+                             <i class="fas fa-home"></i>
+                         </button>
+
+                         <!-- Clean-In Button -->
+                         <button class="btn custom-btn-Clear-in" data-toggle="modal"
+                             data-target="#ClearInModal-{{ $student->id }}" title="Clear-In">
+                             <i class="fas fa-sign-in-alt"></i>
+                         </button>
+
+                         <!-- Clean-Out Button -->
+                         <button class="btn custom-btn-Clear-out" data-toggle="modal"
+                             data-target="#clearOutModal-{{ $student->id }}" title="Clear-Out">
+                             <i class="fas fa-sign-out-alt"></i>
+                         </button>
+
+                         <!-- Disciplinary Action Button -->
+                         <button class="btn custom-btn-disciplinary" data-toggle="modal"
+                             data-target="#disciplinaryModal-{{ $student->id }}" title="Disciplinary Action">
+                             <i class="fas fa-gavel"></i>
+                         </button>
+                     </td>
+
+                 </tr>
+
+
+                 {{-- MODALS  --}}
+                 <!-- Permissions Modal -->
+                 <div class="modal fade" id="permissionModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="permissionModalLabel" aria-hidden="true">
+                     <div class="modal-dialog modal-ml" role="document">
+                         <div class="modal-content">
+                             <!-- Modal Header -->
+                             <div class="modal-header">
+                                 <h5 class="modal-title" id="permissionModalLabel">Grant Permission for
+                                     <span class="text-bold text-white"> {{ $student->firstname ?? 'N/A' }}
+                                         {{ $student->lastname ?? '' }}</span>
+                                 </h5>
+                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                     <span aria-hidden="true">&times;</span>
+                                 </button>
+                             </div>
+                             <form id="grantPermissionForm-{{ $student->id }}"
+                                 action="{{ route('student-home-permission.store') }}" method="POST">
+
+                                 @csrf
+                                 <!-- Modal Body -->
+                                 <div class="modal-body">
+                                     {{-- student_id --}}
+                                     <!-- Hidden Fields -->
+                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                     <input type="hidden" name="approved_by" value="{{ auth()->user()->id }}">
+
+                                     <div class="form-row">
+                                         <div class="form-group col-md-12">
+                                             <label for="term">Select Term</label>
+                                             <select class="form-control form-control-sm" id="academic_term"
+                                                 name="academic_term" required>
+                                                 <option value="">--Select a term--</option>
+                                                 @foreach ($terms as $term)
+                                                     <option value="{{ $term['id'] }}">
+                                                         {{ $term['name'] }}</option>
+                                                 @endforeach
+                                             </select>
+                                         </div>
+
+                                         <!-- Permission Dates and Time -->
+                                         <div class="form-group col-md-6">
+                                             <label for="permission_start">Permission Start Date</label>
+                                             <input type="date" class="form-control form-control-sm"
+                                                 id="permission_start-{{ $student->id }}" name="permission_start"
+                                                 required>
+                                         </div>
+                                         <div class="form-group col-md-6">
+                                             <label for="permission_end">Permission End Date</label>
+                                             <input type="date" class="form-control form-control-sm"
+                                                 id="permission_end-{{ $student->id }}" name="permission_end" required>
+                                         </div>
+                                         <div class="form-group col-md-6">
+                                             <label for="pickup_time">Pick-Up Time</label>
+                                             <input type="time" class="form-control form-control-sm"
+                                                 id="pickup_time-{{ $student->id }}" name="pickup_time" required>
+                                         </div>
+                                         <div class="form-group col-md-6">
+                                             <label for="pickup_person">Pick-Up Person</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="pickup_person-{{ $student->id }}" name="pickup_person" required>
+                                                 <option value="parent">Parent</option>
+                                                 <option value="other">Other</option>
+                                             </select>
+                                         </div>
+
+                                     </div>
+
+                                     <!-- Additional Inputs for "Other" Pick-Up Person -->
+                                     <div id="other_pickup_details-{{ $student->id }}" class="d-none">
+                                         <div class="form-row">
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_name">Name</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_name-{{ $student->id }}" name="other_name"
+                                                     placeholder="Full Name">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_nrc">NRC</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                     placeholder="National Registration Card Number">
+                                             </div>
+
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_contact">Contact Number</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_contact-{{ $student->id }}" name="other_contact"
+                                                     placeholder="e.g., 097xxxxxxx">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="vehicle_reg">Vehicle Registration #</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                     placeholder="Vehicle Registration Number">
+                                             </div>
+                                         </div>
+
+
+                                     </div>
+
+                                     <select name="parent_id" id="parent_id" class="form-control form-control-sm">
+                                         <option value="">--Select a guardian--</option>
+                                         @foreach ($student->guardians as $guardian)
+                                             <option value="{{ $guardian->id }}">
+                                                 {{ $guardian->name }} ({{ $guardian->contact_number }})
+                                             </option>
+                                         @endforeach
+                                     </select>
+
+
+                                     <div class="form-row">
+                                         <!-- Reason for Pick-up -->
+                                         <div class="form-group col-md-6">
+                                             <label for="reason">Reason for Pick-Up</label>
+                                             <textarea class="form-control form-control-sm" id="reason-{{ $student->id }}" name="reason" rows="3"
+                                                 placeholder="Provide a reason for the pick-up" required></textarea>
+                                         </div>
+                                         <!-- Comment by Deputy -->
+                                         <div class="form-group col-md-6">
+                                             <label for="deputy_comment">Comment by Deputy</label>
+                                             <textarea class="form-control form-control-sm" id="deputy_comment-{{ $student->id }}" name="deputy_comment"
+                                                 rows="3" placeholder="Enter comments"></textarea>
+                                         </div>
+                                     </div>
+
+
+                                 </div>
+
+                                 <!-- Modal Footer -->
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-secondary btn-sm"
+                                         data-dismiss="modal">Cancel</button>
+                                     <button type="submit" class="btn btn-danger btn-sm"
+                                         form="grantPermissionForm-{{ $student->id }}">Grant
+                                         Permission</button>
+                                 </div>
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+
+                 {{-- ClearIn modals --}}
+                 <div class="modal fade" id="ClearInModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="ClearInModalLabel" aria-hidden="true">
+                     <div class="modal-dialog modal-ml" role="document">
+                         <div class="modal-content">
+                             <!-- Modal Header -->
+                             <div class="modal-header">
+                                 <h5 class="modal-title" id="ClearInModalLabel">Clear-In for
+                                     <span class="text-bold text-white">{{ $student->firstname ?? 'N/A' }}
+                                         {{ $student->lastname ?? '' }}</span>
+                                 </h5>
+                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                     <span aria-hidden="true">&times;</span>
+                                 </button>
+                             </div>
+
+                             <form id="clearInForm-{{ $student->id }}" action="{{ route('student-clear-in.store') }}"
+                                 method="POST">
+                                 @csrf
+
+                                 <!-- Modal Body -->
+                                 <div class="modal-body">
+                                     <!-- Hidden Fields -->
+                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                     <input type="hidden" name="cleared_by" value="{{ auth()->user()->id }}">
+
+                                     <!-- Term and Year Selection -->
+                                     <div class="form-row">
+                                         <div class="form-group col-md-12">
+                                             <label for="term" class="small">Select Term</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="academic_term-{{ $student->id }}" name="academic_term" required>
+                                                 <option value="">--Select a term--</option>
+                                                 @foreach ($terms as $term)
+                                                     <option value="{{ $term['id'] }}">
+                                                         {{ $term['name'] }}</option>
+                                                 @endforeach
+                                             </select>
+                                         </div>
+                                     </div>
+
+                                     <!-- Clearance Checklist -->
+                                     <div class="form-row">
+                                         <label class="small">Clearance From:</label>
+                                         <div class="form-group col-md-4">
+                                             <!-- Hidden input to send false if checkbox is unchecked -->
+                                             <input type="hidden" name="clearance_accounts" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_accounts-{{ $student->id }}"
+                                                     name="clearance_accounts" value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_accounts-{{ $student->id }}">
+                                                     Accounts Office
+                                                 </label>
+                                             </div>
+
+                                             <input type="hidden" name="clearance_secretary" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_secretary-{{ $student->id }}"
+                                                     name="clearance_secretary" value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_secretary-{{ $student->id }}">
+                                                     Secretary
+                                                 </label>
+                                             </div>
+                                         </div>
+                                         <div class="form-group col-md-4">
+                                             <input type="hidden" name="clearance_search" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_search-{{ $student->id }}" name="clearance_search"
+                                                     value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_search-{{ $student->id }}">
+                                                     Search Team
+                                                 </label>
+                                             </div>
+
+                                             <input type="hidden" name="clearance_patron" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_patron-{{ $student->id }}" name="clearance_patron"
+                                                     value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_patron-{{ $student->id }}">
+                                                     Patron
+                                                 </label>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="row">
+                                         <div class="form-group col-md-12">
+                                             <label for="clearIn_person" class="small">Clear-In
+                                                 Guardian</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="clearIn_person-{{ $student->id }}" name="clearIn_person" required>
+                                                 <option value="">--Select--</option>
+                                                 <option value="parent">Parent</option>
+                                                 <option value="other">Other</option>
+                                             </select>
+                                         </div>
+
+                                         <!-- Check-In Time -->
+                                         <div class="form-group col-md-12">
+                                             <label for="check_in_time-{{ $student->id }}" class="small">Check-In
+                                                 Time</label>
+                                             <input type="time" class="form-control form-control-sm"
+                                                 id="check_in_time-{{ $student->id }}" name="check_in_time" required>
+                                         </div>
+
+                                         <div class="col-md-6">
+                                             <div class="form-group">
+                                                 <label for="hostel_name" class="small">Hostel
+                                                     Name</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="hostel_name-{{ $student->id }}" name="hostel_id"
+                                                     {{ $student->hostel ? 'disabled' : '' }}>
+                                                     <option value="">Select Hostel</option>
+                                                     @foreach ($hostels as $hostel)
+                                                         <option value="{{ $hostel->id }}"
+                                                             {{ $student->hostel && $student->hostel->id == $hostel->id ? 'selected' : '' }}>
+                                                             {{ $hostel->hostel_name . ' (' . ucfirst($hostel->hostel_gender) . ')' }}
+                                                         </option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+                                         </div>
+
+                                         <div class="col-md-6">
+                                             <div class="form-group">
+                                                 <label for="bedspaceSelect" class="small">Bedspace
+                                                     Number</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="bedspaceSelect-{{ $student->id }}" name="bedspace_id"
+                                                     {{ $student->bedspace ? 'disabled' : '' }}>
+                                                     <option value="">Select Bedspace</option>
+                                                     @if ($student->bedspace)
+                                                         <option value="{{ $student->bedspace->id }}" selected>
+                                                             {{ $student->bedspace->bedspace_no }}
+                                                         </option>
+                                                     @endif
+                                                 </select>
+                                             </div>
+                                         </div>
+
+
+
+                                     </div>
+
+
+                                     <div id="other_clearIn_details-{{ $student->id }}" class="d-none">
+                                         <div class="form-row">
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_name">Name</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_name-{{ $student->id }}" name="other_name"
+                                                     placeholder="Full Name">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_nrc">NRC</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                     placeholder="National Registration Card Number">
+                                             </div>
+
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_contact">Contact Number</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_contact-{{ $student->id }}" name="other_contact"
+                                                     placeholder="e.g., 097xxxxxxx">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="vehicle_reg">Vehicle Registration #</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                     placeholder="Vehicle Registration Number">
+                                             </div>
+                                         </div>
+                                         <div class="form-group col-md-12">
+                                             <label for="brought_by_relationship">brought-by-relationship</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="brought_by_relationship-{{ $student->id }}"
+                                                 name="brought_by_relationship">
+                                                 <option value="">--Select--</option>
+                                                 <option value="brother">Brother</option>
+                                                 <option value="sister">Sister</option>
+                                                 <option value="uncle">Uncle</option>
+                                                 <option value="driver">Driver</option>
+                                                 <option value="other">Other</option>
+                                             </select>
+                                         </div>
+
+
+                                     </div>
+
+                                     <div class="form-group" id="parent_idCheckIn">
+                                         <select name="parent_id" class="form-control form-control-sm">
+                                             <option value="">--Select a guardian--</option>
+                                             @foreach ($student->guardians as $guardian)
+                                                 <option value="{{ $guardian->id }}">
+                                                     {{ $guardian->name }}
+                                                     ({{ $guardian->contact_number }})
+                                                 </option>
+                                             @endforeach
+                                         </select>
+                                     </div>
+                                 </div>
+
+                                 <!-- Modal Footer -->
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-secondary btn-sm"
+                                         data-dismiss="modal">Cancel</button>
+                                     <button type="submit" class="btn btn-success btn-sm"
+                                         form="clearInForm-{{ $student->id }}">
+                                         Clear-In
+                                     </button>
+                                 </div>
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+             @endforeach
+         </tbody>
+
+     </table>
+
+
+
+
+
+
+
+     <div class="table accent-blue">
+         <table class="table table-bordered table-hover text-nowrap mb-4 table-sm" id="studentDetails">
+             <thead>
+                 <tr>
+                     {{-- <th>Exam Number</th> --}}
+                     <th>Pupil's Name (Gender)</th>
+                     <th>Grade</th>
+                     <th>Student Type</th>
+                     {{-- <th>Guardian/Parent</th> --}}
+                     <th>Hostel (Bedspace #)</th>
+                     {{-- <th>Bedspace Number</th> --}}
+                     <th>Check-In Status</th>
+                     <th>Check-In Date</th>
+                     <th>Enrollment Status</th>
+                     <th>Action</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 @foreach ($students as $student)
+                     @php
+                         $latestCheckIn = $student->checkIns->last();
+                         $checkInStatus = $latestCheckIn ? 'check_in' : 'check_out';
+                         $checkInDate = $latestCheckIn ? $latestCheckIn->created_at->format('Y-m-d') : 'N/A';
+                     @endphp
+                     <tr>
+                         {{-- <td>{{ $student->ecz_no ?? 'N/A' }}</td> --}}
+                         <td>
+                             {{ $student->firstname ?? 'N/A' }} {{ $student->lastname ?? '' }}
+                             - {{ ucfirst('(' . $student->gender . ')' ?? 'N/A') }}
+                         </td>
+                         <td>
+                             {{ $student->grade->gradeno ?? 'N/A' }} {{ $student->grade->class_name ?? '' }}
+                         </td>
+                         <td>{{ ucfirst($student->student_type ?? 'N/A') }}</td>
+                         {{-- <td>
+                                            <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
+                                                @foreach ($student->guardians as $guardian)
+                                                    <li>
+                                                        {{ $guardian->name }}
+                                                        @if ($guardian->contact_number)
+                                                            ({{ $guardian->contact_number }})
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </td> --}}
+                         <td>
+                             {{ optional(optional($student->checkIns->last())->hostel)->hostel_name ?? 'N/A' }}
+                             -
+                             {{ optional(optional($student->checkIns->last())->bedspace)->bedspace_no ?? 'N/A' }}
+
+
+                         </td>
+                         {{-- <td></td> --}}
+                         <td>
+                             {{ $student->latestCheckInCheckout->bedspace_id }}
+
+                             {{-- @if ($student->latestCheckInCheckout->room_status === 'check_in')
+                                                <span class="badge badge-success">Checked In</span>
+                                            @else
+                                                <span class="badge badge-danger">Not Checked In</span>
+                                            @endif --}}
+                         </td>
+                         <td>{{ $checkInDate }}</td>
+                         <td>
+                             <span
+                                 class="badge badge-{{ $student->active_status === 'enrolled' ? 'success' : 'warning' }}">
+                                 {{ ucfirst($student->active_status) }}
+                                 {{-- {{$student->checkIns->room_status}} --}}
+                             </span>
+                         </td>
+                         <td>
+                             <!-- Permission Button -->
+                             <button class="btn custom-btn-permission" data-toggle="modal"
+                                 data-target="#permissionModal-{{ $student->id }}" title="Grant Permission">
+                                 <i class="fas fa-home"></i>
+                             </button>
+
+                             <!-- Clear-In Button -->
+                             <button class="btn custom-btn-clear-in" data-toggle="modal"
+                                 data-target="#ClearInModal-{{ $student->id }}" title="Clear-In"
+                                 {{ $checkInStatus === 'check_in' || $student->student_type === 'Day-Scholar' ? 'disabled' : '' }}>
+                                 <i class="fas fa-sign-in-alt"></i>
+                             </button>
+
+                             <!-- Clear-Out Button -->
+                             <button class="btn custom-btn-clear-out" data-toggle="modal"
+                                 data-target="#clearOutModal-{{ $student->id }}" title="Clear-Out"
+                                 {{ $student->student_type === 'Day-Scholar' ? 'disabled' : '' }}>
+                                 <i class="fas fa-sign-out-alt"></i>
+                             </button>
+
+                             <!-- Disciplinary Action Button -->
+                             <button class="btn custom-btn-disciplinary" data-toggle="modal"
+                                 data-target="#disciplinaryModal-{{ $student->id }}" title="Disciplinary Action">
+                                 <i class="fas fa-gavel"></i>
+                             </button>
+                         </td>
+                     </tr>
+
+
+
+                     <!-- Permissions Modal -->
+                     <div class="modal fade" id="permissionModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                         aria-labelledby="permissionModalLabel" aria-hidden="true">
+                         <div class="modal-dialog modal-ml" role="document">
+                             <div class="modal-content">
+                                 <!-- Modal Header -->
+                                 <div class="modal-header">
+                                     <h5 class="modal-title" id="permissionModalLabel">Grant Permission for
+                                         <span class="text-bold text-white">
+                                             {{ $student->firstname ?? 'N/A' }}
+                                             {{ $student->lastname ?? '' }}</span>
+                                     </h5>
+                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                         <span aria-hidden="true">&times;</span>
+                                     </button>
+                                 </div>
+                                 <form id="grantPermissionForm-{{ $student->id }}"
+                                     action="{{ route('student-home-permission.store') }}" method="POST">
+
+                                     @csrf
+                                     <!-- Modal Body -->
+                                     <div class="modal-body">
+                                         {{-- student_id --}}
+                                         <!-- Hidden Fields -->
+                                         <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                         <input type="hidden" name="approved_by" value="{{ auth()->user()->id }}">
+
+                                         <div class="form-row">
+                                             <div class="form-group col-md-12">
+                                                 <label for="term">Select Term</label>
+                                                 <select class="form-control form-control-sm" id="academic_term"
+                                                     name="academic_term" required>
+                                                     <option value="">--Select a term--</option>
+                                                     @foreach ($terms as $term)
+                                                         <option value="{{ $term['id'] }}">
+                                                             {{ $term['name'] }}</option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+
+                                             <!-- Permission Dates and Time -->
+                                             <div class="form-group col-md-6">
+                                                 <label for="permission_start">Permission Start Date</label>
+                                                 <input type="date" class="form-control form-control-sm"
+                                                     id="permission_start-{{ $student->id }}" name="permission_start"
+                                                     required>
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="permission_end">Permission End Date</label>
+                                                 <input type="date" class="form-control form-control-sm"
+                                                     id="permission_end-{{ $student->id }}" name="permission_end"
+                                                     required>
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="pickup_time">Pick-Up Time</label>
+                                                 <input type="time" class="form-control form-control-sm"
+                                                     id="pickup_time-{{ $student->id }}" name="pickup_time" required>
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="pickup_person">Pick-Up Person</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="pickup_person-{{ $student->id }}" name="pickup_person"
+                                                     required>
+                                                     <option value="parent">Parent</option>
+                                                     <option value="other">Other</option>
+                                                 </select>
+                                             </div>
+
+                                         </div>
+
+                                         <!-- Additional Inputs for "Other" Pick-Up Person -->
+                                         <div id="other_pickup_details-{{ $student->id }}" class="d-none">
+                                             <div class="form-row">
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_name">Name</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_name-{{ $student->id }}" name="other_name"
+                                                         placeholder="Full Name">
+                                                 </div>
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_nrc">NRC</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                         placeholder="National Registration Card Number">
+                                                 </div>
+
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_contact">Contact Number</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_contact-{{ $student->id }}" name="other_contact"
+                                                         placeholder="e.g., 097xxxxxxx">
+                                                 </div>
+                                                 <div class="form-group col-md-6">
+                                                     <label for="vehicle_reg">Vehicle Registration #</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                         placeholder="Vehicle Registration Number">
+                                                 </div>
+                                             </div>
+
+
+                                         </div>
+
+                                         <select name="parent_id" id="parent_id" class="form-control form-control-sm">
+                                             <option value="">--Select a guardian--</option>
+                                             @foreach ($student->guardians as $guardian)
+                                                 <option value="{{ $guardian->id }}">
+                                                     {{ $guardian->name }}
+                                                     ({{ $guardian->contact_number }})
+                                                 </option>
+                                             @endforeach
+                                         </select>
+
+
+                                         <div class="form-row">
+                                             <!-- Reason for Pick-up -->
+                                             <div class="form-group col-md-6">
+                                                 <label for="reason">Reason for Pick-Up</label>
+                                                 <textarea class="form-control form-control-sm" id="reason-{{ $student->id }}" name="reason" rows="3"
+                                                     placeholder="Provide a reason for the pick-up" required></textarea>
+                                             </div>
+                                             <!-- Comment by Deputy -->
+                                             <div class="form-group col-md-6">
+                                                 <label for="deputy_comment">Comment by Deputy</label>
+                                                 <textarea class="form-control form-control-sm" id="deputy_comment-{{ $student->id }}" name="deputy_comment"
+                                                     rows="3" placeholder="Enter comments"></textarea>
+                                             </div>
+                                         </div>
+
+
+                                     </div>
+
+                                     <!-- Modal Footer -->
+                                     <div class="modal-footer">
+                                         <button type="button" class="btn btn-secondary btn-sm"
+                                             data-dismiss="modal">Cancel</button>
+                                         <button type="submit" class="btn btn-danger btn-sm"
+                                             form="grantPermissionForm-{{ $student->id }}">Grant
+                                             Permission</button>
+                                     </div>
+                                 </form>
+                             </div>
+                         </div>
+                     </div>
+
+                     {{-- ClearIn modals --}}
+                     <div class="modal fade" id="ClearInModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                         aria-labelledby="ClearInModalLabel" aria-hidden="true">
+                         <div class="modal-dialog modal-ml" role="document">
+                             <div class="modal-content">
+                                 <!-- Modal Header -->
+                                 <div class="modal-header">
+                                     <h5 class="modal-title" id="ClearInModalLabel">Clear-In for
+                                         <span class="text-bold text-white">{{ $student->firstname ?? 'N/A' }}
+                                             {{ $student->lastname ?? '' }}</span>
+                                     </h5>
+                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                         <span aria-hidden="true">&times;</span>
+                                     </button>
+                                 </div>
+
+                                 <form id="clearInForm-{{ $student->id }}"
+                                     action="{{ route('student-clear-in.store') }}" method="POST">
+                                     @csrf
+
+                                     <!-- Modal Body -->
+                                     <div class="modal-body">
+                                         <!-- Hidden Fields -->
+                                         <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                         <input type="hidden" name="cleared_by" value="{{ auth()->user()->id }}">
+
+                                         <!-- Term and Year Selection -->
+                                         <div class="form-row">
+                                             <div class="form-group col-md-12">
+                                                 <label for="term" class="small">Select Term</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="academic_term-{{ $student->id }}" name="academic_term"
+                                                     required>
+                                                     <option value="">--Select a term--</option>
+                                                     @foreach ($terms as $term)
+                                                         <option value="{{ $term['id'] }}">
+                                                             {{ $term['name'] }}</option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+                                         </div>
+
+                                         <!-- Clearance Checklist -->
+                                         <div class="form-row">
+                                             <label class="small">Clearance From:</label>
+                                             <div class="form-group col-md-4">
+                                                 <!-- Hidden input to send false if checkbox is unchecked -->
+                                                 <input type="hidden" name="clearance_accounts" value="false">
+                                                 <div class="form-check">
+                                                     <input class="form-check-input" type="checkbox"
+                                                         id="clearance_accounts-{{ $student->id }}"
+                                                         name="clearance_accounts" value="true">
+                                                     <label class="form-check-label"
+                                                         for="clearance_accounts-{{ $student->id }}">
+                                                         Accounts Office
+                                                     </label>
+                                                 </div>
+
+                                                 <input type="hidden" name="clearance_secretary" value="false">
+                                                 <div class="form-check">
+                                                     <input class="form-check-input" type="checkbox"
+                                                         id="clearance_secretary-{{ $student->id }}"
+                                                         name="clearance_secretary" value="true">
+                                                     <label class="form-check-label"
+                                                         for="clearance_secretary-{{ $student->id }}">
+                                                         Secretary
+                                                     </label>
+                                                 </div>
+                                             </div>
+                                             <div class="form-group col-md-4">
+                                                 <input type="hidden" name="clearance_search" value="false">
+                                                 <div class="form-check">
+                                                     <input class="form-check-input" type="checkbox"
+                                                         id="clearance_search-{{ $student->id }}"
+                                                         name="clearance_search" value="true">
+                                                     <label class="form-check-label"
+                                                         for="clearance_search-{{ $student->id }}">
+                                                         Search Team
+                                                     </label>
+                                                 </div>
+
+                                                 <input type="hidden" name="clearance_patron" value="false">
+                                                 <div class="form-check">
+                                                     <input class="form-check-input" type="checkbox"
+                                                         id="clearance_patron-{{ $student->id }}"
+                                                         name="clearance_patron" value="true">
+                                                     <label class="form-check-label"
+                                                         for="clearance_patron-{{ $student->id }}">
+                                                         Patron
+                                                     </label>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         <div class="row">
+                                             <div class="form-group col-md-12">
+                                                 <label for="clearIn_person" class="small">Clear-In
+                                                     Guardian</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="clearIn_person-{{ $student->id }}" name="clearIn_person"
+                                                     required>
+                                                     <option value="">--Select--</option>
+                                                     <option value="parent">Parent</option>
+                                                     <option value="other">Other</option>
+                                                 </select>
+                                             </div>
+
+                                             <!-- Check-In Time -->
+                                             <div class="form-group col-md-12">
+                                                 <label for="check_in_time-{{ $student->id }}" class="small">Check-In
+                                                     Time</label>
+                                                 <input type="time" class="form-control form-control-sm"
+                                                     id="check_in_time-{{ $student->id }}" name="check_in_time"
+                                                     required>
+                                             </div>
+
+                                             <div class="col-md-6">
+                                                 <div class="form-group">
+                                                     <label for="hostel_name" class="small">Hostel
+                                                         Name</label>
+                                                     <select class="form-control form-control-sm"
+                                                         id="hostel_name-{{ $student->id }}" name="hostel_id"
+                                                         {{ $student->hostel ? 'disabled' : '' }}>
+                                                         <option value="">Select Hostel</option>
+                                                         @foreach ($hostels as $hostel)
+                                                             <option value="{{ $hostel->id }}"
+                                                                 {{ $student->hostel && $student->hostel->id == $hostel->id ? 'selected' : '' }}>
+                                                                 {{ $hostel->hostel_name . ' (' . ucfirst($hostel->hostel_gender) . ')' }}
+                                                             </option>
+                                                         @endforeach
+                                                     </select>
+                                                 </div>
+                                             </div>
+
+                                             <div class="col-md-6">
+                                                 <div class="form-group">
+                                                     <label for="bedspaceSelect" class="small">Bedspace
+                                                         Number</label>
+                                                     <select class="form-control form-control-sm"
+                                                         id="bedspaceSelect-{{ $student->id }}" name="bedspace_id"
+                                                         {{ $student->bedspace ? 'disabled' : '' }}>
+                                                         <option value="">Select Bedspace</option>
+                                                         @if ($student->bedspace)
+                                                             <option value="{{ $student->bedspace->id }}" selected>
+                                                                 {{ $student->bedspace->bedspace_no }}
+                                                             </option>
+                                                         @endif
+                                                     </select>
+                                                 </div>
+                                             </div>
+
+
+
+                                         </div>
+
+
+                                         <div id="other_clearIn_details-{{ $student->id }}" class="d-none">
+                                             <div class="form-row">
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_name">Name</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_name-{{ $student->id }}" name="other_name"
+                                                         placeholder="Full Name">
+                                                 </div>
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_nrc">NRC</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                         placeholder="National Registration Card Number">
+                                                 </div>
+
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_contact">Contact Number</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_contact-{{ $student->id }}" name="other_contact"
+                                                         placeholder="e.g., 097xxxxxxx">
+                                                 </div>
+                                                 <div class="form-group col-md-6">
+                                                     <label for="vehicle_reg">Vehicle Registration #</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                         placeholder="Vehicle Registration Number">
+                                                 </div>
+                                             </div>
+                                             <div class="form-group col-md-12">
+                                                 <label for="brought_by_relationship">brought-by-relationship</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="brought_by_relationship-{{ $student->id }}"
+                                                     name="brought_by_relationship">
+                                                     <option value="">--Select--</option>
+                                                     <option value="brother">Brother</option>
+                                                     <option value="sister">Sister</option>
+                                                     <option value="uncle">Uncle</option>
+                                                     <option value="driver">Driver</option>
+                                                     <option value="other">Other</option>
+                                                 </select>
+                                             </div>
+
+
+                                         </div>
+
+                                         <div class="form-group" id="parent_idCheckIn">
+                                             <select name="parent_id" class="form-control form-control-sm">
+                                                 <option value="">--Select a guardian--</option>
+                                                 @foreach ($student->guardians as $guardian)
+                                                     <option value="{{ $guardian->id }}">
+                                                         {{ $guardian->name }}
+                                                         ({{ $guardian->contact_number }})
+                                                     </option>
+                                                 @endforeach
+                                             </select>
+                                         </div>
+                                     </div>
+
+                                     <!-- Modal Footer -->
+                                     <div class="modal-footer">
+                                         <button type="button" class="btn btn-secondary btn-sm"
+                                             data-dismiss="modal">Cancel</button>
+                                         <button type="submit" class="btn btn-success btn-sm"
+                                             form="clearInForm-{{ $student->id }}">
+                                             Clear-In
+                                         </button>
+                                     </div>
+                                 </form>
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- Clear-Out Modal -->
+                     <div class="modal fade" id="clearOutModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                         aria-labelledby="clearOutModalLabel-{{ $student->id }}" aria-hidden="true">
+                         <div class="modal-dialog modal-md" role="document">
+                             <div class="modal-content">
+                                 <!-- Modal Header -->
+                                 <div class="modal-header">
+                                     <h5 class="modal-title" id="clearOutModalLabel-{{ $student->id }}">
+                                         Clear-Out For:
+                                         <span class="text-bold text-white">{{ $student->firstname ?? 'N/A' }}
+                                             {{ $student->lastname ?? '' }}</span>
+                                     </h5>
+                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                         <span aria-hidden="true">&times;</span>
+                                     </button>
+                                 </div>
+
+                                 <!-- Modal Form -->
+                                 <form id="clearOutForm-{{ $student->id }}"
+                                     action="{{ route('student-clear-out.store') }}" method="POST">
+                                     @csrf
+
+                                     <!-- Modal Body -->
+                                     <div class="modal-body">
+                                         <!-- Hidden Fields -->
+                                         <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                         <input type="hidden" name="cleared_by" value="{{ auth()->user()->id }}">
+
+                                         <!-- Term and Year Selection -->
+                                         <div class="form-row">
+                                             <div class="form-group col-md-12">
+                                                 <label for="term" class="small">Select Term</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="academic_term-{{ $student->id }}" name="academic_term"
+                                                     required>
+                                                     <option value="">--Select a term--</option>
+                                                     @foreach ($terms as $term)
+                                                         <option value="{{ $term['id'] }}">
+                                                             {{ $term['name'] }}</option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+                                         </div>
+
+                                         <!-- Clear-Out Time -->
+                                         <div class="form-row">
+                                             <div class="form-group col-md-12">
+                                                 <label for="check_out_time-{{ $student->id }}"
+                                                     class="small">Clear-Out Time</label>
+                                                 <input type="time" class="form-control form-control-sm"
+                                                     id="check_out_time-{{ $student->id }}" name="check_out_time"
+                                                     required>
+                                             </div>
+                                         </div>
+
+                                         <!-- Clear-Out Guardian Dropdown -->
+                                         <div class="form-row">
+                                             <div class="form-group col-md-12">
+                                                 <label for="clearOut_person-{{ $student->id }}"
+                                                     class="small">Clear-Out Guardian</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="clearOut_person-{{ $student->id }}" name="clearOut_person"
+                                                     required>
+                                                     <option value="">--Select--</option>
+                                                     <option value="parent">Parent</option>
+                                                     <option value="other">Other</option>
+                                                 </select>
+                                             </div>
+                                         </div>
+
+                                         <!-- Parent ID Selection -->
+                                         <div class="form-group" id="parent_id_wrapper-{{ $student->id }}">
+                                             <label for="parent_id" class="small">Select Guardian</label>
+                                             <select name="parent_id" class="form-control form-control-sm">
+                                                 <option value="">--Select a guardian--</option>
+                                                 @foreach ($student->guardians as $guardian)
+                                                     <option value="{{ $guardian->id }}">
+                                                         {{ $guardian->name }}
+                                                         ({{ $guardian->contact_number }})
+                                                     </option>
+                                                 @endforeach
+                                             </select>
+                                         </div>
+
+                                         <!-- Additional Guardian or Vehicle Details -->
+                                         <div id="other_clearOut_details-{{ $student->id }}" class="d-none">
+                                             <div class="form-row">
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_name">Name</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_name-{{ $student->id }}" name="other_name"
+                                                         placeholder="Full Name">
+                                                 </div>
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_nrc">NRC</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                         placeholder="National Registration Card Number">
+                                                 </div>
+
+                                                 <div class="form-group col-md-6">
+                                                     <label for="other_contact">Contact Number</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="other_contact-{{ $student->id }}" name="other_contact"
+                                                         placeholder="e.g., 097xxxxxxx">
+                                                 </div>
+                                                 <div class="form-group col-md-6">
+                                                     <label for="vehicle_reg">Vehicle Registration #</label>
+                                                     <input type="text" class="form-control form-control-sm"
+                                                         id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                         placeholder="Vehicle Registration Number">
+                                                 </div>
+                                             </div>
+                                             <div class="form-group col-md-12">
+                                                 <label for="brought_by_relationship">Brought By
+                                                     Relationship</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="brought_by_relationship-{{ $student->id }}"
+                                                     name="brought_by_relationship">
+                                                     <option value="">--Select--</option>
+                                                     <option value="brother">Brother</option>
+                                                     <option value="sister">Sister</option>
+                                                     <option value="uncle">Uncle</option>
+                                                     <option value="driver">Driver</option>
+                                                     <option value="other">Other</option>
+                                                 </select>
+                                             </div>
+                                         </div>
+
+                                     </div>
+
+                                     <!-- Modal Footer -->
+                                     <div class="modal-footer">
+                                         <button type="button" class="btn btn-secondary btn-sm"
+                                             data-dismiss="modal">Cancel</button>
+                                         <button type="submit" class="btn btn-danger btn-sm"
+                                             form="clearOutForm-{{ $student->id }}">Clear-Out</button>
+                                     </div>
+                                 </form>
+                             </div>
+                         </div>
+                     </div>
+                 @endforeach
+             </tbody>
+         </table>
+
+
+
+     </div>
+
+
+
+     <!-- Permissions Modal -->
+     <div class="modal fade" id="permissionModal-{{ $student->id }}" tabindex="-1" role="dialog"
+         aria-labelledby="permissionModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-ml" role="document">
+             <div class="modal-content">
+                 <!-- Modal Header -->
+                 <div class="modal-header">
+                     <h5 class="modal-title" id="permissionModalLabel">Grant
+                         Permission for
+                         <span class="text-bold text-white">
+                             {{ $student->firstname ?? 'N/A' }}
+                             {{ $student->lastname ?? '' }}</span>
+                     </h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                 </div>
+                 <form id="grantPermissionForm-{{ $student->id }}"
+                     action="{{ route('student-home-permission.store') }}" method="POST">
+
+                     @csrf
+                     <!-- Modal Body -->
+                     <div class="modal-body">
+                         {{-- student_id --}}
+                         <!-- Hidden Fields -->
+                         <input type="hidden" name="student_id" value="{{ $student->id }}">
+                         <input type="hidden" name="approved_by" value="{{ auth()->user()->id }}">
+
+                         <div class="form-row">
+                             <div class="form-group col-md-12">
+                                 <label for="term">Select Term</label>
+                                 <select class="form-control form-control-sm" id="academic_term" name="academic_term"
+                                     required>
+                                     <option value="">--Select a term--
+                                     </option>
+                                     @foreach ($terms as $term)
+                                         <option value="{{ $term['id'] }}">
+                                             {{ $term['name'] }}</option>
+                                     @endforeach
+                                 </select>
+                             </div>
+
+                             <!-- Permission Dates and Time -->
+                             <div class="form-group col-md-6">
+                                 <label for="permission_start">Permission Start
+                                     Date</label>
+                                 <input type="date" class="form-control form-control-sm"
+                                     id="permission_start-{{ $student->id }}" name="permission_start" required>
+                             </div>
+                             <div class="form-group col-md-6">
+                                 <label for="permission_end">Permission End
+                                     Date</label>
+                                 <input type="date" class="form-control form-control-sm"
+                                     id="permission_end-{{ $student->id }}" name="permission_end" required>
+                             </div>
+                             <div class="form-group col-md-6">
+                                 <label for="pickup_time">Pick-Up Time</label>
+                                 <input type="time" class="form-control form-control-sm"
+                                     id="pickup_time-{{ $student->id }}" name="pickup_time" required>
+                             </div>
+                             <div class="form-group col-md-6">
+                                 <label for="pickup_person">Pick-Up
+                                     Person</label>
+                                 <select class="form-control form-control-sm" id="pickup_person-{{ $student->id }}"
+                                     name="pickup_person" required>
+                                     <option value="parent">Parent</option>
+                                     <option value="other">Other</option>
+                                 </select>
+                             </div>
+
+                         </div>
+
+                         <!-- Additional Inputs for "Other" Pick-Up Person -->
+                         <div id="other_pickup_details-{{ $student->id }}" class="d-none">
+                             <div class="form-row">
+                                 <div class="form-group col-md-6">
+                                     <label for="other_name">Name</label>
+                                     <input type="text" class="form-control form-control-sm"
+                                         id="other_name-{{ $student->id }}" name="other_name"
+                                         placeholder="Full Name">
+                                 </div>
+                                 <div class="form-group col-md-6">
+                                     <label for="other_nrc">NRC</label>
+                                     <input type="text" class="form-control form-control-sm"
+                                         id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                         placeholder="National Registration Card Number">
+                                 </div>
+
+                                 <div class="form-group col-md-6">
+                                     <label for="other_contact">Contact
+                                         Number</label>
+                                     <input type="text" class="form-control form-control-sm"
+                                         id="other_contact-{{ $student->id }}" name="other_contact"
+                                         placeholder="e.g., 097xxxxxxx">
+                                 </div>
+                                 <div class="form-group col-md-6">
+                                     <label for="vehicle_reg">Vehicle
+                                         Registration #</label>
+                                     <input type="text" class="form-control form-control-sm"
+                                         id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                         placeholder="Vehicle Registration Number">
+                                 </div>
+                             </div>
+
+
+                         </div>
+
+                         <select name="parent_id" id="parent_id" class="form-control form-control-sm">
+                             <option value="">--Select a guardian--
+                             </option>
+                             @foreach ($student->guardians as $guardian)
+                                 <option value="{{ $guardian->id }}">
+                                     {{ $guardian->name }}
+                                     ({{ $guardian->contact_number }})
+                                 </option>
+                             @endforeach
+                         </select>
+
+
+                         <div class="form-row">
+                             <!-- Reason for Pick-up -->
+                             <div class="form-group col-md-6">
+                                 <label for="reason">Reason for
+                                     Pick-Up</label>
+                                 <textarea class="form-control form-control-sm" id="reason-{{ $student->id }}" name="reason" rows="3"
+                                     placeholder="Provide a reason for the pick-up" required></textarea>
+                             </div>
+                             <!-- Comment by Deputy -->
+                             <div class="form-group col-md-6">
+                                 <label for="deputy_comment">Comment by
+                                     Deputy</label>
+                                 <textarea class="form-control form-control-sm" id="deputy_comment-{{ $student->id }}" name="deputy_comment"
+                                     rows="3" placeholder="Enter comments"></textarea>
+                             </div>
+
+                         </div>
+                         <div class="form-group col-md-12">
+                             <label for="permission_status" class="d-block">Select Status</label>
+                             <select class="form-control form-control-sm" id="permission_status"
+                                 name="permission_status" required>
+                                 <option value="">--Select Status--
+                                 </option>
+                                 <option value="permission_granted">On
+                                     Permission</option>
+                                 <option value="permission_rejected">
+                                     Rejected Permission</option>
+                                 <option value="permission_pending">Pending
+                                     Permissions</option>
+                                 <option value="permission_expired">Expired
+                                     Permissions</option>
+                             </select>
+                         </div>
+
+
+                     </div>
+
+                     <!-- Modal Footer -->
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                         <button type="submit" class="btn btn-danger btn-sm"
+                             form="grantPermissionForm-{{ $student->id }}">Save Permission</button>
+                     </div>
+                 </form>
+             </div>
+         </div>
+     </div>
+
+
+
+
+
+
+     <table class="table table-bordered table-hover text-nowrap mb-4 table-sm" id="studentDetails">
+         <thead>
+             <tr>
+                 {{-- <th>Exam Number</th> --}}
+                 <th>Pupil's Name (Gender)</th>
+                 <th>Grade</th>
+                 <th>Student Type</th>
+                 <th>Year-Term</th>
+                 <th>Hostel (Bedspace #)</th>
+                 <th>Check-In Status</th>
+                 <th>Enrollment Status</th>
+                 <th>Action</th>
+             </tr>
+         </thead>
+         <tbody>
+             @foreach ($students as $student)
+                 @php
+                     // Get the latest check-in for the student
+                     $latestCheckIn = $student->checkIns->last();
+                     $roomStatus = $latestCheckIn ? $latestCheckIn->room_status : null;
+                     $isDayScholar = $student->student_type === 'Day-Scholar';
+                     $checkInDate = $latestCheckIn ? $latestCheckIn->created_at->format('d-m-Y') : 'N/A';
+                 @endphp
+                 <tr>
+                     <td>
+                         {{ $student->firstname ?? 'N/A' }}
+                         {{ $student->lastname ?? '' }}
+                         - {{ ucfirst('(' . $student->gender . ')' ?? 'N/A') }}
+                     </td>
+                     <td>
+                         {{ $student->grade->gradeno ?? 'N/A' }}
+                         {{ $student->grade->class_name ?? '' }}
+                     </td>
+                     <td>{{ ucfirst($student->student_type ?? 'N/A') }}</td>
+                     <td>
+                         @if ($student->termlyReports->isNotEmpty())
+                             @foreach ($student->termlyReports as $report)
+                                 <div>
+                                     {{ $report->academicYear->academic_year ?? 'N/A' }} -
+                                     Term {{ $report->term_number ?? 'N/A' }}
+                                 </div>
+                             @endforeach
+                         @else
+                             No Reports Available
+                         @endif
+                     </td>
+
+                     <td>
+                         {{ optional(optional($student->checkIns->last())->hostel)->hostel_name ?? 'N/A' }}
+                         -
+                         {{ optional(optional($student->checkIns->last())->bedspace)->bedspace_no ?? 'N/A' }}
+                     </td>
+                     <td>
+                         @php
+                             $latestCheckIn = $student->checkIns->last(); // Get the most recent check-in
+                         @endphp
+                         {{ $latestCheckIn ? ucfirst($latestCheckIn->room_status) : 'No Record' }}
+                     </td>
+                     {{-- <td>{{ $checkInDate }}</td> --}}
+                     <td>
+                         <span class="badge badge-{{ $student->active_status === 'enrolled' ? 'success' : 'warning' }}">
+                             {{ ucfirst($student->active_status) }}
+                         </span>
+                     </td>
+                     <td>
+                         <!-- Clear-In Button -->
+                         {{-- Conditional button based on room_status and student_type --}}
+                         <button class="btn custom-btn-clear-in" data-toggle="modal"
+                             data-target="#ClearInModal-{{ $student->id }}" title="Clear-In"
+                             {{ $roomStatus === 'checked_in' || $isDayScholar ? 'disabled' : '' }}>
+                             <i class="fas fa-sign-in-alt"></i>
+                         </button>
+
+                         <!-- Clear-Out Button -->
+                         <button class="btn custom-btn-clear-out" data-toggle="modal"
+                             data-target="#clearOutModal-{{ $student->id }}" title="Clear-Out"
+                             {{ $roomStatus === 'checked_out' || $isDayScholar ? 'disabled' : '' }}>
+                             <i class="fas fa-sign-out-alt"></i>
+                         </button>
+                     </td>
+                 </tr>
+                 {{-- ClearIn modals --}}
+                 <div class="modal fade" id="ClearInModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="ClearInModalLabel" aria-hidden="true">
+                     <div class="modal-dialog modal-ml" role="document">
+                         <div class="modal-content">
+                             <!-- Modal Header -->
+                             <div class="modal-header">
+                                 <h5 class="modal-title" id="ClearInModalLabel">Clear-In
+                                     for
+                                     <span class="text-bold text-white">{{ $student->firstname ?? 'N/A' }}
+                                         {{ $student->lastname ?? '' }}</span>
+                                 </h5>
+                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                     <span aria-hidden="true">&times;</span>
+                                 </button>
+                             </div>
+
+                             <form id="clearInForm-{{ $student->id }}"
+                                 action="{{ route('student-clear-in.store') }}" method="POST">
+                                 @csrf
+
+                                 <!-- Modal Body -->
+                                 <div class="modal-body">
+                                     <!-- Hidden Fields -->
+                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                     <input type="hidden" name="cleared_by" value="{{ auth()->user()->id }}">
+
+                                     <!-- Term and Year Selection -->
+                                     <div class="form-row">
+                                         <div class="form-group col-md-12">
+                                             <label for="term" class="small">Select
+                                                 Term</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="academic_term-{{ $student->id }}" name="academic_term" required>
+                                                 <option value="">--Select a term--
+                                                 </option>
+                                                 @foreach ($academicYears as $year)
+                                                     @foreach ($year->terms as $term)
+                                                         <option value="{{ $year->id }}-{{ $term->term_number }}">
+                                                             {{ $year->academic_year }} - Term
+                                                             {{ $term->term_number }}
+                                                         </option>
+                                                     @endforeach
+                                                 @endforeach
+                                             </select>
+                                         </div>
+                                     </div>
+
+                                     <!-- Clearance Checklist -->
+                                     <div class="form-row">
+                                         <label class="small">Clearance From:</label>
+                                         <div class="form-group col-md-4">
+                                             <!-- Hidden input to send false if checkbox is unchecked -->
+                                             <input type="hidden" name="clearance_accounts" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_accounts-{{ $student->id }}"
+                                                     name="clearance_accounts" value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_accounts-{{ $student->id }}">
+                                                     Accounts Office
+                                                 </label>
+                                             </div>
+
+                                             <input type="hidden" name="clearance_secretary" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_secretary-{{ $student->id }}"
+                                                     name="clearance_secretary" value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_secretary-{{ $student->id }}">
+                                                     Secretary
+                                                 </label>
+                                             </div>
+                                         </div>
+                                         <div class="form-group col-md-4">
+                                             <input type="hidden" name="clearance_search" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_search-{{ $student->id }}" name="clearance_search"
+                                                     value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_search-{{ $student->id }}">
+                                                     Search Team
+                                                 </label>
+                                             </div>
+
+                                             <input type="hidden" name="clearance_patron" value="false">
+                                             <div class="form-check">
+                                                 <input class="form-check-input" type="checkbox"
+                                                     id="clearance_patron-{{ $student->id }}" name="clearance_patron"
+                                                     value="true">
+                                                 <label class="form-check-label"
+                                                     for="clearance_patron-{{ $student->id }}">
+                                                     Patron
+                                                 </label>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="row">
+                                         <div class="form-group col-md-12">
+                                             <label for="clearIn_person" class="small">Clear-In
+                                                 Guardian</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="clearIn_person-{{ $student->id }}" name="clearIn_person"
+                                                 required>
+                                                 <option value="">--Select--</option>
+                                                 <option value="parent">Parent</option>
+                                                 <option value="other">Other</option>
+                                             </select>
+                                         </div>
+
+                                         <!-- Check-In Time -->
+                                         <div class="form-group col-md-12">
+                                             <label for="check_in_time-{{ $student->id }}" class="small">Check-In
+                                                 Time</label>
+                                             <input type="time" class="form-control form-control-sm"
+                                                 id="check_in_time-{{ $student->id }}" name="check_in_time" required>
+                                         </div>
+
+                                         <div class="col-md-6">
+                                             <div class="form-group">
+                                                 <label for="hostel_name-{{ $student->id }}" class="small">Hostel
+                                                     Name</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="hostel_name-{{ $student->id }}" name="hostel_id"
+                                                     {{ $student->checkIns->last() ? 'disabled' : '' }}>
+                                                     <option value="">Select Hostel
+                                                     </option>
+                                                     @foreach ($hostels as $hostel)
+                                                         <option value="{{ $hostel->id }}"
+                                                             {{ $student->checkIns->last() && $student->checkIns->last()->hostel_id == $hostel->id ? 'selected' : '' }}>
+                                                             {{ $hostel->hostel_name . ' (' . ucfirst($hostel->hostel_gender) . ')' }}
+                                                         </option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+                                         </div>
+
+                                         <div class="col-md-6">
+                                             <div class="form-group">
+                                                 <label for="bedspaceSelect-{{ $student->id }}"
+                                                     class="small">Bedspace Number</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="bedspaceSelect-{{ $student->id }}" name="bedspace_id"
+                                                     {{ $student->checkIns->last() ? 'disabled' : '' }}>
+                                                     <option value="">Select Bedspace
+                                                     </option>
+                                                     @if ($student->checkIns->last() && $student->checkIns->last()->bedspace)
+                                                         <option value="{{ $student->checkIns->last()->bedspace->id }}"
+                                                             selected>
+                                                             {{ $student->checkIns->last()->bedspace->bedspace_no }}
+                                                         </option>
+                                                     @endif
+                                                 </select>
+                                             </div>
+                                         </div>
+                                     </div>
+
+
+                                     <div id="other_clearIn_details-{{ $student->id }}" class="d-none">
+                                         <div class="form-row">
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_name">Name</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_name-{{ $student->id }}" name="other_name"
+                                                     placeholder="Full Name">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_nrc">NRC</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                     placeholder="National Registration Card Number">
+                                             </div>
+
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_contact">Contact
+                                                     Number</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_contact-{{ $student->id }}" name="other_contact"
+                                                     placeholder="e.g., 097xxxxxxx">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="vehicle_reg">Vehicle
+                                                     Registration #</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                     placeholder="Vehicle Registration Number">
+                                             </div>
+                                         </div>
+                                         <div class="form-group col-md-12">
+                                             <label for="brought_by_relationship">brought-by-relationship</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="brought_by_relationship-{{ $student->id }}"
+                                                 name="brought_by_relationship">
+                                                 <option value="">--Select--</option>
+                                                 <option value="brother">Brother</option>
+                                                 <option value="sister">Sister</option>
+                                                 <option value="uncle">Uncle</option>
+                                                 <option value="driver">Driver</option>
+                                                 <option value="other">Other</option>
+                                             </select>
+                                         </div>
+
+
+                                     </div>
+
+                                     <div class="form-group" id="parent_idCheckIn">
+                                         <select name="parent_id" class="form-control form-control-sm">
+                                             <option value="">--Select a guardian--
+                                             </option>
+                                             @foreach ($student->guardians as $guardian)
+                                                 <option value="{{ $guardian->id }}">
+                                                     {{ $guardian->name }}
+                                                     ({{ $guardian->contact_number }})
+                                                 </option>
+                                             @endforeach
+                                         </select>
+                                     </div>
+                                 </div>
+
+                                 <!-- Modal Footer -->
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-secondary btn-sm"
+                                         data-dismiss="modal">Cancel</button>
+                                     <button type="submit" class="btn btn-success btn-sm"
+                                         form="clearInForm-{{ $student->id }}">
+                                         Clear-In
+                                     </button>
+                                 </div>
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+
+                 <!-- Clear-Out Modal -->
+                 <div class="modal fade" id="clearOutModal-{{ $student->id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="clearOutModalLabel-{{ $student->id }}" aria-hidden="true">
+                     <div class="modal-dialog modal-md" role="document">
+                         <div class="modal-content">
+                             <!-- Modal Header -->
+                             <div class="modal-header">
+                                 <h5 class="modal-title" id="clearOutModalLabel-{{ $student->id }}">
+                                     Clear-Out For:
+                                     <span class="text-bold text-white">{{ $student->firstname ?? 'N/A' }}
+                                         {{ $student->lastname ?? '' }}</span>
+                                 </h5>
+                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                     <span aria-hidden="true">&times;</span>
+                                 </button>
+                             </div>
+
+                             <!-- Modal Form -->
+                             <form id="clearOutForm-{{ $student->id }}"
+                                 action="{{ route('student-clear-out.store') }}" method="POST">
+                                 @csrf
+
+                                 <!-- Modal Body -->
+                                 <div class="modal-body">
+                                     <!-- Hidden Fields -->
+                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                     <input type="hidden" name="cleared_by" value="{{ auth()->user()->id }}">
+
+                                     <!-- Term and Year Selection -->
+                                     <div class="form-row">
+                                         <div class="form-group col-md-12">
+                                             <label for="term" class="small">Select
+                                                 Term</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="academic_term-{{ $student->id }}" name="academic_term" required>
+                                                 <option value="">--Select a term--
+                                                 </option>
+                                                 @foreach ($academicYears as $year)
+                                                     @foreach ($year->terms as $term)
+                                                         <option value="{{ $year->id }}-{{ $term->term_number }}">
+                                                             {{ $year->academic_year }} - Term
+                                                             {{ $term->term_number }}
+                                                         </option>
+                                                     @endforeach
+                                                 @endforeach
+                                             </select>
+                                         </div>
+                                     </div>
+
+                                     <!-- Clear-Out Time -->
+                                     <div class="form-row">
+                                         <div class="form-group col-md-12">
+                                             <label for="check_out_time-{{ $student->id }}" class="small">Clear-Out
+                                                 Time</label>
+                                             <input type="time" class="form-control form-control-sm"
+                                                 id="check_out_time-{{ $student->id }}" name="check_out_time"
+                                                 required>
+                                         </div>
+                                     </div>
+                                     <div class="row">
+                                         <div class="col-md-6">
+                                             <div class="form-group">
+                                                 <label for="hostel_name-{{ $student->id }}" class="small">Hostel
+                                                     Name</label>
+                                                 <select class="form-control form-control-sm"
+                                                     id="hostel_name-{{ $student->id }}" name="hostel_id"
+                                                     {{ $student->checkIns->last() ? 'disabled' : '' }}>
+                                                     <option value="">Select Hostel
+                                                     </option>
+                                                     @foreach ($hostels as $hostel)
+                                                         <option value="{{ $hostel->id }}"
+                                                             {{ $student->checkIns->last() && $student->checkIns->last()->hostel_id == $hostel->id ? 'selected' : '' }}>
+                                                             {{ $hostel->hostel_name . ' (' . ucfirst($hostel->hostel_gender) . ')' }}
+                                                         </option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+                                         </div>
+                                         <div class="form-group col-md-6">
+                                             <label for="bedspaceSelect-{{ $student->id }}" class="small">Bedspace
+                                                 Number</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="bedspaceSelect-{{ $student->id }}" name="bedspace_id"
+                                                 {{ $student->checkIns->last() ? 'disabled' : '' }}>
+                                                 <option value="">Select Bedspace
+                                                 </option>
+                                                 @if ($student->checkIns->last() && $student->checkIns->last()->bedspace)
+                                                     <option value="{{ $student->checkIns->last()->bedspace->id }}"
+                                                         selected>
+                                                         {{ $student->checkIns->last()->bedspace->bedspace_no }}
+                                                     </option>
+                                                 @endif
+                                             </select>
+                                         </div>
+                                     </div>
+                                     <!-- Clear-Out Guardian Dropdown -->
+
+                                     <div class="form-group col-md-12">
+                                         <label for="clearOut_person-{{ $student->id }}" class="small">Clear-Out
+                                             Guardian</label>
+                                         <select class="form-control form-control-sm"
+                                             id="clearOut_person-{{ $student->id }}" name="clearOut_person" required>
+                                             <option value="">--Select--</option>
+                                             <option value="parent">Parent</option>
+                                             <option value="other">Other</option>
+                                         </select>
+                                     </div>
+
+                                     <!-- Parent ID Selection -->
+                                     <div class="form-group" id="parent_id_wrapper-{{ $student->id }}">
+                                         <label for="parent_id" class="small">Select
+                                             Guardian</label>
+                                         <select name="parent_id" class="form-control form-control-sm">
+                                             <option value="">--Select a guardian--
+                                             </option>
+                                             @foreach ($student->guardians as $guardian)
+                                                 <option value="{{ $guardian->id }}">
+                                                     {{ $guardian->name }}
+                                                     ({{ $guardian->contact_number }})
+                                                 </option>
+                                             @endforeach
+                                         </select>
+                                     </div>
+
+                                     <!-- Additional Guardian or Vehicle Details -->
+                                     <div id="other_clearOut_details-{{ $student->id }}" class="d-none">
+                                         <div class="form-row">
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_name" class="small">Name</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_name-{{ $student->id }}" name="other_name"
+                                                     placeholder="Full Name">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_nrc" class="small">NRC</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_nrc-{{ $student->id }}" name="other_nrc"
+                                                     placeholder="National Registration Card Number">
+                                             </div>
+
+                                             <div class="form-group col-md-6">
+                                                 <label for="other_contact" class="small">Contact
+                                                     Number</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="other_contact-{{ $student->id }}" name="other_contact"
+                                                     placeholder="e.g., 097xxxxxxx">
+                                             </div>
+                                             <div class="form-group col-md-6">
+                                                 <label for="vehicle_reg" class="small">Vehicle
+                                                     Registration #</label>
+                                                 <input type="text" class="form-control form-control-sm"
+                                                     id="vehicle_reg-{{ $student->id }}" name="vehicle_reg"
+                                                     placeholder="Vehicle Registration Number">
+                                             </div>
+                                         </div>
+                                         <div class="form-group col-md-12">
+                                             <label for="brought_by_relationship" class="small">Brought By
+                                                 Relationship</label>
+                                             <select class="form-control form-control-sm"
+                                                 id="brought_by_relationship-{{ $student->id }}"
+                                                 name="brought_by_relationship">
+                                                 <option value="">--Select--</option>
+                                                 <option value="brother">Brother</option>
+                                                 <option value="sister">Sister</option>
+                                                 <option value="uncle">Uncle</option>
+                                                 <option value="driver">Driver</option>
+                                                 <option value="other">Other</option>
+                                             </select>
+                                         </div>
+                                     </div>
+
+                                 </div>
+
+                                 <!-- Modal Footer -->
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-secondary btn-sm"
+                                         data-dismiss="modal">Cancel</button>
+                                     <button type="submit" class="btn btn-danger btn-sm"
+                                         form="clearOutForm-{{ $student->id }}">Clear-Out</button>
+                                 </div>
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+             @endforeach
+         </tbody>
+     </table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            {{-- // Function to render students with modals
+            function renderStudents(students) {
+                tableBody.empty();
+
+                if (students.length > 0) {
+                    students.forEach(student => {
+                        let termReports = student.termly_reports
+                            .map(report => {
+                                return `${report.academic_year?.academic_year ?? 'N/A'} - Term ${report.term_number ?? 'N/A'}`;
+                            }).join('<br>');
+
+                        let row = `
+            <tr>
+                <td>${student.firstname} ${student.lastname} (${student.gender})</td>
+                <td>${student.grade?.gradeno ?? 'N/A'} ${student.grade?.class_name ?? ''}</td>
+                <td>${student.student_type ?? 'N/A'}</td>
+                <td>${termReports || 'No Reports Available'}</td>
+                <td>${student.check_ins?.length ? student.check_ins[0]?.hostel?.hostel_name + ' (' + student.check_ins[0]?.bedspace?.bedspace_no + ')' : 'N/A'}</td>
+                <td>${student.check_ins?.length ? student.check_ins[0]?.room_status ?? 'No Record' : 'No Record'}</td>
+                <td><span class="badge badge-${student.active_status === 'enrolled' ? 'success' : 'warning'}">${student.active_status}</span></td>
+                <td>
+                    <button class="btn custom-btn-clear-out" data-student='${JSON.stringify(student)}' data-toggle="modal" data-target="#clearOutModal" title="Clear-Out">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </td>
+            </tr>
+            `;
+
+                        tableBody.append(row);
+                    });
+                } else {
+                    tableBody.append('<tr><td colspan="8" class="text-center">No data available.</td></tr>');
+                }
+            }
+
+            // Event listener for custom-btn-clear-out button
+            tableBody.on('click', '.custom-btn-clear-out', function() {
+                let student = JSON.parse($(this).attr('data-student'));
+
+                // Populate modal with student data
+                $('#clearOutModalLabel').text(`Clear-Out For: ${student.firstname} ${student.lastname}`);
+                $('#clearOutModal [name="student_id"]').val(student.id);
+
+                // Populate term and guardian dropdowns dynamically
+                let termSelect = $('#clearOutModal [name="academic_term"]');
+                termSelect.empty().append('<option value="">--Select a term--</option>');
+
+                student.termly_reports.forEach(report => {
+                    termSelect.append(
+                        `<option value="${report.academic_year.id}-${report.term_number}">${report.academic_year.academic_year} - Term ${report.term_number}</option>`
+                    );
+                });
+
+                let guardianSelect = $('#clearOutModal [name="parent_id"]');
+                guardianSelect.empty().append('<option value="">--Select a guardian--</option>');
+                student.guardians.forEach(guardian => {
+                    guardianSelect.append(
+                        `<option value="${guardian.id}">${guardian.name} (${guardian.contact_number})</option>`
+                    );
+                });
+
+                // Handle other fields as required
+            });
+
+            // Fetch and render all students on page load
+            $.ajax({
+                url: '{{ route('fetch.student.termly.report') }}',
+                method: 'GET',
+                success: function(response) {
+                    renderStudents(response.students);
+                },
+                error: function() {
+                    alert('An error occurred while fetching data.');
+                }
+            }); --}}

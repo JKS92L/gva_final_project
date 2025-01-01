@@ -80,4 +80,5 @@ class User extends Authenticatable
             ->where($permission, 1)
             ->exists();
     }
+   
 }

@@ -16,8 +16,10 @@ class Admissions extends Model
         'academic_term_no',
         'admission_id',
         'student_id',
+        'admissionAppType',
         'apptude_score',
-        'reject_reasons',
+        'application_status',
+        'brief_comment',
     ];
 
     public $timestamps = true;

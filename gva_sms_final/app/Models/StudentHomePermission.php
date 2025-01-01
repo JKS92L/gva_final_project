@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,16 +25,14 @@ class StudentHomePermission extends Model
         'academic_term_no',
         'permission_start',
         'permission_end',
-        'pickup_time',
-        'pickup_person',
-        'parent_id',
-        'other_name',
-        'other_nrc',
-        'other_contact',
-        'vehicle_reg',
         'reason',
         'deputy_comment',
-        'approved_by',
+        'approved_by_id',
+    ];
+
+    protected $casts = [
+        'permission_start' => 'date',
+        'permission_end' => 'date',
     ];
 
     /**
@@ -58,6 +57,22 @@ class StudentHomePermission extends Model
     public function guardians()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
+     * Relationship: belongs to the user who approved the permission (Authorized By).
+     */
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_id', 'id');
+    }
+
+    /**
+     * Relationship: has many permission logs.
+     */
+    public function logs()
+    {
+        return $this->hasMany(PermissionLogs::class, 'permission_id', 'id');
     }
 }
 

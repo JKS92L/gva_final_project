@@ -185,18 +185,34 @@ Route::prefix('students')->group(function () {
 
     //STUDENT ENROLLMENT PROCESSES
     Route::get('/enrollment-process', [StudentController::class, 'viewEnrollmentProcess'])->name('enrollment-process');
+    Route::get('/enrollment-register', [StudentController::class, 'viewEnrollmentRegister'])->name('enrollment-process-register');
     Route::post('/store-enrollment', [StudentController::class, 'storeEnrollmentRecord'])->name('store.enrollment.record');
     // AJAX CALL - FETCH ENROLMENT BY YEAR
     Route::get('/enrollmentFilterByYear', [StudentController::class, 'enrollmentFilterByYear'])->name('students.filterEnrollmentByYear');
 
-    //CRUD
+    //STUDENT PERMISSION ROUTES - CRUD
     Route::put('/student-admission-approve/{id}', [StudentController::class, 'studentAdmissionApprove'])->name('studentsAdmission.approve');
     Route::put('/student-admission-reject/{id}', [StudentController::class, 'studentAdmissionReject'])->name('studentsAdmission.reject');
 
     //STUDENT TERMLY ADMISSIONS
-    Route::get('/admission', [StudentController::class, 'viewTermlyAdmissions'])->name('checkIns.admissions');
+    Route::get('/termly-reports', [StudentController::class, 'viewStudentTermlyReport'])->name('student.termly.report');
+    Route::get('/fetch-student-termly-report', [StudentController::class, 'fetchStudentTermlyReport'])->name('fetch.student.termly.report');
+    Route::get('/get-parents', [StudentController::class, 'getParentsByStudentId'])->name('fetch.parentByStudentId');
+    Route::post('/termly-report/store', [StudentController::class, 'storeDayscholarStudentTermlyReport'])->name('dayscholars.student.termly-report.store');
+
     Route::post('/student-home-permission/store', [StudentController::class, 'storeStudentHomePermission'])->name('student-home-permission.store');
+    Route::put('/update-student-permission/{id}', [StudentController::class, 'updateStudentPermission'])->name('student.permission.update');
+    Route::delete('/student-homepermission-destroy/{id}', [StudentController::class, 'destroyStudentPermission'])->name('students.homepermission.destroy');
+
+    // ajax call fetchStudentPermissionsByYearAndStatus
+    Route::post('/filter-permission-byYearsNstatus', [StudentController::class, 'fetchStudentPermissionsByYearAndStatus'])->name('filter.permission.byYears.status');
+
+    // 
+    Route::get('/student-permissions', [StudentController::class, 'viewStudentPermissions'])->name('student.permissions');
+    Route::get('/student-disciplinary', [StudentController::class, 'viewstudentDisciplinaryAction'])->name('student.disciplinary');
+
     Route::post('/student-clear-in', [StudentController::class, 'storeStudentCheckIn'])->name('student-clear-in.store');
+    Route::post('/student-clear-out', [StudentController::class, 'storeStudentCheckOut'])->name('student-clear-out.store');
     //CRUD
    
 

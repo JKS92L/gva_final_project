@@ -13,11 +13,11 @@ use Illuminate\Database\Eloquent\Model;
 class StudentClearIn extends Model
 {
     use HasFactory;
-
+    protected $table = 'student_clear_in_details';
     protected $fillable = [
         'student_id',
-        'academic_term_id',
-        'academic_term_no',//string
+        'academic_year_id',
+        'academic_term_no',
         'clearance_accounts',
         'clearance_secretary',
         'clearance_search',

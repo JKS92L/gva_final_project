@@ -8,9 +8,11 @@
                     <p class="text-muted">Monitor and process applications from online and physical applicants.</p>
                 </div>
                 <div class="col-md-4 text-md-right mt-3 mt-md-0 btn-group-sm">
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#register-applicant">
+
+                    <a href="{{ route('enrollment-process-register') }}" class="btn btn-primary">
                         <i class="fas fa-user-plus"></i> Add New Enrollment
-                    </button>
+                    </a>
+                    {{-- enrollment-process-register --}}
                 </div>
             </div>
         </div>
@@ -31,15 +33,12 @@
             {{ session('success') }}
         </div>
     @endif
-    <div class="content mt-4">
-
-
-        <div class="container card shadow-sm">
+    <div class="content p-2">
+        <div class="card shadow-sm p-0">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title mb-0">Admissions</h3>
 
             </div>
-
             <div class="card-body">
                 <div class="table-responsive table-sm">
                     <div class="form-group mb-9" style="max-width: 300px;">
@@ -62,11 +61,13 @@
                                 <th>ECZ #</th>
                                 <th>Applicant Name</th>
                                 <th>Application ID</th>
+                                <th>Application Type</th>
                                 <th>Enrollment Year</th>
                                 <th>Grade/Class</th>
                                 <th>Parent(s) Name</th>
                                 <th>Submission Date</th>
-                                <th>Status</th>
+                                <th>Enrollment Status</th>
+                                <th>Admission Response</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -77,6 +78,7 @@
                                     <td>{{ $student->ecz_no }}</td>
                                     <td>{{ $student->firstname }} {{ $student->lastname }}</td>
                                     <td>{{ $student->admissions->first()->admission_id ?? 'N/A' }}</td>
+                                    <td>{{ ucfirst($student->admissionAppType) ?? 'N/A' }}</td>
                                     <td>{{ $student->enrolled_year }} - {{ 'Term ' . $student->enrolled_term }}</td>
                                     <td>{{ optional($student->grade)->gradeno }}
                                         {{ optional($student->grade)->class_name }}
@@ -100,19 +102,57 @@
                                             {{ ucfirst($student->active_status) }}
                                         </span>
                                     </td>
+                                    {{-- <td>{{ $student->application_status ?? 'N/A' }}</td> --}}
+                                    <td>
+                                        <!-- Badge for Application Status -->
+                                        @php
+                                            $badgeColor = 'secondary'; // Default value
+                                            switch ($student->application_status) {
+                                                case 'Accepted':
+                                                    $badgeColor = 'success';
+                                                    break;
+                                                case 'Rejected':
+                                                    $badgeColor = 'danger';
+                                                    break;
+                                                case 'Pending Review':
+                                                    $badgeColor = 'warning';
+                                                    break;
+                                                default:
+                                                    $badgeColor = 'secondary';
+                                                    break;
+                                            }
+                                        @endphp
+
+                                        <span class="badge badge-{{ $badgeColor }}">
+                                            {{ ucfirst($student->application_status ?? 'N/A') }}
+                                        </span>
+                                    </td>
                                     <td>
                                         <!-- Approve Button -->
                                         <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                                            data-target="#approveStudentModal{{ $student->id }}">
-                                            Approve
+                                            data-target="#approveStudentModal{{ $student->id }}"
+                                            @if ($student->application_status === 'Accepted') disabled @endif>
+                                            {{-- decide the button output --}}
+                                            @if ($student->application_status === 'Accepted')
+                                                {{ 'Accepted' }}
+                                            @else
+                                                {{ 'Accept' }}
+                                            @endif
                                         </button>
 
                                         <!-- Reject Button -->
                                         <button type="button" class="btn btn-sm btn-danger" data-toggle="modal"
-                                            data-target="#rejectStudentModal{{ $student->id }}">
-                                            Reject
+                                            data-target="#rejectStudentModal{{ $student->id }}"
+                                            @if ($student->application_status === 'Rejected') disabled @endif>
+                                            {{-- decide the button output --}}
+                                            @if ($student->application_status === 'Rejected')
+                                                {{ 'Rejected' }}
+                                            @else
+                                                {{ 'Reject' }}
+                                            @endif
                                         </button>
                                     </td>
+
                                 </tr>
 
                                 <!-- Approve Modal -->
@@ -193,7 +233,7 @@
                                                     <div class="form-group">
                                                         <label for="rejectionReason{{ $student->id }}">Rejection
                                                             Reason</label>
-                                                        <textarea name="reject_reasons" id="rejectionReason{{ $student->id }}" class="form-control" rows="3"
+                                                        <textarea name="brief_comment" id="rejectionReason{{ $student->id }}" class="form-control" rows="3"
                                                             placeholder="Enter reason here" required></textarea>
                                                     </div>
                                                 </div>
@@ -353,8 +393,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="sibling_name" class="small">Select Sibling</label>
-                                            <select id="sibling_name" class="form-control small select2"
-                                                name="sibling_id" style="max-width: 100%">
+                                            <select id="sibling_name" class="form-control select2" name="sibling_id"
+                                                style="max-width: 100%">
                                                 <option value="" selected disabled>Select a sibling</option>
                                                 @foreach ($allStudents as $student)
                                                     <option value="{{ $student->id }}">
@@ -684,19 +724,10 @@
         </div>
     </div>
 
+
     <script>
         $(document).ready(function() {
-            // Initialize Select2 on the sibling_name dropdown
-            // Initialize Select2 on modal show
-            $('#register-applicant').on('shown.bs.modal', function() {
-                $('#sibling_name').select2({
-                    dropdownParent: $(
-                        '#register-applicant'), // Ensures the dropdown is rendered within the modal
-                    placeholder: 'Select a sibling', // Placeholder text
-                    allowClear: true, // Enable clear button
-                    width: 'resolve' // Adjusts to input width
-                });
-            });
+
 
             $('#enrollmentTable').DataTable();
             // Get the form and the submit button
@@ -797,8 +828,7 @@
                 const siblingId = $(this).val();
                 fetchGuardianDetails(siblingId);
             });
-
-            //SORT ENROLLMENTS BY YEAR
+            //SEARCH ENROLLMENT BY YEAR AND TERM 
             $('#academic_term').change(function() {
                 const selectedValue = $(this).val();
 
@@ -821,41 +851,105 @@
                         },
                         success: function(response) {
                             $('#enrollmentTable tbody').empty();
+                            console.log(response);
 
                             if (response.students.length > 0) {
                                 response.students.forEach((student, index) => {
+                                    // Determine badge color based on application status
+                                    let badgeColor = 'secondary';
+                                    if (student.admissions[0]?.application_status) {
+                                        switch (student.admissions[0]
+                                            .application_status) {
+                                            case 'Accepted':
+                                                badgeColor = 'success';
+                                                break;
+                                            case 'Rejected':
+                                                badgeColor = 'danger';
+                                                break;
+                                            case 'Pending Review':
+                                                badgeColor = 'warning';
+                                                break;
+                                            default:
+                                                badgeColor = 'secondary';
+                                                break;
+                                        }
+                                    }
+
+                                    // Determine approve button state and text
+                                    const approveDisabled = student.admissions[0]
+                                        ?.application_status === 'Accepted' ?
+                                        'disabled' : '';
+                                    const approveText = student.admissions[0]
+                                        ?.application_status === 'Accepted' ?
+                                        'Accepted' : 'Accept';
+
+                                    // Determine reject button state and text
+                                    const rejectDisabled = student.admissions[0]
+                                        ?.application_status === 'Rejected' ?
+                                        'disabled' : '';
+                                    const rejectText = student.admissions[0]
+                                        ?.application_status === 'Rejected' ?
+                                        'Rejected' : 'Reject';
+
+                                    // Generate guardians list
                                     const guardians = student.guardians
                                         .map(guardian =>
                                             `<li>${guardian.name} (${guardian.contact_number || ''})</li>`
-                                        )
+                                            )
                                         .join('');
 
-                                    const row = `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td>${student.ecz_no || 'N/A'}</td>
-                                    <td>${student.firstname} ${student.lastname}</td>
-                                    <td>${student.admissions[0]?.admission_id || 'N/A'}</td>
-                                    <td>${student.enrolled_year} - Term ${student.enrolled_term}</td>
-                                    <td>${student.grade?.gradeno || 'N/A'} ${student.grade?.class_name || ''}</td>
-                                    <td>
-                                        <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
-                                            ${guardians}
-                                        </ul>
-                                    </td>
-                                    <td>${new Date(student.created_at).toLocaleDateString()}</td>
-                                    <td>
-                                        <span class="badge badge-${student.active_status === 'enrolled' ? 'success' : student.active_status === 'rejected' ? 'danger' : 'warning'}">
-                                            ${student.active_status.charAt(0).toUpperCase() + student.active_status.slice(1)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#approveStudentModal${student.id}">Approve</button>
-                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectStudentModal${student.id}">Reject</button>
-                                    </td>
-                                </tr>
-                            `;
+                                    // Determine active status badge color and text
+                                    const activeBadgeColor = student.active_status ===
+                                        'enrolled' ?
+                                        'success' :
+                                        student.active_status === 'rejected' ?
+                                        'danger' :
+                                        'warning';
+                                    const activeBadgeText = student.active_status ?
+                                        student.active_status.charAt(0).toUpperCase() +
+                                        student.active_status.slice(1) :
+                                        'N/A';
 
+                                    // Build the row HTML
+                                    const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${student.ecz_no || 'N/A'}</td>
+                    <td>${student.firstname} ${student.lastname}</td>
+                    <td>${student.admissions[0]?.admission_id || 'N/A'}</td>
+                    <td>${student.admissions[0]?.admissionAppType || 'N/A'}</td>
+                    <td>${student.enrolled_year} - Term ${student.enrolled_term}</td>
+                    <td>${student.grade?.gradeno || 'N/A'} ${student.grade?.class_name || ''}</td>
+                    <td>
+                        <ul style="list-style-type: disc; margin: 0; padding-left: 20px;">
+                            ${guardians}
+                        </ul>
+                    </td>
+                    <td>${new Date(student.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge badge-${activeBadgeColor}">
+                            ${activeBadgeText}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-${badgeColor}">
+                            ${student.admissions[0]?.application_status || 'N/A'}
+                        </span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" 
+                            data-target="#approveStudentModal${student.id}" ${approveDisabled}>
+                            ${approveText}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" 
+                            data-target="#rejectStudentModal${student.id}" ${rejectDisabled}>
+                            ${rejectText}
+                        </button>
+                    </td>
+                </tr>
+            `;
+
+                                    // Append the row to the table
                                     $('#enrollmentTable tbody').append(row);
                                 });
                             } else {
@@ -864,16 +958,15 @@
                                 );
                             }
                         },
-                        error: function() {
-                            alert('Failed to fetch students. Please try again.');
-                        },
-                        complete: function() {
-                            // Hide loader
-                            $('#loader').addClass('d-none');
-                        },
+
+
                     });
                 }
             });
+
+
+
+
         });
     </script>
 @endsection

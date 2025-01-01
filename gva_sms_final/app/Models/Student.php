@@ -36,6 +36,8 @@ class Student extends Model
         'fee_session_group_id' => 'array',
         'sibling_ids' => 'array',
     ];
+
+
     public function enrolledTerm()
     {
         $admission = $this->admissions()->with('term')->first();
@@ -80,29 +82,54 @@ class Student extends Model
     /**
      * Define the relationship with the StudentCheckin model.
      */
-    public function checkins()
+    // public function checkIns()
+    // {
+    //     return $this->hasMany(StudentCheckInCheckOut::class, 'student_id');
+    // }
+
+    public function checkIns()
     {
-        return $this->hasMany(StudentCheckInCheckOut::class);
+        return $this->hasMany(StudentCheckInCheckOut::class)->orderBy('created_at');
     }
+
+
+    public function clearIns()
+    {
+        return $this->hasMany(StudentClearIn::class, 'student_id');
+    }
+
 
     /**
      * Get the latest check-in or check-out record for the student.
      */
-    public function latestCheckin()
+    // public function latestCheckInCheckout()
+    // {
+    //     return $this->hasOne(StudentCheckInCheckOut::class, 'student_id')->latestOfMany();
+    // }
+    public function latestCheckInCheckout()
     {
-        return $this->hasOne(StudentCheckInCheckOut::class)->latestOfMany();
+        return $this->hasOne(StudentCheckInCheckOut::class, 'student_id');
     }
 
 
     /**
-     * Get the latest check-out record specifically.
+     * Get the latest check-in or check-out record for the student.
      */
-    public function latestCheckout()
-    {
-        return $this->hasOne(StudentCheckInCheckOut::class)
-            ->latestOfMany()
-            ->where('room_status', 'check_out');
-    }
+    // public function latestCheckin()
+    // {
+    //     return $this->hasOne(StudentCheckInCheckOut::class)->latestOfMany();
+    // }
+
+
+    // /**
+    //  * Get the latest check-out record specifically.
+    //  */
+    // public function latestCheckout()
+    // {
+    //     return $this->hasOne(StudentCheckInCheckOut::class)
+    //         ->latestOfMany()
+    //         ->where('room_status', 'check_out');
+    // }
 
     public function admissions()
     {
@@ -180,7 +207,12 @@ class Student extends Model
     {
         return $this->hasOne(Admissions::class, 'student_id');
     }
-
+    // Relationship to Termly Reports
+    public function termlyReports()
+    {
+        return $this->hasMany(TermlyReport::class,'student_id');
+    }
+   
     public function studentFee()
     {
         return $this->hasMany(StudentFee::class, 'student_id');
@@ -189,5 +221,9 @@ class Student extends Model
     public function hostelTeacher()
     {
         return $this->belongsTo(User::class, 'hostel_teacher_id');
+    }
+    public function homePermissions()
+    {
+        return $this->hasMany(StudentHomePermission::class, 'student_id', 'id');
     }
 }

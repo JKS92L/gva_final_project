@@ -35,6 +35,11 @@ class AcademicSession extends Model
         return $this->hasMany(SessionTerms::class, 'academic_year_id');
     }
 
+    // Relationship to Termly Reports
+    public function termlyReports()
+    {
+        return $this->hasMany(TermlyReport::class, 'academic_year_id');
+    }
     // Subjects assigned through AssignClassSubject
     public function classSubjects()
     {

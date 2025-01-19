@@ -48,4 +48,10 @@ class Grade extends Model
     {
         return $this->hasManyThrough(AcademicSession::class, 'class_subjects', 'grade_id', 'id', 'id', 'academic_session_id');
     }
+    // Grade's Class Fee Adjustments
+    public function classFeeAdjustments()
+    {
+        return $this->hasMany(ClassFeeAdjustment::class, 'class_id');
+    }
+
 }

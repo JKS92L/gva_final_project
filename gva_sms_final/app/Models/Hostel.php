@@ -12,11 +12,9 @@ class Hostel extends Model
     // Define the table name if it doesn't follow the plural convention
     protected $table = 'hostels';
 
-   
 
     // Allow mass assignment for these fields
     protected $fillable = [
-        'hostel_name',
         'hostel_name',
         'total_rooms',
         'total_bedspaces',
@@ -35,7 +33,10 @@ class Hostel extends Model
         return $this->belongsTo(Teacher::class, 'hostel_teacher_id');
     }
 
-
+    public function rooms()
+    {
+        return $this->hasMany(Room::class);
+    }
 
     // A hostel can have many students
     public function students()

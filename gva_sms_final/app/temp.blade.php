@@ -2508,7 +2508,7 @@
 
 
 
-            {{-- // Function to render students with modals
+     {{-- // Function to render students with modals
             function renderStudents(students) {
                 tableBody.empty();
 
@@ -2583,3 +2583,631 @@
                     alert('An error occurred while fetching data.');
                 }
             }); --}}
+
+
+
+     <div class="content p-2 row">
+         <!-- Statistics Section -->
+         <!-- Chart Section -->
+         <div class="col-md-9">
+             <div class="row">
+                 <div class="col-md-3">
+                     <label for="term" class="form-label">Term</label>
+                     <select class="form-control form-control-sm" id="term" name="term">
+                         <option value="">Select Term</option>
+                         <option value="1">Term 1</option>
+                         <option value="2">Term 2</option>
+                         <option value="3">Term 3</option>
+                     </select>
+                 </div>
+                 <div class="col-md-3">
+                     <label for="year" class="form-label">Year</label>
+                     <select class="form-control form-control-sm" id="year" name="year">
+                         <option value="">Select Year</option>
+                         <option value="2025">2025</option>
+                         <option value="2024">2024</option>
+                         <option value="2023">2023</option>
+                     </select>
+                 </div>
+                 <div class="col-md-3 d-flex align-items-end">
+                     <button class="btn btn-primary btn-sm w-100" id="fetchStats">View Statistics</button>
+                 </div>
+             </div>
+             <div class="col-md-12">
+                 <div class="chart-container" style="position: relative; height:250px;">
+                     <canvas id="statisticsChart"></canvas>
+                 </div>
+             </div>
+         </div>
+
+
+
+
+
+         <!-- Search Results Table -->
+         <div class="col-md-4">
+             <!-- Search Filters -->
+
+             <div class="col-md-3">
+                 <label for="academic_year_id">Academic Year</label>
+                 <select id="academic_year_id" name="academic_year_id" class="form-control form-control-sm">
+                     <option value="">--Select year--
+                     </option>
+                     @foreach ($academicYears as $year)
+                         <option value="{{ $year->id }}">{{ $year->academic_year }}
+                         </option>
+                     @endforeach
+                 </select>
+             </div>
+             <div class="col-md-3">
+                 <label for="term">Term</label>
+                 <select id="term" name="term" class="form-control form-control-sm">
+                     <option value="">--Select Term--</option>
+                     <option value="1">Term 1</option>
+                     <option value="2">Term 2</option>
+                     <option value="3">Term 3</option>
+                 </select>
+             </div>
+             <div class="col-md-3">
+                 <div class="form-group">
+                     <label for="roll_no" class="small">Grade/Class</label>
+                     <select id="class_id" name="class_id" class="form-control form-control-sm">
+                         <option value="">Select</option>
+                         @foreach ($grades as $grade)
+                             <option value="{{ $grade->id }}">
+                                 {{ $grade->gradeno . ' ' . $grade->class_name }}
+                             </option>
+                         @endforeach
+                     </select>
+                 </div>
+             </div>
+             <div class="col-md-3 d-flex align-items-end">
+                 <button class="btn btn-primary btn-sm w-100" id="searchRegisters">Search</button>
+             </div>
+
+             <div class="col-md-12">
+                 <table class="table table-bordered table-hover text-nowrap mb-4 table-sm" id="studentsTable">
+                     <thead class="table-dark">
+                         <tr>
+                             <th>Student Exam Number</th>
+                             <th>Student Name</th>
+                             <th>Gender</th>
+                             {{-- <th>Report Status</th>
+                            <th>Date</th> --}}
+                         </tr>
+                     </thead>
+                     <tbody>
+                         <!-- Dynamic content will be appended here -->
+                     </tbody>
+                 </table>
+
+             </div>
+         </div>
+     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     <section class="content p-4">
+         <div class="container-fluid">
+             <div class="card">
+                 <div class="card-header">
+                     <h3 class="card-title">Manage Student Accounts</h3>
+                 </div>
+                 <div class="card-body">
+                     <!-- Filter Section -->
+                     <div class="mb-4">
+                         <div id="filterForm" class="row">
+                             {{-- @csrf --}}
+                             <!-- Academic Year -->
+                             <div class="col-md-4">
+                                 <label for="filterAcademicYear" class="form-label">Academic Year</label>
+                                 <select id="filterAcademicYear" name="academic_year_id"
+                                     class="form-select form-control-sm">
+                                     <option value="" selected>All Years</option>
+                                     @foreach ($academicYears as $year)
+                                         <option value="{{ $year->id }}">{{ $year->academic_year }}</option>
+                                     @endforeach
+                                 </select>
+                             </div>
+
+                             <!-- Term -->
+                             <div class="col-md-3">
+                                 <label for="filterTerm" class="form-label">Term</label>
+                                 <select id="filterTerm" name="term" class="form-select form-control-sm">
+                                     <option value="" selected>All Terms</option>
+                                     <option value="1">Term 1</option>
+                                     <option value="2">Term 2</option>
+                                     <option value="3">Term 3</option>
+                                 </select>
+                             </div>
+
+                             <!-- Grade -->
+                             <div class="col-md-3">
+                                 <label for="filterGrade" class="form-label">Grade</label>
+                                 <select id="filterGrade" name="class_id" class="form-select form-control-sm">
+                                     <option value="" selected>All Grades</option>
+                                     @foreach ($grades as $grade)
+                                         <option value="{{ $grade->id }}">{{ $grade->gradeno }} -
+                                             {{ $grade->class_name }}
+                                         </option>
+                                     @endforeach
+                                 </select>
+                             </div>
+                             <!-- Filter Button -->
+                             <div class="col-md-2 d-flex align-items-end">
+                                 <button type="button" id="applyFilter" class="btn btn-primary btn-sm"> <i
+                                         class="fa fa-search"></i> Search</button>
+                             </div>
+                         </div>
+                     </div>
+
+
+                     <!-- Student Table -->
+                     <!-- Student Table -->
+                     <div class="table-responsive">
+                         <table class="table table-striped table-hover table-hover text-nowrap ">
+                             <thead class="table-sm">
+                                 <tr>
+                                     <th>ECZ No</th>
+                                     <th>Name</th>
+                                     <th>Grade-Class</th>
+                                     <th>Actions</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="studentTableBody">
+                                 <!-- Dummy Content for Now -->
+
+                             </tbody>
+                         </table>
+                         <nav>
+                             <ul class="pagination" id="pagination"></ul>
+                         </nav>
+
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </section>
+
+
+
+     <div class="card-body">
+         <div class="table-responsive">
+             <table id="feesTable" class="table table-bordered table-hover text-nowrap table-sm dataTable no-footer">
+                 <thead>
+                     <tr>
+                         <th>Fee Category</th>
+                         <th>Fee Interval</th>
+                         <th>Status</th>
+                         <th>Amount (ZMK)</th>
+                         <th>Paid (ZMK)</th>
+                         <th>Balance (ZMK)</th>
+                         <th>Recent Transaction (ZMK)</th>
+                         <th>Action</th>
+                     </tr>
+                 </thead>
+                 <tbody id="pupils_data_body">
+                     @forelse ($student->feeCategories as $feeCategory)
+                         @php
+                             // Total paid for this fee category
+                             $totalPaid = $student->feePayments
+                                 ->where('fee_category_id', $feeCategory->id)
+                                 ->sum('amount_paid');
+
+                             // Balance calculation
+                             $balance = $feeCategory->amount - $totalPaid;
+
+                             // Determine payment status
+                             $status = $totalPaid == 0 ? 'Not Yet Paid' : ($balance > 0 ? 'Partial' : 'Paid');
+
+                             // Most recent transaction
+                             $recentTransaction = $student->feePayments
+                                 ->where('fee_category_id', $feeCategory->id)
+                                 ->sortByDesc('payment_date')
+                                 ->first();
+                         @endphp
+
+                         <tr>
+                             <td>{{ $feeCategory->fee_type ?? 'N/A' }}</td>
+                             <td>{{ $feeCategory->fee_interval ?? 'N/A' }}</td>
+                             <td>
+                                 <span
+                                     class="badge 
+                    {{ $status == 'Not Yet Paid' ? 'bg-danger' : ($status == 'Partial' ? 'bg-warning' : 'bg-success') }}">
+                                     {{ $status }}
+                                 </span>
+                             </td>
+                             <td>{{ number_format($feeCategory->amount, 2) }}</td>
+                             <td>{{ number_format($totalPaid, 2) }}</td>
+                             <td>{{ number_format($balance, 2) }}</td>
+                             <td>
+                                 {{ $recentTransaction
+                                     ? 'ZMK ' .
+                                         number_format($recentTransaction->amount_paid, 2) .
+                                         ' on ' .
+                                         $recentTransaction->payment_date->format('d M Y')
+                                     : 'No Recent Transaction' }}
+                             </td>
+                             <td>
+                                 <button class="btn btn-success btn-sm" data-toggle="modal"
+                                     data-target="#submitPaymentModal-{{ $feeCategory->id }}">Submit
+                                     Payment</button>
+                                 <button class="btn btn-info btn-sm" data-toggle="modal"
+                                     data-target="#payment-history-{{ $feeCategory->id }}">Payment
+                                     History</button>
+                             </td>
+                         </tr>
+
+
+                         <!-- Submit Payment Modal -->
+                         <div class="modal fade" id="submitPaymentModal-{{ $feeCategory->id }}" tabindex="-1"
+                             role="dialog" aria-labelledby="submitPaymentModalLabel" aria-hidden="true">
+                             <div class="modal-dialog" role="document">
+                                 <form action="{{ route('feePayments.store') }}" method="POST"
+                                     enctype="multipart/form-data">
+                                     @csrf
+                                     <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                     <input type="hidden" name="fee_category_id" value="{{ $feeCategory->id }}">
+                                     <div class="modal-content">
+                                         <div class="modal-header">
+                                             <h5 class="modal-title" id="submitPaymentModalLabel">Submit<span
+                                                     class="text-white">
+                                                     {{ $feeCategory->fee_type ?? 'N/A' }}</span> Payment
+                                             </h5>
+                                             <button type="button" class="close" data-dismiss="modal"
+                                                 aria-label="Close">
+                                                 <span aria-hidden="true">&times;</span>
+                                             </button>
+                                         </div>
+                                         <div class="modal-body">
+                                             <!-- Academic Year -->
+                                             <div class="form-group">
+                                                 <label for="academic_year_id" class="small">Academic
+                                                     Year</label>
+                                                 <select name="academic_year_id" class="form-control form-control-sm"
+                                                     required>
+                                                     <option value="" disabled selected>Select Academic
+                                                         Year</option>
+                                                     @foreach ($academicYears as $year)
+                                                         <option value="{{ $year['id'] }}">
+                                                             {{ $year['academic_year'] }}</option>
+                                                     @endforeach
+                                                 </select>
+                                             </div>
+
+                                             <!-- Term -->
+                                             <div class="form-group">
+                                                 <label for="term_no" class="small">Term</label>
+                                                 <select name="term_no" class="form-control form-control-sm" required>
+                                                     <option value="" disabled selected>Select Term
+                                                     </option>
+                                                     <option value="1">Term 1
+                                                     </option>
+                                                     <option value="2">Term 2
+                                                     </option>
+                                                     <option value="3">Term 3
+                                                     </option>
+
+
+                                                 </select>
+                                             </div>
+
+                                             <!-- Amount Paid -->
+                                             <div class="form-group">
+                                                 <label for="amount_paid" class="small">Amount Paid
+                                                     (ZMK)
+                                                 </label>
+                                                 <input type="number" name="amount_paid"
+                                                     class="form-control form-control-sm" step="0.01" required>
+                                             </div>
+
+                                             <!-- Payment Date -->
+                                             <div class="form-group">
+                                                 <label for="payment_date" class="small">Payment Date</label>
+                                                 <input type="date" name="payment_date"
+                                                     class="form-control form-control-sm" required>
+                                             </div>
+
+                                             <!-- Payment Method -->
+                                             <div class="form-group">
+                                                 <label for="payment_method" class="small">Payment
+                                                     Method</label>
+                                                 <select name="payment_method" class="form-control form-control-sm"
+                                                     required>
+                                                     <option value="Cash">Cash</option>
+                                                     <option value="Bank Transfer">Bank Transfer</option>
+                                                     <option value="Mobile Money">Mobile Money</option>
+                                                 </select>
+                                             </div>
+
+                                             <!-- Reference Number -->
+                                             <div class="form-group">
+                                                 <label for="reference_no" class="small">Reference
+                                                     Number</label>
+                                                 <input type="text" name="reference_no"
+                                                     class="form-control form-control-sm">
+                                             </div>
+
+                                             <!-- Attachment -->
+                                             <div class="form-group">
+                                                 <label for="attachment" class="small">Upload Attachment
+                                                     (Optional)</label>
+                                                 <input type="file" name="attachment"
+                                                     class="form-control form-control-sm">
+                                             </div>
+                                         </div>
+                                         <div class="modal-footer">
+                                             <button type="submit" class="btn btn-primary btn-sm">Submit
+                                                 Payment</button>
+                                             <button type="button" class="btn btn-secondary"
+                                                 data-dismiss="modal">Close</button>
+                                         </div>
+                                     </div>
+                                 </form>
+                             </div>
+                         </div>
+
+                     @empty
+                         <tr>
+                             <td colspan="7" class="text-center">No fee data available.</td>
+                         </tr>
+                     @endforelse
+                 </tbody>
+
+             </table>
+
+
+
+         </div>
+
+     </div>
+
+
+
+
+
+
+     @extends('layouts.app')
+
+     @section('title', 'Payment History')
+
+ @section('content')
+     <div class="container mt-4">
+         <!-- Page Header -->
+         <div class="row align-items-center mb-4">
+             <div class="col-md-8">
+                 <h2 class="text-primary">Payment Receipt</h2>
+                 <p class="text-muted">Detailed information about the selected payment and related records.</p>
+             </div>
+             <div class="col-md-4 text-md-right">
+                 <button onclick="window.print()" class="btn btn-outline-primary btn-sm">
+                     <i class="fas fa-print"></i> Print Receipt
+                 </button>
+             </div>
+         </div>
+
+         <!-- Payment Details Card -->
+         <div class="card shadow-sm mb-4">
+             <div class="card-header bg-primary text-white">
+                 <h5 class="mb-0">Payment Details</h5>
+             </div>
+             <div class="card-body">
+                 <div class="row">
+                     <!-- Transaction Info -->
+                     <div class="col-md-6">
+                         <p><strong>Transaction Date:</strong> {{ $transaction->payment_date->format('d M Y') }}</p>
+                         <p><strong>Amount Paid:</strong> ZMK {{ number_format($transaction->amount_paid, 2) }}</p>
+                         <p><strong>Payment Method:</strong> {{ $transaction->payment_method }}</p>
+                     </div>
+                     <!-- Student Info -->
+                     <div class="col-md-6">
+                         <p><strong>Student Name:</strong> {{ $transaction->student->name }}</p>
+                         <p><strong>Grade:</strong> {{ $transaction->student->grade->name ?? 'N/A' }}</p>
+                         <p><strong>Reference No:</strong> {{ $transaction->reference_no ?? 'N/A' }}</p>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+         <!-- Fee Details Card -->
+         <div class="card shadow-sm mb-4">
+             <div class="card-header bg-secondary text-white">
+                 <h5 class="mb-0">Fee Category Details</h5>
+             </div>
+             <div class="card-body">
+                 <div class="row">
+                     <div class="col-md-6">
+                         <p><strong>Fee Type:</strong> {{ $transaction->feeCategory->fee_type }}</p>
+                         <p><strong>Fee Interval:</strong> {{ $transaction->feeCategory->fee_interval }}</p>
+                     </div>
+                     <div class="col-md-6">
+                         <p><strong>Academic Year:</strong> {{ $transaction->academicSession->academic_year ?? 'N/A' }}
+                         </p>
+                         <p><strong>Amount:</strong> ZMK {{ number_format($transaction->feeCategory->amount, 2) }}</p>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+         <!-- Related Payments Section -->
+         <div class="card shadow-sm">
+             <div class="card-header bg-info text-white">
+                 <h5 class="mb-0">Other Payments for {{ $transaction->feeCategory->fee_type }}</h5>
+             </div>
+             <div class="card-body">
+                 @if ($relatedPayments->isEmpty())
+                     <p class="text-center text-muted">No other payments found for this fee category.</p>
+                 @else
+                     <div class="table-responsive">
+                         <table class="table table-bordered table-hover text-center">
+                             <thead class="bg-light">
+                                 <tr>
+                                     <th>Date</th>
+                                     <th>Amount Paid (ZMK)</th>
+                                     <th>Payment Method</th>
+                                     <th>Reference No</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 @foreach ($relatedPayments as $payment)
+                                     <tr>
+                                         <td>{{ $payment->payment_date->format('d M Y') }}</td>
+                                         <td>ZMK {{ number_format($payment->amount_paid, 2) }}</td>
+                                         <td>{{ $payment->payment_method }}</td>
+                                         <td>{{ $payment->reference_no ?? 'N/A' }}</td>
+                                     </tr>
+                                 @endforeach
+                             </tbody>
+                         </table>
+                     </div>
+                 @endif
+             </div>
+         </div>
+     </div>
+ @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <script>
+
+ // Print All Rows
+ $('#printAll').click(function() {
+ const tableContent = document.getElementById('summaryTable').outerHTML;
+
+ // Add a custom header with the school details and logo
+ const printContent = `
+ <div style="text-align: center; margin-bottom: 20px;">
+     <img src="{{ asset('assets/images/gva_logo/grand view-PNG.png') }}" alt="School Logo"
+         style="height: 100px;">
+     <h3>School Name</h3>
+     <p>Address: School Address, City</p>
+     <p>Contact: +260 123 456 789</p>
+ </div>
+ ${tableContent}
+ `;
+
+ // Use Print.js to print the content
+ printJS({
+ printable: printContent,
+ type: 'raw-html',
+ css: 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
+ });
+ });
+
+ // Print Individual Row
+ $('.print-row').click(function() {
+ const rowId = $(this).data('row-id'); // Get the data-row-id
+ const tableRow = $(this).closest('tr').html(); // Get the HTML content of the row
+
+ // Add a custom header with the school details and logo
+ const printContent = `
+ <div style="text-align: center; margin-bottom: 20px;">
+     <img src="{{ asset('assets/images/gva_logo/grand view-PNG.png') }}" alt="School Logo"
+         style="height: 100px;">
+     <h3>School Name</h3>
+     <p>Address: School Address, City</p>
+     <p>Contact: +260 123 456 789</p>
+ </div>
+ <table class="table table-bordered">
+     <thead class="thead-light">
+         <tr>
+             <th>Date of Payment</th>
+             <th>Amount Paid (ZMK)</th>
+             <th>Payment Method</th>
+             <th>Reference No</th>
+         </tr>
+     </thead>
+     <tbody>
+         <tr>${tableRow}</tr>
+     </tbody>
+ </table>
+ `;
+
+ // Print the row using Print.js
+ printJS({
+ printable: printContent,
+ type: 'raw-html',
+ css: 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
+ });
+ });
+</script>
+
+
+
+
+ {{-- STUDENT INFO CARD TEMPLATE --}}
+ <!-- Image Section -->
+ <div class="row">
+     <div class="col-md-2 col-sm-4 text-center">
+         <img src="{{ $student->student_photo ? asset('path/to/uploads/' . $student->student_photo) : asset('path/to/default_female.jpg') }}"
+             alt="No Image" class="img-fluid img-thumbnail rounded-circle">
+     </div>
+     <!-- Details Section -->
+     <div class="col-md-10 col-sm-8">
+         <table class="table table-borderless table-responsive">
+             <tbody>
+                 <tr>
+                     <th>Name</th>
+                     <td>{{ $student->firstname }} {{ $student->other_name ?? '' }}
+                         {{ $student->lastname }}
+                     </td>
+                     <th>Admission Date</th>
+                     <td>{{ $student->admission_date }}</td>
+                 </tr>
+                 <tr>
+                     <th>Father Name</th>
+                     <td>{{ optional($student->guardians->first())->name ?? 'N/A' }}</td>
+                     <th>Admission No</th>
+                     <td>{{ $student->ecz_no }}</td>
+                 </tr>
+                 <tr>
+                     <th>Mobile Number</th>
+                     <td>{{ optional($student->guardians->first())->contact_number ?? 'N/A' }}</td>
+                     <th>Grade/Class</th>
+                     <td>Grade {{ $student->grade->gradeno ?? 'N/A' }} -
+                         {{ $student->grade->class_name ?? 'N/A' }}</td>
+                 </tr>
+                 <tr>
+                     <th>Student Type</th>
+                     <td>{{ $student->student_type }}</td>
+                     <th>Exam No</th>
+                     <td>{{ $student->ecz_no }}</td>
+                 </tr>
+                 <tr>
+                     <th>Date of Birth</th>
+                     <td>{{ $student->dob->format('d M Y') ?? 'N/A' }}</td>
+                     <th>Religion</th>
+                     <td>{{ $student->religion ?? 'N/A' }}</td>
+                 </tr>
+             </tbody>
+
+         </table>
+     </div>
+ </div>

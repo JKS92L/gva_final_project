@@ -13,6 +13,7 @@ class Bedspace extends Model
 
     protected $fillable = [
         'hostel_id',
+        'room_id',
         'bedspace_no',
         'occupied_status'
     ];
@@ -22,10 +23,16 @@ class Bedspace extends Model
     {
         return $this->belongsTo(Hostel::class, 'hostel_id');
     }
-    // public function students() // one bedspace can only accommodate one student
+
+    // Relationship with Room model
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    // Relationship with Student model (one bedspace accommodates one student)
     public function student()
     {
         return $this->hasOne(Student::class, 'bedspace_id');
     }
-
 }

@@ -64,6 +64,13 @@ class Student extends Model
     }
 
 
+    /**
+     * Relationship: A student can have many transfers.
+     */
+    public function transfers()
+    {
+        return $this->hasMany(StudentSchoolTransfer::class);
+    }
 
     public function grade()
     {
@@ -202,7 +209,11 @@ class Student extends Model
         );
     }
 
-
+    //sdisciplinaries
+    public function disciplinaries()
+    {
+        return $this->hasMany(studentDisciplinary::class, 'student_id');
+    }
     public function admission()
     {
         return $this->hasOne(Admissions::class, 'student_id');
@@ -210,12 +221,50 @@ class Student extends Model
     // Relationship to Termly Reports
     public function termlyReports()
     {
-        return $this->hasMany(TermlyReport::class,'student_id');
+        return $this->hasMany(TermlyReport::class, 'student_id');
     }
-   
+
     public function studentFee()
     {
         return $this->hasMany(StudentFee::class, 'student_id');
+    }
+    // New relationships
+    public function feeCategories()
+    {
+        return $this->hasManyThrough(
+            FeeCatergories::class,
+            StudentFee::class,
+            'student_id',       // Foreign key on StudentFee table
+            'id',               // Foreign key on FeeCatergories table
+            'id',               // Local key on Students table
+            'fee_category_id'   // Local key on StudentFee table
+        );
+    }
+
+    public function feePayments()
+    {
+        return $this->hasMany(FeePayment::class, 'student_id');
+    }
+   
+
+    public function feeBalances()
+    {
+        return $this->hasMany(FeeBalance::class, 'student_id');
+    }
+    public function classFee()
+    {
+        return $this->hasMany(ClassFee::class,  'class_id');
+    }
+
+    public function feetransactions()
+    {
+        return $this->hasManyThrough(FeeTransaction::class, FeePayment::class, 'student_id', 'payment_id');
+    }
+
+    // Student's Fee Adjustments
+    public function feeAdjustments()
+    {
+        return $this->hasMany(FeeAdjustment::class, 'student_id');
     }
 
     public function hostelTeacher()

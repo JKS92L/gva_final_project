@@ -207,8 +207,8 @@
                                         *</small>
                                     <select id="student_type" name="student_type" class="form-control form-control-sm">
                                         <option value="">Select</option>
-                                        <option value='Day-Scholar'>Day scholar</option>
-                                        <option value='Boarder'>Boarder</option>
+                                        <option value='day'>Day scholar</option>
+                                        <option value='boarder'>Boarder</option>
                                     </select>
                                 </div>
                             </div>

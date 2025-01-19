@@ -17,14 +17,15 @@ use App\Http\Controllers\StudentController;
 // use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\BedspaceController;
 use App\Http\Controllers\GrandBoxController;
+use App\Http\Controllers\tuckshopController;
 use App\Http\Controllers\AcademicsController;
-use App\Http\Controllers\AccountsAndDepositsController;
 use App\Http\Controllers\GrandEbuyController;
+use App\Http\Controllers\StudentFeeController;
 use App\Http\Controllers\SystemSettingsController;
 use App\Http\Controllers\Backend\ProfileController;
 use App\Http\Controllers\Backend\TeachersController;
+use App\Http\Controllers\AccountsAndDepositsController;
 use App\Http\Controllers\Backend\UserManagementController;
-use App\Http\Controllers\tuckshopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,24 +62,6 @@ Auth::routes();
 // logout
 Route::get('/admin/login', [AdminController::class, 'Logout'])->name('logout');
 
-// Student Dashboard
-// Route::prefix('student')->middleware(['auth', 'role:3'])->group(function () {
-//     Route::get('/home', [HomeController::class, 'studentDashboard'])->name('student.dashboard');
-// });
-
-// Parent Dashboard
-// Route::prefix('parent')->middleware(['auth', 'role:5'])->group(function () {
-//     Route::get('/home', [HomeController::class, 'parentDashboard'])->name('parent.dashboard');
-// });
-
-// Teacher Dashboard
-// Route::prefix('teacher')->middleware(['auth', 'role:2'])->group(function () {
-//     Route::get('/home', [HomeController::class, 'dashboard'])->name('teacher.dashboard');
-// });
-// // Admin Dashboard
-// Route::prefix('admin')->middleware(['auth', 'role:1'])->group(function () {
-//     Route::get('/home', [HomeController::class, 'dashboard'])->name('admin.dashboard');
-// });
 // Group dashboard routes by role dynamically
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
@@ -198,7 +181,7 @@ Route::prefix('students')->group(function () {
     Route::get('/termly-reports', [StudentController::class, 'viewStudentTermlyReport'])->name('student.termly.report');
     Route::get('/fetch-student-termly-report', [StudentController::class, 'fetchStudentTermlyReport'])->name('fetch.student.termly.report');
     Route::get('/get-parents', [StudentController::class, 'getParentsByStudentId'])->name('fetch.parentByStudentId');
-    Route::post('/termly-report/store', [StudentController::class, 'storeDayscholarStudentTermlyReport'])->name('dayscholars.student.termly-report.store');
+    Route::post('/termly-report/store', [StudentController::class, 'storeDayscholarStudentReport'])->name('dayscholars.student.termly-report.store');
 
     Route::post('/student-home-permission/store', [StudentController::class, 'storeStudentHomePermission'])->name('student-home-permission.store');
     Route::put('/update-student-permission/{id}', [StudentController::class, 'updateStudentPermission'])->name('student.permission.update');
@@ -207,15 +190,46 @@ Route::prefix('students')->group(function () {
     // ajax call fetchStudentPermissionsByYearAndStatus
     Route::post('/filter-permission-byYearsNstatus', [StudentController::class, 'fetchStudentPermissionsByYearAndStatus'])->name('filter.permission.byYears.status');
 
-    // 
+    // DISCIPLINARY ACTION ROUTES
     Route::get('/student-permissions', [StudentController::class, 'viewStudentPermissions'])->name('student.permissions');
-    Route::get('/student-disciplinary', [StudentController::class, 'viewstudentDisciplinaryAction'])->name('student.disciplinary');
+    //disciplinary action
+    Route::get('/student-disciplinary', [StudentController::class, 'viewstudentDisciplinaryAction'])->name('student.disciplinaryList.view');
+    // viewstudentDisciplinaryform
+    Route::get('/student-disciplinary-form', [StudentController::class, 'viewstudentDisciplinaryform'])->name('student.disciplinaryForm.view');
+    Route::get('/disciplinary/{id}/attachments', [StudentController::class, 'viewAttachments'])->name('disciplinary.attachments.view');
+    // Route::get('/attachments/download/{path}', [StudentController::class, 'downloadAttachment'])->name('download.attachment');
+    // CRUD
+    Route::post('/student-disciplinary-store', [StudentController::class, 'storestudentDisciplinaryAction'])->name('student.disciplinary.store');
+    Route::patch('/disciplinary/{id}/approve', [StudentController::class, 'approveStudentDisciplinary'])->name('disciplinary.approve');
+    Route::patch('/disciplinary/{id}/reject', [StudentController::class, 'rejectStudentDisciplinary'])->name('disciplinary.reject');
+    Route::patch('/disciplinary/{id}/withdraw', [StudentController::class, 'withdrawStudentDisciplinary'])->name('disciplinary.withdraw');
+    Route::delete('/disciplinary/{id}/delete', [StudentController::class, 'deleteStudentDisciplinary'])->name('disciplinary.delete');
 
+
+
+    // STUDENT TRANSFER RECORD
+    Route::get('/student-tranfers', [StudentController::class, 'viewstudentTransfer'])->name('student.transfer.view');
+    Route::post('/students/transfer', [StudentController::class, 'storeStudentSchoolTransfer'])->name('students.transfer.store');
+    Route::patch('/students/{id}/transfer-approve', [StudentController::class, 'approveStudentSchoolTransfer'])->name('students.transfer.approve');
+    Route::patch('/students/{id}/transfer-update', [StudentController::class, 'updateStudentSchoolTransfer'])->name('students.transfer.update');
+    Route::delete('/students/tranfer-destroy/{id}', [StudentController::class, 'destroyStudentSchoolTransfe'])->name('students.transfer.destroy');
+
+    // STUDENT CLEAR IN AND OUT
     Route::post('/student-clear-in', [StudentController::class, 'storeStudentCheckIn'])->name('student-clear-in.store');
     Route::post('/student-clear-out', [StudentController::class, 'storeStudentCheckOut'])->name('student-clear-out.store');
-    //CRUD
-   
 
+
+    //STUDENT CLASS REGISTER
+    Route::get('/class-registers', [StudentController::class, 'viewStudentClassRegister'])->name('student.class.register');
+    Route::post('/students-termly-register/search', [StudentController::class, 'searchTermlyStudentsRegister'])->name('students.termly.register.search');
+
+
+    //BULK DISABLE ROUTES
+    Route::get('/student-disable', [StudentController::class, 'viewStudentBulkDisable'])->name('student.bulk.disable.view');
+    Route::post('/students/bulk/disable', [StudentController::class, 'bulkDisable'])->name('students.bulk.disable');
+    Route::post('/students/bulk/enable', [StudentController::class, 'bulkEnable'])->name('students.bulk.enable');
+    Route::post('/students/disable', [StudentController::class, 'disable'])->name('students.disable');
+    Route::post('/students/enable', [StudentController::class, 'enable'])->name('students.enable');
 });
 
 // // Examination Management Routes
@@ -265,6 +279,63 @@ Route::prefix('tuckshop')->group(function () {
     Route::delete('/inventory/delete/{id}', [tuckshopController::class, 'deleteInventory'])->name('tuckshop.inventory.delete');
 });
 
+//FEE COLLECTION 
+// Grouping routes under a prefix for cleaner structure
+Route::prefix('fees')->group(function () {
+    // Fee Refunds
+    Route::get('/refunds', [StudentFeeController::class, 'viewStudentRefund'])->name('fee.refund.view');
+
+    // Fee Structures
+    Route::get('/structures', [StudentFeeController::class, 'viewFeeStructures'])->name('fees.structure.view');
+    Route::post('/sturcture/store', [StudentFeeController::class, 'storeStructure'])->name('fees.structure.store');
+    Route::put('/schoolFees/{id}', [StudentFeeController::class, 'updateFeeStructure'])->name('fees.structure.update');
+    Route::delete('/schoolFees/{id}', [StudentFeeController::class, 'destroyFeeStructure'])->name('fees.structure.destroy');
+
+
+    // Class Fee assignment
+    Route::post('/class-fees', [StudentFeeController::class, 'storeStudentAndClassFee'])->name('class.fees.store');
+    Route::delete('/class-fees-delete/{id}', [StudentFeeController::class, 'destroyClassFees'])->name('classFees.destroy');
+    Route::delete('/student-fees-delete/{id}', [StudentFeeController::class, 'destroyStudentFees'])->name('studentFees.destroy');
+
+    //Fee adjustimeent route
+    Route::post('/fee-adjustments-store', [StudentFeeController::class, 'storeFeeAdjustment'])->name('fee.adjustments.store');
+    Route::delete('delete-classAdjustFee/{id}', [StudentFeeController::class, 'destroyClassAdjustFee'])->name('classFeeAdjustments.destroy');
+    Route::delete('delete-studentAdjustFee/{id}', [StudentFeeController::class, 'destroystudentAdjustFee'])->name('studentFeeAdjustments.destroy');
+
+    // Fee Payment Report 
+    Route::get('/payment-report', [StudentFeeController::class, 'viewpaymentReport'])->name('fees.payment.report');
+    Route::post('/fee/fetch-outstanding-balances', [StudentFeeController::class, 'fetchOutstandingBalances'])->name('fee.fetchOutstandingBalances');
+    Route::post('/send/payment-reminder', [StudentFeeController::class, 'sendFeePaymentReminder'])->name('fee.sendReminder'); // the button in the front-end is disabled. WIP
+    Route::put('/approve/fee-payment', [StudentFeeController::class, 'approveFeePayment'])->name('approve.payment');
+    Route::put('/reject/fee-payment', [StudentFeeController::class, 'rejectFeePayment'])->name('reject.payment');
+
+
+    // Payment routes
+    Route::get('/payment-history', [StudentFeeController::class, 'viewPaymentHistory'])->name('fee.payment.history.view');
+    Route::get('/payment-history/{id}/receipt', [StudentFeeController::class, 'showReceipt'])->name('fee.payment.receipt.view');
+    Route::get('/pay/{student_id}', [StudentFeeController::class, 'viewStudentPayment'])->name('fees.pay.view');
+    // web.php
+    Route::post('/fee-payments', [StudentFeeController::class, 'storeFeePayment'])->name('feePayments.store');
+    //ajax call
+    Route::get('/filter-fee-categories', [StudentFeeController::class, 'filterFeeCategories'])->name('filterFeeCategories');
+
+
+
+    // Submit Payments (Collect Fees)
+    Route::get('/collect', [StudentFeeController::class, 'viewSubmitPayments'])->name('fees.collect.view');
+
+    // Pending Balances
+    Route::get('/pending-balances', [StudentFeeController::class, 'viewPendingBalances'])->name('pending.balances.view');
+
+    // Fee Adjustments
+    Route::get('/adjustments', [StudentFeeController::class, 'viewFeeAdjustments'])->name('fees.adjustments.view');
+
+    // Generate Invoices
+    Route::get('/generate-invoices', [StudentFeeController::class, 'viewGenerateInvoices'])->name('fees.invoices.view');
+
+    // Generate Reports
+    Route::get('/reports', [StudentFeeController::class, 'viewGenerateReports'])->name('fees.reports.view');
+});
 
 // // Grandbox and Grand-ebuy Applications
 // Route::get('/grandbox', [GrandBoxController::class, 'index'])->name('grandbox');
@@ -311,10 +382,7 @@ Route::prefix('systemSettings')->group(function () {
     Route::put('/examtypes/{id}', [SystemSettingsController::class, 'updateExamtype'])->name('examType.update');
     Route::delete('/examtypes/{id}', [SystemSettingsController::class, 'destroyExamtype'])->name('examType.destroy');
 
-    // Route to display the school fees settings page (Read/Display)
-    Route::post('/schoolFees', [SystemSettingsController::class, 'storeFee'])->name('fees.store');
-    Route::put('/schoolFees/{id}', [SystemSettingsController::class, 'updateFee'])->name('fees.update');
-    Route::delete('/schoolFees/{id}', [SystemSettingsController::class, 'destroyFee'])->name('fees.destroy');
+
 
 
     // Session Settings

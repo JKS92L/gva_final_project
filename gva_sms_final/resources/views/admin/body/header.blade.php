@@ -19,6 +19,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"> --}}
 
+    {{-- printJS --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.css">
+
     {{-- custom css  --}}
 
     <link rel="stylesheet" href="{{ asset('assets/css/custom_datatables.css') }}">
@@ -47,7 +51,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Add this in your <head> section for Bootstrap CSS -->
     {{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">  
     Allows clicking the top drowdown menu multiple times --}}
-    
+
     {{-- jQuery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Add this before the closing </body> tag for Bootstrap JS -->

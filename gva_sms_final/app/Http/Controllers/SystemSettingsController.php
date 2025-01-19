@@ -8,6 +8,7 @@ use App\Models\ResultsGrade;
 use Illuminate\Http\Request;
 use App\Models\ResultsEffort;
 use App\Models\AcademicSession;
+use App\Models\FeeCatergories;
 use Illuminate\Support\Facades\DB;
 use App\Models\SubjectTeacherComment;
 use App\Models\PassingPercentageSetting;
@@ -25,7 +26,7 @@ class SystemSettingsController extends Controller
         $examTypes = ExamType::all();
         $pass_percentage = PassingPercentageSetting::first();
         $subjectTeacherComments = SubjectTeacherComment::all();
-        $fees = Fee::all();
+        $fees = FeeCatergories::all();
 
         // Return the view with the fetched data
         return view('backend.settings.generalSettings', compact(
@@ -174,58 +175,6 @@ class SystemSettingsController extends Controller
         // Redirect back with success message
         return redirect()->back()->with('success', 'Exam type deleted successfully.');
     }
-
-
-    //EXAM FEES
-    public function storeFee(Request $request)
-    {
-        // Validate and store the new fee
-        $validated = $request->validate([
-            'fee_type' => 'required|string|max:255',
-            'interval' => 'required|string',
-            'amount' => 'required|numeric',
-            'student_type' => 'required|string',
-            'account_id' => 'required|string',
-            'status' => 'required|boolean',
-        ]);
-
-        // Create a new fee record
-        Fee::create($validated);
-        return redirect()->route('fees.index')->with('success', 'Fee added successfully.');
-    }
-
-    // updateFee
-    public function updateFee(Request $request, $id)
-    {
-        // Validate the update request
-        $validated = $request->validate([
-            'fee_type' => 'required|string|max:255',
-            'interval' => 'required|string',
-            'amount' => 'required|numeric',
-            'student_type' => 'required|string',
-            'account_id' => 'required|string',
-            'status' => 'required|boolean',
-        ]);
-
-        // Find the fee record and update it
-        $fee = Fee::findOrFail($id);
-        $fee->update($validated);
-
-        return redirect()->route('fees.index')->with('success', 'Fee updated successfully.');
-    }
-
-
-    //delete
-    public function destroyFee($id)
-    {
-        // Find the fee record and delete it
-        $fee = Fee::findOrFail($id);
-        $fee->delete();
-
-        return redirect()->route('fees.index')->with('success', 'Fee deleted successfully.');
-    }
-
-
 
 
 

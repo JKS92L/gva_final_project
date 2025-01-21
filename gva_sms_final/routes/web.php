@@ -67,7 +67,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();
 
-        // Dynamically redirect based on role_id
         switch ($user->role_id) {
             case 1:
                 return redirect()->route('admin.dashboard');
@@ -78,16 +77,16 @@ Route::middleware(['auth'])->group(function () {
             case 5:
                 return redirect()->route('parent.dashboard');
             default:
-                return redirect('/'); // Fallback
+                // Fallback to login or unauthorized error
+                return redirect()->route('login');
         }
     })->name('dashboard');
 
-    // Define dashboard routes for each role
     $dashboards = [
         1 => ['prefix' => 'admin', 'name' => 'admin.dashboard', 'action' => 'dashboard'],
         2 => ['prefix' => 'teacher', 'name' => 'teacher.dashboard', 'action' => 'dashboard'],
-        3 => ['prefix' => 'student', 'name' => 'student.dashboard', 'action' => 'studentDashboard'],
-        5 => ['prefix' => 'parent', 'name' => 'parent.dashboard', 'action' => 'parentDashboard'],
+        3 => ['prefix' => 'student', 'name' => 'student.dashboard', 'action' => 'dashboard'],
+        5 => ['prefix' => 'parent', 'name' => 'parent.dashboard', 'action' => 'dashboard'],
     ];
 
     foreach ($dashboards as $roleId => $config) {
@@ -98,6 +97,12 @@ Route::middleware(['auth'])->group(function () {
             });
     }
 });
+
+// Define root route (if needed)
+// Route::get('/', function () {
+//     return redirect()->route('login');
+// });
+
 
 // User Management Routes
 Route::prefix('/users')->group(function () {
@@ -256,6 +261,11 @@ Route::prefix('academics')->group(function () {
     Route::post('/assign-class-subject-teachers', [AcademicsController::class, 'assignSubjectTeachersToClass'])->name('assign.subject.teachers');
 
 
+    //academics.attendanceRegister CRUD
+    Route::get('/attendance-register', [AcademicsController::class, 'viewAttendanceRegister'])->name('academics.attendanceRegister');
+    Route::post('/attendance-register/store', [AcademicsController::class, 'storeAttendanceRegister'])->name('attendance.register.store');
+    Route::put('/attendance-register/update/{id}', [AcademicsController::class, 'updateAttendanceRegister'])->name('attendance.register.update');
+
 
     // Add more examination routes as needed 
 });
@@ -312,12 +322,13 @@ Route::prefix('fees')->group(function () {
 
     // Payment routes
     Route::get('/payment-history', [StudentFeeController::class, 'viewPaymentHistory'])->name('fee.payment.history.view');
-    Route::get('/payment-history/{id}/receipt', [StudentFeeController::class, 'showReceipt'])->name('fee.payment.receipt.view');
+    // Route::get('/payment-history/{id}/receipt', [StudentFeeController::class, 'showReceipt'])->name('fee.payment.receipt.view');
+    Route::get('/fee-transactions/{student_id}/{fee_category_id}', [StudentFeeController::class, 'viewFeeTransactions'])->name('fee.payment.transactions');
     Route::get('/pay/{student_id}', [StudentFeeController::class, 'viewStudentPayment'])->name('fees.pay.view');
     // web.php
     Route::post('/fee-payments', [StudentFeeController::class, 'storeFeePayment'])->name('feePayments.store');
     //ajax call
-    Route::get('/filter-fee-categories', [StudentFeeController::class, 'filterFeeCategories'])->name('filterFeeCategories');
+    Route::get('/filter-fee-categories', [StudentFeeController::class, 'checkStudentBalenceByFeeCategory'])->name('fee.checkStudentBalance'); //fee.checkStudentBalance
 
 
 

@@ -202,11 +202,11 @@
                                         <select id="student_type" name="student_type"
                                             class="form-control form-control-sm">
                                             <option value="">Select</option>
-                                            <option value="day-scholar"
-                                                {{ old('student_type', $student->student_type ?? '') == 'Day-Scholar' ? 'selected' : '' }}>
+                                            <option value="day"
+                                                {{ old('student_type', $student->student_type ?? '') == 'day' ? 'selected' : '' }}>
                                                 Day scholar</option>
                                             <option value="boarder"
-                                                {{ old('student_type', $student->student_type ?? '') == 'Boarder' ? 'selected' : '' }}>
+                                                {{ old('student_type', $student->student_type ?? '') == 'boarder' ? 'selected' : '' }}>
                                                 Boarder</option>
                                         </select>
                                     </div>

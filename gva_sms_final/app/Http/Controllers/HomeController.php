@@ -54,10 +54,10 @@ class HomeController extends Controller
         return view('dashboards.student');
     }
 
-    public function parentDashboard()
-    {
-        return view('dashboards.parent');
-    }
+    // public function parentDashboard()
+    // {
+    //     return view('dashboards.parent');
+    // }
 
 
 

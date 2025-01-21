@@ -180,4 +180,14 @@ class AcademicsController extends Controller
 
         return response()->json(['message' => 'Teachers assigned successfully'], 200);
     }
+
+
+
+
+    //ATTENDACE REGISTER
+    public function viewAttendanceRegister()
+    {
+        // Additional logic can be added here if necessary (e.g., fetching data)
+        return view('backend.academics.student-attendance-register');
+    }
 }

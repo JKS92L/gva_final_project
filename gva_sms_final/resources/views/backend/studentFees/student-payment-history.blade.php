@@ -29,91 +29,44 @@
     </div>
 
     <div class="container mt-4">
-
-        <!-- Fee Details Card -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">Fee Category Summary</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <!-- Left Column -->
-                    <div class="col-md-6">
-                        <p><strong>Fee Type:</strong> {{ $transaction->feeCategory->fee_type }}</p>
-                        <p><strong>Fee Interval:</strong> {{ $transaction->feeCategory->fee_interval }}</p>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="col-md-6">
-                        <p><strong>Academic Year:</strong> {{ $transaction->academicSession->academic_year ?? 'N/A' }} -
-                            Term {{ $transaction->term_no ?? 'N/A' }}</p>
-
-                        <p><strong>Amount:</strong> ZMK {{ number_format($transaction->feeCategory->amount, 2) }}</p>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <!-- Total Paid and Balance -->
-                    <div class="col-md-6">
-                        <p><strong>Total Paid:</strong>
-                            ZMK {{ number_format($transaction->feeCategory->payments->sum('amount_paid'), 2) }}
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Outstanding Balance:</strong>
-                            ZMK
-                            {{ number_format($transaction->feeCategory->amount - $transaction->feeCategory->payments->sum('amount_paid'), 2) }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
         <!-- Related Payments Section -->
         <div class="card shadow-sm">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Other Payments for {{ $transaction->feeCategory->fee_type }}</h5>
+                <h4>Fee Payment History</h4>
             </div>
             <div class="card-body">
-                @if ($relatedPayments->isEmpty())
-                    <p class="text-center text-muted">No other payments found for this fee category.</p>
-                @else
-                    <div class="d-flex justify-content-end mb-3">
-                        <button class="btn btn-primary btn-sm" id="printAll">
-                            <i class="fas fa-print"></i> Print All
-                        </button>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover text-center" id="summaryTable">
-                            <thead class="bg-light">
+
+
+                <div class="container mt-4">
+
+                    <table class="table table-sm table-bordered table-striped mt-4 table-hover" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student</th>
+                                <th>Amount Paid</th>
+                                <th>Payment Date</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($transactions as $index => $transaction)
                                 <tr>
-                                    <th>Date of Payment</th>
-                                    <th>Amount Paid (ZMK)</th>
-                                    <th>Payment Method</th>
-                                    <th>Reference No</th>
-                                    <th class="no-print">Action</th>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $transaction->student->firstname }} {{ $transaction->student->lastname }}</td> 
+                                    <td>{{ number_format($transaction->amount_paid, 2) }}</td>
+                                    <td>{{ $transaction->payment_date->format('d M Y') }}</td>
+                                    <td>{{ ucfirst($transaction->payment_method) }}</td>
+                                    <td>{{ ucfirst($transaction->payment_status) }}</td>
+                                    <td>{{ $transaction->reference_no }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($relatedPayments as $payment)
-                                    <tr>
-                                        <td>{{ $payment->payment_date->format('d M Y') }}</td>
-                                        <td>ZMK {{ number_format($payment->amount_paid, 2) }}</td>
-                                        <td>{{ $payment->payment_method }}</td>
-                                        <td>{{ $payment->reference_no ?? 'N/A' }}</td>
-                                        <td class="no-print">
-                                            <button class="btn btn-outline-primary btn-sm print-row"
-                                                data-row-id="{{ $payment->id }}" title="Print Row">
-                                                <i class="fas fa-print"></i> Print
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
@@ -122,7 +75,7 @@
         $(document).ready(function() {
 
 
-            $('#summaryTable').DataTable({
+            $('#historyTable').DataTable({
                 paging: true, // Enable pagination
                 searching: true, // Enable the search bar
                 ordering: true, // Enable column sorting

@@ -294,8 +294,8 @@ class StudentController extends Controller
                             'email' => $request->input("{$guardian}_email"),
                             'name' => $request->input("{$guardian}_name"),
                             'contact_number' => $request->input("{$guardian}_phone"),
-                            'password' => Hash::make('defaultpassword'),
-                            'role_id' => 4, // Guardian role
+                            'password' => Hash::make('gva-guardian'),
+                            'role_id' => 5, // Guardian role
                             'status' => 1,
                         ]);
 
@@ -433,7 +433,7 @@ class StudentController extends Controller
             'medical_condition' => 'nullable|string|max:1000',
             'religion' => 'nullable|string|max:100',
             'class_id' => 'required|exists:grades,id',
-            'student_type' => 'required|in:Day scholar,Boarder',
+            'student_type' => 'required|in:day,boarder',
             'student_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ])->validate();
 

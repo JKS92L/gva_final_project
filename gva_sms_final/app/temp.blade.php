@@ -3211,3 +3211,43 @@
          </table>
      </div>
  </div>
+
+
+  @if ($relatedPayments->isEmpty())
+                    <p class="text-center text-muted">No other payments found for this fee category.</p>
+                @else
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary btn-sm" id="printAll">
+                            <i class="fas fa-print"></i> Print All
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover text-center" id="summaryTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Date of Payment</th>
+                                    <th>Amount Paid (ZMK)</th>
+                                    <th>Payment Method</th>
+                                    <th>Reference No</th>
+                                    <th class="no-print">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($relatedPayments as $payment)
+                                    <tr>
+                                        <td>{{ $payment->payment_date->format('d M Y') }}</td>
+                                        <td>ZMK {{ number_format($payment->amount_paid, 2) }}</td>
+                                        <td>{{ $payment->payment_method }}</td>
+                                        <td>{{ $payment->reference_no ?? 'N/A' }}</td>
+                                        <td class="no-print">
+                                            <button class="btn btn-outline-primary btn-sm print-row"
+                                                data-row-id="{{ $payment->id }}" title="Print Row">
+                                                <i class="fas fa-print"></i> Print
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif

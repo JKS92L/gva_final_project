@@ -13,6 +13,8 @@ class FeeBalance extends Model
 
     protected $fillable = [
         'student_id',
+        'fee_category_id',
+        'fee_payment_id',
         'academic_year',
         'term',
         'total_fee',

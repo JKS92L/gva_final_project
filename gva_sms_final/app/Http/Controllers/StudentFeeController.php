@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Grade;
 use App\Models\Hostel;
 use App\Models\Student;
@@ -20,6 +21,7 @@ use App\Helpers\AcademicHelper;
 use App\Models\AcademicSession;
 use App\Models\ClassFeeAdjustment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,13 +30,35 @@ class StudentFeeController extends Controller
 {
     //
 
+    // public function viewSubmitPayments()
+    // {
+    //     $grades = Grade::all();
+    //     $academicYears = AcademicHelper::getActiveAcademicYearsWithTerms();
+    //     $hostels = Hostel::all();
+    //     $bedspaces = Bedspace::all();
+    //     $allStudents = Student::with(['grade', 'guardians', 'siblings', 'admissions.academicSession', 'admissions.term'])->get();
+
+    //     return view('backend.studentFees.fee-collection', compact('academicYears', 'grades', 'allStudents'));
+    // }
+
     public function viewSubmitPayments()
     {
         $grades = Grade::all();
         $academicYears = AcademicHelper::getActiveAcademicYearsWithTerms();
         $hostels = Hostel::all();
         $bedspaces = Bedspace::all();
-        $allStudents = Student::with(['grade', 'guardians', 'siblings', 'admissions.academicSession', 'admissions.term'])->get();
+
+        // Fetch the logged-in user
+        $user = auth()->user();
+
+        // Check the role and fetch students accordingly
+        if ($user->role_id == 1) { // Admin role
+            $allStudents = Student::with(['grade', 'guardians', 'siblings', 'admissions.academicSession', 'admissions.term'])->get();
+        } elseif ($user->role_id == 5) { // Parent role
+            $allStudents = $user->children()->with(['grade', 'guardians', 'siblings', 'admissions.academicSession', 'admissions.term'])->get();
+        } else {
+            $allStudents = collect(); // Empty collection for other roles
+        }
 
         return view('backend.studentFees.fee-collection', compact('academicYears', 'grades', 'allStudents'));
     }
@@ -95,95 +119,6 @@ class StudentFeeController extends Controller
             'latestAcademicYear' // Pass the latest academic year and term to the view
         ));
     }
-
-    // public function storeFeePayment(Request $request)
-    // {
-    //     // Validate the request data
-    //     $validatedData = $request->validate([
-    //         'student_id' => 'required|integer|exists:students,id',
-    //         'fee_category_id' => 'required|integer|exists:fee_categories,id',
-    //         'academic_year_id' => 'required|integer|exists:academicYear,id',
-    //         'term_no' => 'required|integer|min:1|max:3',
-    //         'amount_paid' => 'required|numeric|min:0.01',
-    //         'payment_date' => 'required|date',
-    //         'payment_method' => 'required|string|in:Cash,Bank Transfer,Mobile Money',
-    //         'reference_no' => 'nullable|string|max:255',
-    //         'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-    //     ]);
-
-    //     // Handle file upload if attachment is provided
-    //     $attachmentPath = null;
-    //     if ($request->hasFile('attachment')) {
-    //         $attachmentPath = $request->file('attachment')->store('payments', 'public');
-    //     }
-
-    //     // Determine the payment status based on the logged-in user's role
-    //     $paymentStatus = auth()->user()->role_id === 1 ? 'approved' : 'pending';
-
-    //     // Start a database transaction
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // Insert payment record into the `fee_payments` table
-    //         $payment = FeePayment::create([
-    //             'student_id' => $validatedData['student_id'],
-    //             'fee_category_id' => $validatedData['fee_category_id'],
-    //             'term_no' => $validatedData['term_no'],
-    //             'academic_year_id' => $validatedData['academic_year_id'],
-    //             'amount_paid' => $validatedData['amount_paid'],
-    //             'payment_date' => $validatedData['payment_date'],
-    //             'payment_method' => $validatedData['payment_method'],
-    //             'reference_no' => $validatedData['reference_no'] ?? null,
-    //             'attachment_url' => $attachmentPath,
-    //             'attachment_title' => $request->file('attachment') ? $request->file('attachment')->getClientOriginalName() : null,
-    //             'payment_status' => $paymentStatus, // Set the determined payment status
-    //             'actioned_by' => auth()->id(),
-    //             'actioned_date' => now(),
-    //             'action_comment' => 'Payment recorded successfully by Grandview Accounts Office',
-    //         ]);
-
-    //         // Fetch the total fee amount from the `fee_categories` table
-    //         $totalFee = FeeCatergories::where('id', $validatedData['fee_category_id'])->value('amount') ?? 0;
-
-    //         // Update the fee balance for the student in the `fee_balances` table
-    //         $feeBalance = FeeBalance::firstOrNew([
-    //             'student_id' => $validatedData['student_id'],
-    //             'academic_year' => $validatedData['academic_year_id'],
-    //             'term' => $validatedData['term_no'],
-    //         ]);
-
-    //         $feeBalance->total_fee = $feeBalance->total_fee ?? $totalFee; // Set total_fee only if it's not already set
-    //         $feeBalance->amount_paid += $validatedData['amount_paid']; // Increment the amount_paid
-    //         $feeBalance->save();
-
-    //         // Record a transaction in the `fee_transactions` table
-    //         FeeTransaction::create([
-    //             'payment_id' => $payment->id,
-    //             'transaction_date' => $validatedData['payment_date'],
-    //             'amount' => $validatedData['amount_paid'],
-    //             'transaction_type' => 'payment', // Indicates a payment
-    //             'remarks' => 'Payment recorded via ' . $validatedData['payment_method'],
-    //         ]);
-
-    //         // Commit the transaction
-    //         DB::commit();
-
-    //         return redirect()->back()->with('success', 'Payment submitted and records updated successfully!');
-    //     } catch (\Exception $e) {
-    //         // Rollback the transaction in case of an error
-    //         DB::rollBack();
-
-    //         return redirect()->back()->withErrors('Failed to process payment: ' . $e->getMessage());
-    //     }
-    // }
-
-
-
-
-
-
-    //view history
-
 
     public function storeFeePayment(Request $request)
     {
@@ -248,6 +183,71 @@ class StudentFeeController extends Controller
         }
     }
 
+    public function approveFeePayment(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'payment_id' => 'required|exists:fee_payments,id',
+            'action_comment' => 'nullable|string|max:255',
+        ]);
+
+        // Fetch the payment record
+        $feePayment = FeePayment::find($validated['payment_id']);
+
+        if (!$feePayment) {
+            return redirect()->back()->withErrors(['error' => 'Payment record not found.']);
+        }
+
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Log starting the approval process
+            Log::info('Starting payment approval for Payment ID: ' . $validated['payment_id']);
+
+            // Update the payment status
+            $feePayment->update([
+                'payment_status' => 'approved',
+                'actioned_date' => now(),
+                'actioned_by' => auth()->id(),
+                'action_comment' => $validated['action_comment'] ?? null,
+            ]);
+
+            // Log update success
+            Log::info('Payment approved successfully.');
+
+            // Update fee balance and transaction
+            $this->updateFeeBalanceAndTransaction($feePayment);
+
+            DB::commit();
+
+            Log::info('Transaction committed successfully.');
+            return redirect()->back()->with('success', 'Payment approved successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error approving payment: ' . $e->getMessage());
+            return redirect()->back()->withErrors('Failed to approve payment: ' . $e->getMessage());
+        }
+    }
+
+    public function rejectFeePayment(Request $request)
+    {
+        $request->validate([
+            'payment_id' => 'required|exists:fee_payments,id',
+            'reject_comment' => 'nullable|string|max:255',
+        ]);
+
+        $payment = FeePayment::findOrFail($request->payment_id);
+        $payment->update([
+            'payment_status' => 'rejected',
+            'actioned_by' => auth()->id(),
+            'actioned_date' => now(),
+            'action_comment' => $request->reject_comment,
+        ]);
+
+        return redirect()->back()->with('success', 'Fee payment has been rejected successfully.');
+    }
+
     //UPDATE STUDENT FEE HELPER FUNCTION FOR APPROVE PAYMENT AND STOREFEE PAYMENT
     private function updateFeeBalanceAndTransaction(FeePayment $payment, array $validatedData = [])
     {
@@ -258,11 +258,18 @@ class StudentFeeController extends Controller
         $feeBalance = FeeBalance::firstOrNew([
             'student_id' => $payment->student_id,
             'academic_year' => $payment->academic_year_id,
+            'fee_category_id' => $payment->fee_category_id,
             'term' => $payment->term_no,
         ]);
 
+        // Ensure the `payment_id` is set
+        $feeBalance->payment_id = $payment->id;
+
+        // Update other attributes
         $feeBalance->total_fee = $feeBalance->total_fee ?? $totalFee;
         $feeBalance->amount_paid += $payment->amount_paid;
+
+        // Save the record
         $feeBalance->save();
 
         // Record a transaction in the `fee_transactions` table
@@ -280,68 +287,277 @@ class StudentFeeController extends Controller
 
 
 
-    public function showReceipt($id)
-    {
-        // Fetch the transaction along with its related data
-        $transaction = FeePayment::with(['student', 'feeCategory', 'academicSession'])->findOrFail($id);
 
-        // Fetch all payments made by the same student for the same fee category
-        $relatedPayments = FeePayment::where('student_id', $transaction->student_id)
-            ->where('fee_category_id', $transaction->fee_category_id)
-            ->where('id', '!=', $transaction->id) // Exclude the current transaction
+    // public function showReceipt($id)
+    // {
+    //     // Fetch the transaction along with its related data
+    //     $transaction = FeePayment::with(['student', 'feeCategory', 'academicSession'])->findOrFail($id);
+
+    //     // Fetch all payments made by the same student for the same fee category
+    //     $relatedPayments = FeePayment::where('student_id', $transaction->student_id)
+    //         ->where('fee_category_id', $transaction->fee_category_id)
+    //         ->where('id', '!=', $transaction->id) // Exclude the current transaction
+    //         ->get();
+
+    //     // Return the view with the transaction details and related payments
+    //     return view('backend.studentFees.student-payment-history', compact('transaction', 'relatedPayments'));
+    // }
+
+    public function viewFeeTransactions($student_id, $fee_category_id)
+    {
+        // Fetch the fee category details
+        $feeCategory = FeeCatergories::find($fee_category_id);
+
+        if (!$feeCategory) {
+            abort(404, 'Fee category not found.');
+        }
+
+        // Fetch the student to validate the ID and relationship
+        $student = Student::find($student_id);
+
+        if (!$student) {
+            abort(404, 'Student not found.');
+        }
+
+        // Fetch transactions for the specific student and fee category
+        $transactions = FeePayment::with(['student'])
+            ->where('fee_category_id', $fee_category_id)
+            ->where(
+                'student_id',
+                $student_id
+            )
+            ->orderBy('payment_date', 'desc')
             ->get();
 
-        // Return the view with the transaction details and related payments
-        return view('backend.studentFees.student-payment-history', compact('transaction', 'relatedPayments'));
+        // Calculate the total amount and balances
+        $totalPaid = $transactions->sum('amount_paid');
+        $balanceDue = $feeCategory->amount - $totalPaid;
+
+        return view(
+            'backend.studentFees.student-payment-history',
+            compact('feeCategory', 'transactions', 'totalPaid', 'balanceDue', 'student')
+        );
     }
 
+
+
     // ajax call 
-    public function filterFeeCategories(Request $request)
+
+    // public function checkStudentBalenceByFeeCategory(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'academic_year_id' => 'required|integer',
+    //         'term_no' => 'required|integer',
+    //         'fee_category_id' => 'required|integer',
+    //         'student_id' => 'required|integer|exists:students,id',
+    //     ]);
+
+    //     $academicYearId = $validated['academic_year_id'];
+    //     $termNo = $validated['term_no'];
+    //     $feeCategoryId = $validated['fee_category_id'];
+    //     $studentId = $validated['student_id'];
+
+    //     // Fetch the fee category details
+    //     $feeCategory = FeeCatergories::find($feeCategoryId);
+    //     if (!$feeCategory) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Invalid fee category ID.',
+    //         ], 404);
+    //     }
+
+    //     // Fetch the total fee for the student
+    //     $totalFee = $feeCategory->amount;
+
+    //     // Fetch all payment records for the student
+    //     $feePayments = FeePayment::query()
+    //         ->where('student_id', $studentId)
+    //         ->where('academic_year_id', $academicYearId)
+    //         ->where('term_no', $termNo)
+    //         ->where('fee_category_id', $feeCategoryId)
+    //         ->get();
+
+    //     if ($feePayments->isEmpty()) {
+    //         // If no payment records exist, return the basic details
+    //         $amountPaid = 0;
+    //         $balanceDue = $totalFee;
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => [
+    //                 'fee_category' => $feeCategory->fee_type,
+    //                 'fee_interval' => $termNo,
+    //                 'total_fee' => $totalFee,
+    //                 'amount_paid' => $amountPaid,
+    //                 'balance_due' => $balanceDue,
+    //                 'payment_status' => $balanceDue > 0 ? 'Pending' : 'Cleared',
+    //             ],
+    //         ]);
+    //     }
+
+    //     // If payment records exist, calculate based on status
+    //     $approvedPayments = $feePayments->filter(function ($payment) {
+    //         return $payment->payment_status === 'approved';
+    //     });
+
+    //     if ($approvedPayments->isNotEmpty()) {
+    //         // Use FeeTransaction and FeeBalance to calculate balances for approved payments
+    //         $totalAmountPaid = FeeTransaction::query()
+    //             ->whereIn('payment_id', $approvedPayments->pluck('id'))
+    //             ->sum('amount');
+
+    //         $latestBalance = FeeBalance::query()
+    //             ->where('student_id', $studentId)
+    //             ->where('academic_year', $academicYearId)
+    //             ->where('term', $termNo)
+    //             ->where('fee_category_id', $feeCategoryId)
+    //             ->latest('created_at')
+    //             ->first();
+
+    //         $balanceDue = $latestBalance ? $latestBalance->balance_due : $totalFee - $totalAmountPaid;
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => [
+    //                 'fee_category' => $feeCategory->fee_type,
+    //                 'fee_interval' => $termNo,
+    //                 'total_fee' => $totalFee,
+    //                 'amount_paid' => $totalAmountPaid,
+    //                 'balance_due' => $balanceDue,
+    //                 'payment_status' => $balanceDue > 0 ? 'Pending' : 'Cleared',
+    //             ],
+    //         ]);
+    //     } else {
+    //         // If no approved payments exist, calculate based on pending payments
+    //         $amountPaid = $feePayments->sum('amount_paid');
+    //         $balanceDue = $totalFee - $amountPaid;
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => [
+    //                 'fee_category' => $feeCategory->fee_type,
+    //                 'fee_interval' => $termNo,
+    //                 'total_fee' => $totalFee,
+    //                 'amount_paid' => $amountPaid,
+    //                 'balance_due' => $balanceDue,
+    //                 'payment_status' => 'Pending',
+    //             ],
+    //         ]);
+    //     }
+    // }
+    public function checkStudentBalenceByFeeCategory(Request $request)
     {
-        $request->validate([
-            'academic_year_id' => 'required|integer|exists:academicYear,id',
-            'term_no' => 'required|integer|min:1|max:3',
-            'fee_category_id' => 'nullable|integer|exists:fee_categories,id',
+        $validated = $request->validate([
+            'academic_year_id' => 'required|integer',
+            'term_no' => 'required|integer',
+            'fee_category_id' => 'required|integer',
             'student_id' => 'required|integer|exists:students,id',
         ]);
 
-        // Query Fee Categories
-        $query = FeeCatergories::with(['students' => function ($query) use ($request) {
-            $query->where('student_id', $request->student_id);
-        }, 'payments' => function ($query) use ($request) {
-            $query->where('academic_year_id', $request->academic_year_id)
-                ->where('term_no', $request->term_no);
-        }]);
+        $academicYearId = $validated['academic_year_id'];
+        $termNo = $validated['term_no'];
+        $feeCategoryId = $validated['fee_category_id'];
+        $studentId = $validated['student_id'];
 
-        if ($request->fee_category_id) {
-            $query->where('id', $request->fee_category_id);
+        // Fetch the fee category details
+        $feeCategory = FeeCatergories::find($feeCategoryId);
+        if (!$feeCategory) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid fee category ID.',
+            ], 404);
         }
 
-        $feeCategories = $query->get()->map(function ($category) {
-            $totalPaid = $category->payments->sum('amount_paid');
-            $balance = $category->amount - $totalPaid;
+        // Fetch the fee interval (e.g., termly, monthly) and total fee
+        $feeInterval = $feeCategory->fee_interval;
+        $totalFee = $feeCategory->amount;
 
-            $recentTransaction = $category->payments->sortByDesc('payment_date')->first();
+        // Fetch all payment records for the student
+        $feePayments = FeePayment::query()
+            ->where('student_id', $studentId)
+            ->where('academic_year_id', $academicYearId)
+            ->where('term_no', $termNo)
+            ->where('fee_category_id', $feeCategoryId)
+            ->get();
 
-            return [
-                'fee_type' => $category->fee_type,
-                'fee_interval' => $category->fee_interval,
-                'amount' => $category->amount,
-                'total_paid' => $totalPaid,
-                'balance' => $balance,
-                'recent_transaction' => $recentTransaction ? [
-                    'amount_paid' => $recentTransaction->amount_paid,
-                    'payment_date' => $recentTransaction->payment_date->toDateString(),
-                    'payment_status' => $recentTransaction->payment_status,
-                    'id' => $recentTransaction->id,
-                ] : null,
-                'status' => $totalPaid == 0 ? 'Not Yet Paid' : ($balance > 0 ? 'Partial' : 'Paid'),
-                'status_class' => $totalPaid == 0 ? 'bg-danger' : ($balance > 0 ? 'bg-warning' : 'bg-success'),
-            ];
+        if ($feePayments->isEmpty()) {
+            // If no payment records exist, return the basic details
+            $amountPaid = 0;
+            $balanceDue = $totalFee;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'fee_category' => $feeCategory->fee_type,
+                    'fee_interval' => $feeInterval, // Dynamically fetched
+                    'total_fee' => $totalFee,
+                    'amount_paid' => $amountPaid,
+                    'balance_due' => $balanceDue,
+                    'payment_status' => $balanceDue > 0 ? 'Pending' : 'Cleared',
+                ],
+            ]);
+        }
+
+        // If payment records exist, calculate based on status
+        $approvedPayments = $feePayments->filter(function ($payment) {
+            return $payment->payment_status === 'approved';
         });
 
-        return response()->json(['data' => $feeCategories]);
+        if ($approvedPayments->isNotEmpty()) {
+            // Use FeeTransaction and FeeBalance to calculate balances for approved payments
+            $totalAmountPaid = FeeTransaction::query()
+                ->whereIn('payment_id', $approvedPayments->pluck('id'))
+                ->sum('amount');
+
+            $latestBalance = FeeBalance::query()
+                ->where('student_id', $studentId)
+                ->where('academic_year', $academicYearId)
+                ->where('term', $termNo)
+                ->where('fee_category_id', $feeCategoryId)
+                ->latest('created_at')
+                ->first();
+
+            $balanceDue = $latestBalance ? $latestBalance->balance_due : $totalFee - $totalAmountPaid;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'fee_category' => $feeCategory->fee_type,
+                    'fee_interval' => $feeInterval, // Dynamically fetched
+                    'total_fee' => $totalFee,
+                    'amount_paid' => $totalAmountPaid,
+                    'balance_due' => $balanceDue,
+                    'payment_status' => $balanceDue > 0 ? 'Pending' : 'Cleared',
+                ],
+            ]);
+        } else {
+            // If no approved payments exist, calculate based on pending payments
+            $amountPaid = $feePayments->sum('amount_paid');
+            $balanceDue = $totalFee - $amountPaid;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'fee_category' => $feeCategory->fee_type,
+                    'fee_interval' => $feeInterval, // Dynamically fetched
+                    'total_fee' => $totalFee,
+                    'amount_paid' => $amountPaid,
+                    'balance_due' => $balanceDue,
+                    'payment_status' => 'Pending',
+                ],
+            ]);
+        }
     }
+
+
+
+
+
+
+
+
+
+
 
     //FEE STRUCTURE METHODS 
     public function viewFeeStructures()
@@ -835,67 +1051,7 @@ class StudentFeeController extends Controller
 
 
 
-    public function approveFeePayment(Request $request)
-    {
-        // Validate the request
-        $validated = $request->validate([
-            'payment_id' => 'required|exists:fee_payments,id',
-            'action_comment' => 'nullable|string|max:255',
-        ]);
 
-        // Fetch the payment record
-        $feePayment = FeePayment::find($validated['payment_id']);
-
-        if (!$feePayment) {
-            return redirect()->back()->withErrors(['error' => 'Payment record not found.']);
-        }
-
-        // Start a database transaction
-        DB::beginTransaction();
-
-        try {
-            // Update the payment status and other fields
-            $feePayment->update([
-                'payment_status' => 'approved',
-                'actioned_date' => now(),
-                'actioned_by' => auth()->id(),
-                'action_comment' => $validated['action_comment'] ?? null,
-            ]);
-
-            // Update fee balance and transaction records
-            $this->updateFeeBalanceAndTransaction($feePayment);
-
-            // Commit the transaction
-            DB::commit();
-
-            return redirect()->back()->with('success', 'Payment approved successfully!');
-        } catch (\Exception $e) {
-            // Rollback the transaction in case of an error
-            DB::rollBack();
-
-            return redirect()->back()->withErrors('Failed to approve payment: ' . $e->getMessage());
-        }
-    }
-
-
-
-    public function rejectFeePayment(Request $request)
-    {
-        $request->validate([
-            'payment_id' => 'required|exists:fee_payments,id',
-            'reject_comment' => 'nullable|string|max:255',
-        ]);
-
-        $payment = FeePayment::findOrFail($request->payment_id);
-        $payment->update([
-            'payment_status' => 'rejected',
-            'actioned_by' => auth()->id(),
-            'actioned_date' => now(),
-            'action_comment' => $request->reject_comment,
-        ]);
-
-        return redirect()->back()->with('success', 'Fee payment has been rejected successfully.');
-    }
 
     //ajax call 
     public function fetchOutstandingBalances(Request $request)

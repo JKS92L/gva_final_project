@@ -188,7 +188,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="attachment" class="small">Upload Attachment (Required)</label>
-                                        <input type="file" name="attachment" class="form-control form-control-sm" required>
+                                        <input type="file" name="attachment" class="form-control form-control-sm"
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -230,6 +231,7 @@
                                 <th>#</th>
                                 <th>Fee Description</th>
                                 <th>Amount</th>
+                                <th>action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -239,6 +241,13 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $fee->feeCategory->fee_type }}</td>
                                     <td>{{ number_format($fee->feeCategory->amount, 2) }}</td>
+                                    <td>
+                                        <a href="{{ route('fee.payment.transactions', ['student_id' => $student->id, 'fee_category_id' => $fee->feeCategory->id]) }}"
+                                            class="btn btn-info btn-sm">
+                                            View Transactions
+                                        </a>
+
+                                    </td>
                                 </tr>
                             @endforeach
 
@@ -258,6 +267,7 @@
                                     </td>
                                     <td>{{ ucfirst($adjustment->adjustment_type) }} Adjustment - {{ $adjustment->reason }}
                                     </td>
+
                                     <td>
                                         @if ($adjustment->adjustment_type === 'waiver')
                                             <span
@@ -267,6 +277,7 @@
                                                 class="badge badge-danger">+{{ number_format($adjustment->amount, 2) }}</span>
                                         @endif
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>
@@ -314,6 +325,8 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <input type="hidden" class="hidden" value="{{ $student->id }}" name="student_id"
+                                id="student_id">
 
                             <!-- Term -->
                             <div class="col-md-4">
@@ -363,7 +376,6 @@
                                 <th>Paid (ZMK)</th>
                                 <th>Outstanding Balance (ZMK)</th>
                                 <th>Approval Status</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="pupils_data_body">
@@ -382,98 +394,180 @@
 
             //search for fees 
             // Trigger filter button click
+            // $('#filterButton').click(function() {
+            //     const academicYearId = $('#filter_academic_year').val();
+            //       const student_id = $('#student_id').val();
+            //     const termNo = $('#filter_term').val();
+            //     const feeCategoryId = $('#filter_fee_category').val();
+
+            //     // Validate inputs
+            //     if (!academicYearId || !termNo) {
+            //         alert('Please select both Academic Year and Term.');
+            //         return;
+            //     }
+
+            //     // Fetch filtered data via AJAX
+            //     $.ajax({
+            //         url: '{{ route('fee.checkStudentBalance') }}',
+            //         type: 'GET',
+            //         data: {
+            //             academic_year_id: academicYearId,
+            //             term_no: termNo,
+            //             fee_category_id: feeCategoryId,
+            //             student_id: '{{ $student->id }}',
+            //         },
+            //         success: function(response) {
+            //             console.log(response);
+            //             // Clear the table body
+            //             $('#pupils_data_body').empty();
+
+            //             // Populate the table with the filtered data
+            //             if (response.data.length > 0) {
+            //                 response.data.forEach(function(feeCategory) {
+            //                     const amount = parseFloat(feeCategory.amount) || 0;
+            //                     const totalPaid = parseFloat(feeCategory.total_paid) ||
+            //                         0;
+            //                     const balance = parseFloat(feeCategory.balance) || 0;
+
+            //                     const recentTransaction = feeCategory
+            //                         .recent_transaction ?
+            //                         `ZMK ${feeCategory.recent_transaction.amount_paid.toFixed(2)} on ${feeCategory.recent_transaction.payment_date}` :
+            //                         'No Recent Transaction';
+
+            //                     const paymentStatus = feeCategory.recent_transaction
+            //                         ?.payment_status ?? 'N/A';
+
+            //                     // Dynamic badge class based on payment status
+            //                     const badgeClass = paymentStatus === 'approved' ?
+            //                         'badge bg-success' :
+            //                         paymentStatus === 'rejected' ?
+            //                         'badge bg-danger' :
+            //                         paymentStatus === 'pending' ?
+            //                         'badge bg-warning' :
+            //                         'badge bg-secondary';
+
+            //                     const paymentHistoryId = feeCategory.recent_transaction
+            //                         ?.id ?? '';
+
+            //                     // Determine if the "View Transactions" button or "No Payment Record" badge should be displayed
+            //                     const transactionAction = paymentHistoryId ?
+            //                         `<button class="btn btn-info btn-sm payment-history" 
+        //                 data-id="${paymentHistoryId}" 
+        //                 onclick="window.location.href='/fees/payment-history/' + ${paymentHistoryId} + '/receipt'">
+        //                 View Transactions
+        //             </button>` :
+            //                         `<span class="badge bg-secondary">No Payment Record</span>`;
+
+            //                     // Append the row to the table
+            //                     $('#pupils_data_body').append(`
+        //             <tr>
+        //                 <td>${feeCategory.fee_type ?? 'N/A'}</td>
+        //                 <td>${feeCategory.fee_interval ?? 'N/A'}</td>
+        //                 <td><span class="badge ${feeCategory.status_class}">${feeCategory.status}</span></td>
+        //                 <td>ZMK ${amount.toFixed(2)}</td>
+        //                 <td>ZMK ${totalPaid.toFixed(2)}</td>
+        //                 <td>ZMK ${balance.toFixed(2)}</td>
+        //                 <td><span class="${badgeClass}">${paymentStatus}</span></td>
+        //                 <td>${transactionAction}</td>
+        //             </tr>
+        //         `);
+            //                 });
+            //             } else {
+            //                 $('#pupils_data_body').append(`
+        //         <tr>
+        //             <td colspan="9" class="text-center">No fee data available.</td>
+        //         </tr>
+        //     `);
+            //             }
+            //         },
+            //         error: function(xhr) {
+            //             console.error(xhr.responseText);
+            //             alert('An error occurred while fetching data.');
+            //         }
+            //     });
+            // });
+
+
+
             $('#filterButton').click(function() {
                 const academicYearId = $('#filter_academic_year').val();
                 const termNo = $('#filter_term').val();
                 const feeCategoryId = $('#filter_fee_category').val();
+                const studentId = $('#student_id').val();
 
                 // Validate inputs
-                if (!academicYearId || !termNo) {
-                    alert('Please select both Academic Year and Term.');
+                if (!academicYearId || !termNo || !studentId || !feeCategoryId) {
+                    alert('Please select all required fields.');
                     return;
                 }
 
                 // Fetch filtered data via AJAX
                 $.ajax({
-                    url: '{{ route('filterFeeCategories') }}',
+                    url: '{{ route('fee.checkStudentBalance') }}', // Replace with your route
                     type: 'GET',
                     data: {
                         academic_year_id: academicYearId,
                         term_no: termNo,
                         fee_category_id: feeCategoryId,
-                        student_id: '{{ $student->id }}',
+                        student_id: studentId,
                     },
+
                     success: function(response) {
                         console.log(response);
-                        // Clear the table body
-                        $('#pupils_data_body').empty();
+                        if (response.success) {
+                            // Clear the table body
+                            const tbody = $('#pupils_data_body');
+                            tbody.empty();
 
-                        // Populate the table with the filtered data
-                        if (response.data.length > 0) {
-                            response.data.forEach(function(feeCategory) {
-                                const amount = parseFloat(feeCategory.amount) || 0;
-                                const totalPaid = parseFloat(feeCategory.total_paid) ||
-                                    0;
-                                const balance = parseFloat(feeCategory.balance) || 0;
+                            // Extract the data
+                            const data = response.data;
 
-                                const recentTransaction = feeCategory
-                                    .recent_transaction ?
-                                    `ZMK ${feeCategory.recent_transaction.amount_paid.toFixed(2)} on ${feeCategory.recent_transaction.payment_date}` :
-                                    'No Recent Transaction';
+                            // Convert to numbers where necessary
+                            const totalFee = parseFloat(data.total_fee) || 0;
+                            const amountPaid = parseFloat(data.amount_paid) || 0;
+                            const balanceDue = parseFloat(data.balance_due) || 0;
 
-                                const paymentStatus = feeCategory.recent_transaction
-                                    ?.payment_status ?? 'N/A';
+                            // Determine the badge class for payment status
+                            const badgeClass =
+                                data.payment_status === 'approved' ?
+                                'badge bg-success' :
+                                data.payment_status === 'rejected' ?
+                                'badge bg-danger' :
+                                data.payment_status === 'pending' ?
+                                'badge bg-warning' :
+                                'badge bg-secondary';
 
-                                // Dynamic badge class based on payment status
-                                const badgeClass = paymentStatus === 'approved' ?
-                                    'badge bg-success' :
-                                    paymentStatus === 'rejected' ?
-                                    'badge bg-danger' :
-                                    paymentStatus === 'pending' ?
-                                    'badge bg-warning' :
-                                    'badge bg-secondary';
+                            // Check if there is a recent transaction ID
+                            const paymentHistoryId = data.amountPaid?.id || '';
 
-                                const paymentHistoryId = feeCategory.recent_transaction
-                                    ?.id ?? '';
+                            
+                            // Append the row to the table
+                            const row = `
+                                            <tr>
+                                                <td>${data.fee_category ?? 'N/A'}</td>
+                                                <td>${data.fee_interval ?? 'N/A'}</td>
+                                                <td><span class="${badgeClass}">${data.payment_status}</span></td>
+                                                <td>ZMK ${totalFee.toFixed(2)}</td>
+                                                <td>ZMK ${amountPaid.toFixed(2)}</td>
+                                                <td>ZMK ${balanceDue.toFixed(2)}</td>
+                                                <td><span class="${badgeClass}">${data.payment_status}</span></td>
+                                            </tr>
+                                        `;
 
-                                // Determine if the "View Transactions" button or "No Payment Record" badge should be displayed
-                                const transactionAction = paymentHistoryId ?
-                                    `<button class="btn btn-info btn-sm payment-history" 
-                            data-id="${paymentHistoryId}" 
-                            onclick="window.location.href='/fees/payment-history/' + ${paymentHistoryId} + '/receipt'">
-                            View Transactions
-                        </button>` :
-                                    `<span class="badge bg-secondary">No Payment Record</span>`;
-
-                                // Append the row to the table
-                                $('#pupils_data_body').append(`
-                        <tr>
-                            <td>${feeCategory.fee_type ?? 'N/A'}</td>
-                            <td>${feeCategory.fee_interval ?? 'N/A'}</td>
-                            <td><span class="badge ${feeCategory.status_class}">${feeCategory.status}</span></td>
-                            <td>ZMK ${amount.toFixed(2)}</td>
-                            <td>ZMK ${totalPaid.toFixed(2)}</td>
-                            <td>ZMK ${balance.toFixed(2)}</td>
-                            <td><span class="${badgeClass}">${paymentStatus}</span></td>
-                            <td>${transactionAction}</td>
-                        </tr>
-                    `);
-                            });
+                            tbody.append(row);
                         } else {
-                            $('#pupils_data_body').append(`
-                    <tr>
-                        <td colspan="9" class="text-center">No fee data available.</td>
-                    </tr>
-                `);
+                            alert(response.message || 'Error fetching data.');
                         }
                     },
+
+
+
+
                     error: function(xhr) {
-                        console.error(xhr.responseText);
                         alert('An error occurred while fetching data.');
-                    }
+                    },
                 });
             });
-
 
 
         });

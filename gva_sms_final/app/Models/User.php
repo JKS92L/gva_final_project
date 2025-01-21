@@ -73,6 +73,7 @@ class User extends Authenticatable
         );
     }
 
+
     public function hasPermission($permission)
     {
         return DB::table('user_roles_permissions')

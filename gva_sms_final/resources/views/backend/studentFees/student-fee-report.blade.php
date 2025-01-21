@@ -14,6 +14,17 @@
 
     <!-- Main Content -->
     <div class="container-fluid mt-3 shadow-lg">
+          @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
         <!-- Summary Widgets -->
         <div class="row mb-4">
             <div class="col-lg-3 col-6">
@@ -385,9 +396,11 @@
 
         </div>
     </div>
+   
     <script>
         //   $('.manageFeePaymentRequestTable').DataTable();
         $(document).ready(function() {
+            
           
             $('#filterButton').on('click', function() {
                 const academicYearId = $('#filter_academic_year').val();
